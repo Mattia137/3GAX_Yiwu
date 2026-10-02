@@ -43,6 +43,7 @@
     platform:{title:'Platform city',kicker:'04 / EXCHANGE AS INFRASTRUCTURE',thesis:'Yiwu repeatedly formalizes informal exchange—from itinerant trade to market hall, logistics network and digital platform.',parent:'root'},
     cityAssembly:{title:'City assembly / layering / authorship',kicker:'05 / FORM WITHOUT ONE AUTHOR',thesis:'Yiwu is assembled through standardized hosts and thousands of local decisions; repetition makes distributed authorship visible.',parent:'root'},
     atlasPage:{title:'Urban fabric atlas',kicker:'06 / FIELD → PATTERN GRAMMAR',thesis:'Nine Yiwu fabric families expose repeatable rules; thirty isolated footprints reveal the building types and size families that produce them.',parent:'root'},
+    assemblyInstr:{title:'Assembly instructions',kicker:'02a / ASSEMBLY WORKFLOW',thesis:'',parent:'root'},
     skinStudy:{title:'Skin study',kicker:'07 / ENVELOPE FROM MASSING',thesis:'',parent:'root'},
     formFinding:{title:'Form-finding process',kicker:'07 / TRACEABLE SELECTION',thesis:'Evidence is encoded, rules generate variants, known limits filter them, and authored judgment selects a meaningful family.',parent:null},
     collision:{title:'System collision',kicker:'08 / STANDARD × ADAPTATION',thesis:'The project locates architecture at the interface between fixed standards and changing actors, schedules and states.',parent:null},
@@ -56,6 +57,8 @@
     programNeeds:{file:'pages/dev_program.html',title:'Program',kicker:'01 / DEVELOPMENT PROGRAMME'},
     site:{file:'pages/figure_ground.html',title:'Site analysis',kicker:'03 / FIGURE–GROUND'},
     platform:{file:'pages/circuit_board.html',title:'Platform city',kicker:'04 / CITY AS CIRCUIT BOARD'},
+    assembly:{file:'assembly_system/index.html',title:'Assembly system',kicker:'02 / ELEVATION GROWTH LAB'},
+    assemblyInstr:{file:'pages/assembly_workflow.html',title:'Assembly instructions',kicker:'02a / ASSEMBLY WORKFLOW'},
     skinStudy:{file:'pages/skin_lab.html',title:'Skin study',kicker:'07 / SKIN LAB'},
     cityAssembly:{file:'pages/urban_fabric_atlas.html',title:'City assembly / layering / authorship',kicker:'05 / URBAN FABRIC ATLAS'}
   };
@@ -82,6 +85,8 @@
     {id:'brand',x:580,y:830,t:'Branding / system req.',i:'',ins:['circulation model'],outs:['not yet established'],empty:true},
     {id:'atlas',x:850,y:800,t:'Atlas',i:'06',ins:['figure–ground fabric'],outs:['9 fabric families','30 footprints'],target:'atlasPage'},
     {id:'assembly',x:1120,y:250,t:'Assembly system',i:'02',ins:['programme genome','host + actor rules','fabric grammar'],outs:['massing'],target:'assembly'},
+    {id:'asmInstr',x:1120,y:105,t:'Assembly instructions',i:'02a',ins:[],outs:['assembly process explained'],target:'assemblyInstr'},
+    {id:'carveInstr',x:1120,y:790,t:'Carving instructions',i:'07a',ins:[],outs:['carving process explained'],empty:true},
     {id:'skinStudy',x:1120,y:560,t:'Skin study',i:'07',ins:['massing','envelope rules'],outs:['envelope on massing','facade system'],target:'skinStudy'},
     {id:'model',x:1390,y:390,t:'Project model',i:'12',ins:['massing','envelope + facade'],outs:['structure','program','circulation','skin']},
     {id:'structure',x:1660,y:300,t:'Structure',i:'',ins:[],outs:['not yet established'],empty:true},
@@ -89,7 +94,7 @@
     {id:'circ',x:1660,y:550,t:'Circulation',i:'10',ins:[],outs:['route as form'],target:'circulation'},
     {id:'skin',x:1660,y:675,t:'Skin',i:'11',ins:[],outs:['frame → saturation'],target:'skin'}
   ];
-  const WIRES=[['brief','needs','P'],['needs','assembly','P'],['site','platform','R'],['platform','needs','R'],['platform','cityAsm','R'],['site','cityAsm','R',785],['cityAsm','assembly','R'],['atlas','assembly','R'],['platform','brand','G'],['assembly','skinStudy','K',510],['assembly','model','K'],['skinStudy','model','K'],['model','structure','G'],['model','program','K'],['model','circ','K'],['model','skin','K']];
+  const WIRES=[['brief','needs','P'],['needs','assembly','P'],['site','platform','R'],['platform','needs','R'],['platform','cityAsm','R'],['site','cityAsm','R',785],['cityAsm','assembly','R'],['atlas','assembly','R'],['platform','brand','G'],['assembly','skinStudy','K',510],['asmInstr','assembly','K',232],['carveInstr','skinStudy','K',770],['assembly','model','K'],['skinStudy','model','K'],['model','structure','G'],['model','program','K'],['model','circ','K'],['model','skin','K']];
   const CW=230,LH=19;
   function cardLayout(n){const blk=k=>k?26+k*LH+8:0,hb=48,bi=blk(n.ins.length),bo=blk(n.outs.length),gap=bi?6:0;n.w=CW;n.h=hb+bi+gap+bo+8;n.iy=bi?n.y+hb+bi/2:n.y+hb/2-2;n.oy=n.y+hb+bi+gap+bo/2;n.bi=bi;n.bo=bo;return n}
   function cardIcon(g,n){if(n.empty){E('circle',{cx:22,cy:25,r:6,class:'c-ico','stroke-dasharray':'2 2'},g);return}if(PAGES[n.target]){E('path',{d:'M16 17h9l4 4v12H16z M25 17v4h4',class:'c-ico'},g);return}[[16,18],[24,18],[16,26],[24,26]].forEach(q=>E('rect',{x:q[0],y:q[1],width:5.5,height:5.5,class:'c-ico'},g))}
