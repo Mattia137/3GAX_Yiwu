@@ -1,0 +1,532 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#f3f3f1;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Yiwu Skin Lab</title>
+<link rel="stylesheet" href="../assets/css/yiwu.css">
+<style>
+/* Layout: drafting table — shape catalog left, the drawing in the middle, the process + numbers right. Ink on paper. */
+:root{
+  --paper:var(--y-bg); --sheet:var(--y-card); --ink:var(--y-ink); --mute:var(--y-quiet); --rule:var(--y-hair); --void:var(--y-card); --sel:var(--y-ink); --tint:var(--y-row);
+  --display:var(--y-font); --mono:var(--y-mono);
+}
+html,body{height:100%}
+body{background:var(--paper);color:var(--ink);font:13px/1.4 var(--y-font);padding-inline:10px;padding-block:8px;box-sizing:border-box}
+*{box-sizing:border-box}
+.app{display:grid;grid-template-columns:230px minmax(0,1fr) 300px;grid-template-rows:auto minmax(0,1fr);gap:10px;height:100%;min-height:560px}
+header.top{grid-column:1/-1;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;background:transparent;padding:0 2px 2px}
+h1{font:700 22px/1 var(--display);letter-spacing:0;margin:0}
+.sub{color:var(--mute);font-size:12px}
+.steps{display:flex;gap:0;margin-left:auto;flex-wrap:wrap}
+.steps button{font:500 11px var(--y-mono);letter-spacing:.06em;text-transform:uppercase;background:none;border:0;border-bottom:2px solid transparent;color:var(--y-quiet);padding:5px 10px;cursor:pointer}
+.steps button[aria-pressed="true"]{color:var(--y-ink);border-bottom-color:var(--y-pink)}
+aside,section.side{min-width:0;overflow:auto;display:flex;flex-direction:column;gap:10px;background:var(--y-card);border-radius:var(--y-radius);box-shadow:var(--y-shadow);padding:12px}
+.lab{font:500 10px var(--y-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.cat{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tile{border:1px solid var(--rule);border-radius:var(--y-radius-s);background:var(--sheet);padding:4px;cursor:pointer;display:flex;flex-direction:column;gap:2px;color:var(--ink);font:10px var(--y-mono);text-align:left}
+.tile svg{width:100%;aspect-ratio:1;display:block}
+.tile[aria-pressed="false"]{opacity:.35}
+.tile[aria-pressed="true"]{border-color:var(--y-pink);box-shadow:0 0 0 1px var(--y-pink)}
+.tile .row{display:flex;justify-content:space-between}
+.tools{display:flex;gap:4px;flex-wrap:wrap}
+.tools button,.btn{font:11px var(--y-mono);background:var(--sheet);color:var(--ink);border:1px solid var(--rule);border-radius:var(--y-radius-s);padding:4px 8px;cursor:pointer}
+.tools button:hover,.btn:hover,.steps button:hover{background:var(--tint)}
+.stage{position:relative;min-width:0;border-radius:var(--y-radius);box-shadow:var(--y-shadow);background:var(--sheet);overflow:hidden;touch-action:none;cursor:grab}
+.stage svg{width:100%;height:100%;display:block}
+.stage .hint{position:absolute;left:10px;bottom:8px;color:var(--mute);font-size:11px;pointer-events:none}
+.stage .cap{position:absolute;left:10px;top:8px;font-size:11px;max-width:60ch;pointer-events:none}
+.ctl{display:grid;grid-template-columns:1fr auto;gap:2px 8px;align-items:center}
+.ctl label{font-size:11px}
+.ctl output{font-size:11px;font-variant-numeric:tabular-nums;text-align:right}
+.ctl input[type=range]{grid-column:1/-1;width:100%;accent-color:var(--y-pink)}
+select{font:12px var(--y-mono);background:var(--sheet);color:var(--ink);border:1px solid var(--rule);border-radius:var(--y-radius-s);padding:4px;width:100%}
+.readout{border-top:1px solid var(--rule);padding-top:8px;display:grid;grid-template-columns:1fr auto;gap:2px 8px;font-variant-numeric:tabular-nums;font-size:11px}
+.seg{display:flex;gap:4px}.seg button{flex:1;font:11px var(--y-mono);background:var(--sheet);color:var(--ink);border:1px solid var(--rule);border-radius:var(--y-radius-s);padding:4px 0;cursor:pointer}
+.seg button[aria-pressed="true"]{border-color:var(--y-pink);box-shadow:0 0 0 1px var(--y-pink)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--y-pink);outline-offset:2px}
+@media (max-width:900px){.app{grid-template-columns:1fr;height:auto}.stage{height:70vh}.cat{grid-template-columns:repeat(6,1fr)}}
+</style>
+
+<div class="app">
+  <header class="top">
+    <h1>Yiwu Skin Lab</h1>
+    <span class="sub">Twin towers 30 × 55 m · h 190 m · Yiwu grammar</span>
+    <nav class="steps" id="steps" aria-label="Process steps"></nav>
+  </header>
+
+  <aside>
+    <div class="lab">Shape catalog · <span id="selcount"></span></div>
+    <div class="tools">
+      <button id="all">All</button><button id="none">One</button>
+      <button data-c="L">Long</button><button data-c="T">Tall</button><button data-c="C">Compact</button>
+    </div>
+    <div class="cat" id="cat"></div>
+    <div class="sub">Long shapes write the bands and diagonals, tall and compact ones the cells, glyphs and script. A role with no selected shape borrows from the others.</div>
+  </aside>
+
+  <div class="stage" id="stage">
+    <svg id="svg" aria-label="Axonometric drawing of the twin towers"></svg>
+    <div class="cap" id="cap"></div>
+    <div class="hint">Drag to orbit · shift-drag to pan · wheel to zoom · double-click to reset</div>
+  </div>
+
+  <section class="side">
+    <div>
+      <div class="lab">Preset</div>
+      <select id="preset"></select>
+      <div class="sub" id="pnote"></div>
+    </div>
+    <div class="ctl" id="ctl"></div>
+    <div>
+      <div class="lab">Twins</div>
+      <div class="seg" id="twin"></div>
+    </div>
+    <div class="readout" id="readout"></div>
+    <div class="tools"><button id="copy">Copy drawing as SVG</button></div>
+  </section>
+</div>
+
+<script>
+const SH = {"01":{"a":2.0289,"n":"blob","p":[[[-0.5,-0.106],[-0.5,-0.156],[-0.465,-0.193],[-0.415,-0.182],[-0.346,-0.135],[-0.322,-0.138],[-0.289,-0.219],[-0.278,-0.303],[-0.276,-0.385],[-0.225,-0.489],[0.211,-0.495],[0.315,-0.463],[0.36,-0.426],[0.377,-0.398],[0.424,-0.379],[0.451,-0.343],[0.475,-0.28],[0.475,-0.109],[0.495,-0.03],[0.499,0.014],[0.491,0.059],[0.455,0.169],[0.369,0.322],[0.332,0.329],[0.294,0.358],[0.089,0.463],[0.056,0.5],[-0.02,0.5],[-0.081,0.476],[-0.139,0.429],[-0.259,0.356],[-0.281,0.327],[-0.307,0.314],[-0.336,0.259],[-0.34,0.127],[-0.356,0.072],[-0.4,-0.017],[-0.463,-0.038]]]},"02":{"a":0.8676,"n":"grid","p":[[[-0.461,-0.342],[-0.463,-0.497],[-0.351,-0.498],[-0.349,-0.344]],[[-0.031,-0.326],[-0.033,-0.476],[0.081,-0.478],[0.083,-0.328]],[[0.373,-0.288],[0.371,-0.465],[0.496,-0.467],[0.498,-0.289]],[[-0.474,0.055],[-0.476,-0.071],[-0.358,-0.073],[-0.357,0.053]],[[-0.051,0.079],[-0.053,-0.061],[0.079,-0.063],[0.081,0.077]],[[0.377,0.093],[0.375,-0.039],[0.478,-0.041],[0.48,0.092]],[[-0.498,0.484],[-0.5,0.334],[-0.386,0.333],[-0.384,0.482]],[[-0.057,0.497],[-0.059,0.345],[0.055,0.344],[0.057,0.495]],[[0.347,0.5],[0.346,0.353],[0.471,0.352],[0.472,0.498]]]},"03":{"a":4.8719,"n":"strip","p":[[[-0.496,0.486],[-0.498,0.037],[-0.477,0.005],[-0.431,-0.162],[-0.409,-0.283],[-0.363,-0.315],[-0.354,-0.279],[-0.256,-0.276],[-0.233,-0.308],[-0.201,-0.308],[-0.181,-0.244],[-0.133,-0.215],[-0.126,-0.233],[-0.125,-0.319],[-0.1,-0.393],[-0.059,-0.425],[-0.051,-0.461],[0.005,-0.461],[0.035,-0.496],[0.084,-0.464],[0.114,-0.489],[0.174,-0.475],[0.221,-0.407],[0.27,-0.254],[0.324,-0.343],[0.39,-0.35],[0.443,-0.29],[0.499,-0.315],[0.496,0.258],[0.444,0.158],[0.395,0.173],[0.377,0.134],[0.331,0.126],[0.255,0.016],[0.159,0.055],[0.062,0.055],[-0.025,-0.03],[-0.068,0.062],[-0.113,0.222],[-0.154,0.286],[-0.191,0.311],[-0.22,0.226],[-0.235,0.219],[-0.265,0.254],[-0.306,0.415],[-0.393,0.425],[-0.447,0.493]]]},"04":{"a":0.8243,"n":"beam","p":[[[-0.469,0.484],[-0.491,0.464],[-0.5,0.425],[-0.5,0.28],[-0.484,0.262],[-0.268,0.26],[-0.143,0.247],[-0.114,0.224],[-0.108,0.198],[-0.121,-0.143],[-0.127,-0.172],[-0.158,-0.203],[-0.165,-0.252],[-0.174,-0.262],[-0.472,-0.267],[-0.478,-0.278],[-0.478,-0.389],[-0.462,-0.433],[-0.462,-0.461],[-0.437,-0.477],[-0.177,-0.477],[-0.061,-0.472],[0.03,-0.477],[0.055,-0.487],[0.158,-0.495],[0.397,-0.497],[0.412,-0.492],[0.447,-0.461],[0.453,-0.461],[0.453,-0.33],[0.444,-0.26],[0.284,-0.26],[0.259,-0.242],[0.186,-0.236],[0.174,-0.216],[0.168,-0.146],[0.171,0.167],[0.165,0.218],[0.19,0.231],[0.497,0.234],[0.497,0.335],[0.487,0.371],[0.484,0.435],[0.466,0.448],[0.437,0.456],[0.321,0.456],[0.259,0.464],[0.161,0.466],[-0.033,0.464],[-0.058,0.466],[-0.111,0.487],[-0.215,0.487],[-0.268,0.497],[-0.356,0.5],[-0.44,0.495]]]},"05":{"a":2.5968,"n":"drift","p":[[[-0.5,0.487],[-0.5,0.256],[-0.484,0.081],[-0.452,-0.022],[-0.421,-0.073],[-0.384,-0.102],[-0.341,-0.203],[-0.337,-0.235],[-0.296,-0.285],[-0.176,-0.383],[-0.142,-0.389],[-0.102,-0.367],[-0.082,-0.373],[-0.063,-0.447],[-0.021,-0.487],[0.037,-0.479],[0.061,-0.439],[0.156,-0.463],[0.201,-0.434],[0.259,-0.426],[0.347,-0.436],[0.409,-0.495],[0.464,-0.497],[0.475,-0.484],[0.493,-0.428],[0.485,-0.314],[0.473,-0.275],[0.471,-0.232],[0.499,-0.102],[0.499,-0.046],[0.422,0.07],[0.204,0.176],[0.167,0.176],[0.074,0.248],[0.021,0.259],[-0.045,0.314],[-0.072,0.351],[-0.087,0.354],[-0.139,0.322],[-0.202,0.259],[-0.243,0.375],[-0.297,0.468],[-0.334,0.492],[-0.439,0.481],[-0.451,0.455],[-0.471,0.447],[-0.493,0.5]]]},"06":{"a":1.1544,"n":"chunk","p":[[[-0.42,0.478],[-0.455,0.412],[-0.5,0.346],[-0.5,0.25],[-0.49,0.213],[-0.487,0.165],[-0.478,0.132],[-0.452,0.088],[-0.417,0.044],[-0.385,-0.015],[-0.319,-0.099],[-0.322,-0.162],[-0.328,-0.173],[-0.328,-0.309],[-0.322,-0.342],[-0.264,-0.408],[-0.153,-0.434],[0.01,-0.456],[0.146,-0.496],[0.373,-0.496],[0.411,-0.478],[0.478,-0.404],[0.481,-0.04],[0.494,0.022],[0.497,0.375],[0.474,0.382],[0.459,0.397],[0.455,0.386],[0.398,0.386],[0.363,0.423],[0.178,0.452],[0.096,0.485],[-0.003,0.485],[-0.06,0.496],[-0.331,0.5],[-0.357,0.489]]]},"07":{"a":1.8889,"n":"arm","p":[[[-0.5,-0.059],[-0.474,-0.441],[-0.448,-0.491],[-0.433,-0.498],[-0.41,-0.495],[-0.396,-0.471],[-0.379,-0.468],[-0.226,-0.262],[-0.136,-0.099],[-0.111,-0.1],[-0.091,-0.12],[0.104,-0.125],[0.118,-0.142],[0.127,-0.129],[0.417,-0.143],[0.453,-0.129],[0.479,-0.081],[0.499,-0.063],[0.471,0.129],[0.466,0.391],[0.448,0.421],[0.437,0.468],[0.435,0.457],[-0.067,0.486],[-0.125,0.5],[-0.199,0.5],[-0.212,0.489],[-0.399,0.136],[-0.492,-0.023]]]},"08":{"a":0.3509,"n":"bar","p":[[[-0.473,0.497],[-0.5,0.472],[-0.5,0.292],[-0.456,0.102],[-0.456,0.05],[-0.482,0.006],[-0.482,-0.062],[-0.447,-0.227],[-0.438,-0.432],[-0.411,-0.453],[-0.42,-0.463],[-0.288,-0.481],[0.066,-0.478],[0.367,-0.497],[0.482,-0.497],[0.491,-0.484],[0.456,-0.457],[0.438,-0.419],[0.411,-0.273],[0.447,-0.239],[0.447,-0.137],[0.42,-0.056],[0.403,0.096],[0.42,0.236],[0.411,0.435],[0.429,0.441],[0.411,0.45],[0.403,0.491],[0.332,0.478],[0.226,0.478],[-0.111,0.497],[-0.394,0.5],[-0.456,0.491]]]},"09":{"a":0.803,"n":"silo","p":[[[0.08,0.498],[-0.053,0.498],[-0.08,0.474],[-0.082,0.442],[-0.133,0.4],[-0.163,0.383],[-0.252,0.348],[-0.284,0.342],[-0.298,0.331],[-0.333,0.329],[-0.381,0.292],[-0.443,0.26],[-0.47,0.232],[-0.47,0.203],[-0.489,0.173],[-0.5,0.169],[-0.454,0.126],[-0.465,-0.134],[-0.476,-0.169],[-0.478,-0.223],[-0.47,-0.413],[-0.443,-0.431],[-0.317,-0.483],[-0.274,-0.485],[-0.228,-0.496],[-0.088,-0.498],[0.036,-0.485],[0.139,-0.468],[0.3,-0.459],[0.338,-0.446],[0.371,-0.422],[0.433,-0.418],[0.473,-0.383],[0.473,-0.299],[0.462,-0.279],[0.46,-0.199],[0.47,-0.162],[0.476,0.169],[0.497,0.214],[0.495,0.266],[0.468,0.294],[0.408,0.331],[0.317,0.357],[0.231,0.396],[0.163,0.435],[0.123,0.442],[0.123,0.457],[0.133,0.457],[0.133,0.463]]]},"10":{"a":0.8144,"n":"lattice","p":[[[-0.5,0.311],[0.5,0.311],[0.5,0.345],[-0.5,0.345]],[[-0.5,0.074],[0.5,0.074],[0.5,0.102],[-0.5,0.102]],[[-0.5,-0.182],[0.5,-0.182],[0.5,-0.159],[-0.5,-0.159]],[[-0.5,-0.459],[0.5,-0.459],[0.5,-0.428],[-0.5,-0.428]],[[0.005,-0.5],[0.09,-0.5],[-0.278,0.5],[-0.348,0.5]],[[0.125,-0.5],[0.214,-0.5],[-0.16,0.5],[-0.236,0.5]],[[0.246,-0.5],[0.335,-0.5],[-0.049,0.5],[-0.125,0.5]],[[0.37,-0.5],[0.456,-0.5],[0.056,0.5],[-0.018,0.5]]]},"11":{"a":2.6218,"n":"skyline","p":[[[0.498,0.186],[0.408,0.165],[0.367,0.268],[0.328,0.28],[0.329,0.49],[0.318,0.5],[0.157,0.479],[0.133,0.401],[0.122,0.141],[0.107,0.001],[0.098,-0.022],[0.059,-0.046],[0.023,-0.05],[-0.003,0.009],[-0.002,0.036],[0.017,0.085],[0.046,0.095],[0.058,0.128],[0.048,0.147],[-0.118,0.178],[-0.123,0.093],[-0.133,0.067],[-0.166,0.061],[-0.18,0.089],[-0.175,0.137],[-0.18,0.155],[-0.177,0.202],[-0.183,0.221],[-0.217,0.256],[-0.263,0.264],[-0.275,0.229],[-0.283,0.151],[-0.295,0.124],[-0.305,0.124],[-0.313,0.139],[-0.312,0.155],[-0.278,0.251],[-0.273,0.327],[-0.344,0.455],[-0.362,0.436],[-0.427,0.274],[-0.481,0.274],[-0.5,0.225],[-0.5,0.145],[-0.484,0.085],[-0.481,0.011],[-0.468,-0.022],[-0.454,-0.034],[-0.45,-0.186],[-0.464,-0.192],[-0.465,-0.334],[-0.477,-0.373],[-0.471,-0.408],[-0.464,-0.408],[-0.441,-0.459],[-0.2,-0.453],[-0.197,-0.44],[-0.203,-0.403],[-0.191,-0.369],[-0.168,-0.424],[-0.099,-0.424],[-0.08,-0.469],[-0.063,-0.471],[-0.052,-0.496],[-0.003,-0.496],[0.031,-0.445],[0.112,-0.43],[0.121,-0.391],[0.136,-0.383],[0.208,-0.482],[0.327,-0.486],[0.416,-0.482],[0.441,-0.408],[0.442,-0.334],[0.462,-0.225],[0.467,-0.145],[0.485,-0.128],[0.494,-0.1]]]},"12":{"a":1.896,"n":"bone","p":[[[-0.5,0.44],[-0.499,0.37],[-0.481,0.277],[-0.452,0.175],[-0.422,0.13],[-0.371,0.131],[-0.357,0.159],[-0.345,0.234],[-0.342,0.329],[-0.33,0.319],[-0.34,0.235],[-0.34,0.064],[-0.258,-0.047],[-0.177,-0.064],[-0.157,-0.027],[-0.15,0.015],[-0.15,0.088],[-0.162,0.155],[-0.155,0.166],[-0.111,0.095],[-0.085,0.089],[-0.047,0.058],[0.015,-0.022],[0.062,-0.044],[0.153,-0.139],[0.177,-0.186],[0.178,-0.248],[0.193,-0.325],[0.213,-0.374],[0.236,-0.409],[0.259,-0.427],[0.289,-0.431],[0.303,-0.423],[0.32,-0.392],[0.329,-0.336],[0.329,-0.259],[0.315,-0.223],[0.318,-0.188],[0.353,-0.239],[0.343,-0.316],[0.343,-0.392],[0.352,-0.429],[0.382,-0.487],[0.397,-0.498],[0.431,-0.491],[0.457,-0.442],[0.463,-0.385],[0.481,-0.4],[0.495,-0.394],[0.499,-0.361],[0.496,-0.266],[0.482,-0.232],[0.445,-0.223],[0.403,-0.19],[0.385,-0.188],[0.344,-0.133],[0.327,-0.141],[0.19,-0.011],[0.132,0.027],[-0.042,0.182],[-0.142,0.239],[-0.214,0.325],[-0.228,0.327],[-0.306,0.438],[-0.36,0.465],[-0.373,0.453],[-0.416,0.473],[-0.439,0.5],[-0.469,0.487]]]},"13":{"a":0.6762,"n":"cone","p":[[[-0.017,0.5],[-0.085,0.474],[-0.11,0.451],[-0.093,0.377],[-0.098,0.325],[-0.136,0.291],[-0.152,0.265],[-0.195,0.231],[-0.195,0.185],[-0.229,0.159],[-0.237,0.107],[-0.259,0.07],[-0.263,0.027],[-0.343,-0.191],[-0.419,-0.242],[-0.466,-0.242],[-0.5,-0.268],[-0.479,-0.282],[-0.47,-0.297],[-0.288,-0.411],[-0.055,-0.443],[0.013,-0.446],[0.326,-0.491],[0.36,-0.491],[0.377,-0.497],[0.458,-0.497],[0.496,-0.466],[0.475,-0.437],[0.479,-0.431],[0.415,-0.405],[0.301,-0.322],[0.301,-0.282],[0.275,-0.234],[0.267,-0.162],[0.246,-0.119],[0.229,-0.036],[0.229,0.004],[0.199,0.062],[0.191,0.136],[0.165,0.222],[0.165,0.279],[0.119,0.322],[0.119,0.348],[0.106,0.371],[0.119,0.403],[0.114,0.431],[0.03,0.494]]]},"14":{"a":0.4902,"n":"post","p":[[[-0.44,0.496],[-0.48,0.482],[-0.48,0.308],[-0.468,0.284],[-0.5,0.218],[-0.5,-0.076],[-0.484,-0.3],[-0.496,-0.382],[-0.268,-0.488],[-0.052,-0.488],[0.024,-0.498],[0.324,-0.498],[0.388,-0.484],[0.464,-0.449],[0.456,0.016],[0.464,0.198],[0.476,0.286],[0.496,0.314],[0.496,0.4],[0.464,0.429],[0.46,0.459],[0.272,0.486],[0.088,0.488],[0.044,0.492],[0.032,0.498],[-0.408,0.5]]]},"15":{"a":2.7343,"n":"deck","p":[[[0.499,0.238],[0.462,0.5],[-0.226,0.456],[-0.5,-0.264],[-0.493,-0.474],[0.284,-0.496]]]},"16":{"a":1.8594,"n":"trapeze","p":[[[0.487,-0.311],[0.489,-0.239],[0.498,-0.211],[0.489,-0.171],[0.453,-0.078],[0.403,0.022],[0.329,0.219],[0.284,0.376],[0.234,0.472],[0.232,0.5],[0.191,0.48],[-0.17,0.484],[-0.213,0.496],[-0.327,0.488],[-0.396,0.448],[-0.414,0.388],[-0.433,0.351],[-0.485,0.343],[-0.5,0.303],[-0.457,0.191],[-0.299,-0.339],[-0.256,-0.448],[-0.167,-0.488],[0.116,-0.48],[0.347,-0.496],[0.386,-0.472],[0.405,-0.44],[0.431,-0.416]]]},"17":{"a":0.7519,"n":"cup","p":[[[0.235,0.492],[0.184,0.5],[-0.026,0.5],[-0.153,0.487],[-0.345,0.484],[-0.452,0.459],[-0.476,0.446],[-0.497,0.415],[-0.5,0.381],[-0.493,0.363],[-0.428,0.296],[-0.428,-0.226],[-0.287,-0.368],[-0.112,-0.497],[0.053,-0.497],[0.115,-0.482],[0.167,-0.479],[0.218,-0.459],[0.27,-0.459],[0.308,-0.446],[0.339,-0.41],[0.345,-0.386],[0.352,-0.143],[0.38,-0.115],[0.387,-0.04],[0.417,0.048],[0.424,0.195],[0.445,0.234],[0.49,0.28],[0.49,0.368],[0.497,0.373],[0.383,0.454],[0.311,0.466]]]},"18":{"a":0.4817,"n":"vessel","p":[[[-0.496,0.487],[-0.5,0.48],[-0.479,0.45],[-0.479,0.35],[-0.452,0.297],[-0.438,0.125],[-0.413,0.112],[-0.393,0.065],[-0.386,-0.088],[-0.362,-0.113],[-0.351,-0.16],[-0.33,-0.183],[-0.317,-0.313],[-0.289,-0.332],[-0.289,-0.36],[-0.261,-0.412],[-0.22,-0.443],[-0.157,-0.472],[-0.123,-0.482],[0.009,-0.498],[0.081,-0.498],[0.147,-0.475],[0.265,-0.477],[0.324,-0.453],[0.434,-0.452],[0.486,-0.427],[0.483,-0.312],[0.427,-0.165],[0.448,-0.125],[0.452,-0.072],[0.476,-0.055],[0.469,0.142],[0.49,0.207],[0.496,0.457],[0.445,0.468],[0.292,0.482],[-0.047,0.5],[-0.189,0.493],[-0.42,0.495]]]},"19":{"a":1.3566,"n":"hook","p":[[[0.497,0.298],[0.383,0.442],[0.309,0.454],[0.263,0.477],[0.171,0.5],[0.077,0.5],[0.04,0.481],[-0.08,0.45],[-0.149,0.376],[-0.214,0.357],[-0.309,0.291],[-0.406,0.236],[-0.466,0.159],[-0.48,0.097],[-0.486,-0.031],[-0.46,-0.077],[-0.46,-0.136],[-0.471,-0.264],[-0.489,-0.322],[-0.497,-0.426],[-0.494,-0.473],[-0.5,-0.484],[-0.474,-0.496],[-0.403,-0.496],[-0.38,-0.457],[-0.36,-0.407],[-0.329,-0.291],[-0.309,-0.256],[-0.306,-0.174],[-0.243,-0.132],[-0.22,-0.105],[-0.177,-0.093],[-0.106,-0.054],[-0.077,-0.077],[-0.049,-0.136],[-0.049,-0.318],[-0.014,-0.368],[0.011,-0.368],[0.049,-0.295],[0.097,-0.225],[0.111,-0.194],[0.129,-0.178],[0.16,-0.171],[0.257,-0.167],[0.289,-0.186],[0.337,-0.186],[0.386,-0.167],[0.426,-0.12],[0.46,-0.015],[0.497,0.054],[0.497,0.163],[0.489,0.202],[0.491,0.283]]]},"20":{"a":3.873,"n":"tiles","p":[[[-0.338,0.337],[-0.5,0.318],[-0.481,-0.35],[-0.324,-0.334]],[[0.326,0.399],[0.292,-0.366],[0.453,-0.497],[0.499,0.311]],[[-0.3,0.428],[-0.293,-0.282],[-0.126,-0.298],[-0.118,0.425]],[[-0.061,0.5],[-0.093,-0.295],[0.076,-0.415],[0.114,0.34],[0.11,-0.321],[0.276,-0.36],[0.292,0.399],[0.115,0.448],[0.112,0.386]]]},"21":{"a":1.515,"n":"pebble","p":[[[0.487,0.284],[0.425,0.384],[0.366,0.397],[0.351,0.39],[0.331,0.4],[0.303,0.427],[0.254,0.5],[0.114,0.5],[-0.165,0.47],[-0.219,0.444],[-0.373,0.321],[-0.45,0.204],[-0.496,0.108],[-0.5,-0.115],[-0.491,-0.181],[-0.458,-0.297],[-0.417,-0.367],[-0.336,-0.45],[-0.263,-0.48],[-0.147,-0.497],[-0.064,-0.493],[0.002,-0.477],[0.057,-0.477],[0.088,-0.46],[0.127,-0.457],[0.285,-0.4],[0.344,-0.397],[0.364,-0.37],[0.382,-0.367],[0.412,-0.317],[0.487,-0.085],[0.498,0.085],[0.498,0.188]]]}};
+// ---------------------------------------------------------------- data + model
+const ID = Object.keys(SH).sort();
+const CLS = {};                       // L long, T tall, C compact
+ID.forEach(k => { const a = SH[k].a; CLS[k] = a >= 2 ? 'L' : a <= 0.6 ? 'T' : 'C'; });
+const TW = { sx: 30, sy: 55, H: 190, skin: 1.6, f2f: 4.2 };
+const FACES = [
+  { o: [-15, -27.5], t: [1, 0], n: [0, -1], len: 30 },
+  { o: [15, -27.5], t: [0, 1], n: [1, 0], len: 55 },
+  { o: [15, 27.5], t: [-1, 0], n: [0, 1], len: 30 },
+  { o: [-15, 27.5], t: [0, -1], n: [-1, 0], len: 55 }];
+const OFF = [0, 30, 85, 115], P = 170;
+
+const PRESETS = {
+  COLONNA:   { name: 'Colonna', note: '7 bands wrapping the whole box between a solid plinth and cap', v: { erosion: 38, bands: 7, rhythm: 0, variation: .6, wrap: 1, plinth: 14, cap: 10, mixB: 1, twin: 'COUNTER' } },
+  PARTITURA: { name: 'Partitura', note: '11 bands growing toward the top, partial wraps', v: { erosion: 34, bands: 11, rhythm: 1, variation: .9, wrap: .65, plinth: 10, cap: 6, mixB: 1, twin: 'ECHO' } },
+  CONTAGIO:  { name: 'Contagio', note: 'Holes grow from 3 seeds, one partial band', v: { erosion: 24, bands: 1, variation: 0, wrap: .5, plinth: 8, cap: 8, seeds: 3, spread: .25, cell: 3.2, mixB: .35, mixC: .65, twin: 'ECHO' } },
+  CRATERI:   { name: 'Crateri', note: 'Scattered pits from 14 seeds, no bands', v: { erosion: 16, plinth: 2, cap: 2, seeds: 14, spread: .85, cell: 2.6, mixC: 1, twin: 'ECHO' } },
+  DIAGONALE: { name: 'Diagonale', note: '3 bundles of diagonal cuts and 2 partial bands; mirrored into chevrons', v: { erosion: 22, bands: 2, variation: .5, wrap: .55, plinth: 10, cap: 10, diag: 3, dlines: 6, dangle: 35, dlen: .45, mixB: .3, mixD: .7, twin: 'MIRROR' } },
+  FRATTURE:  { name: 'Fratture', note: 'Glyphs climbing in 5 meandering fissures', v: { erosion: 18, plinth: 10, cap: 6, glyphs: 150, glayout: 'FISSURE', gsize: 3.5, gpaths: 5, mixG: 1, twin: 'MIRROR' } },
+  SCIAME:    { name: 'Sciame', note: 'Even swarm of glyphs', v: { erosion: 15, plinth: 4, cap: 4, glyphs: 140, glayout: 'RANDOM', gsize: 2.8, mixG: 1, twin: 'ECHO' } },
+};
+const BASE = { erosion: 30, bands: 0, rhythm: 0, variation: .6, wrap: 1, plinth: 10, cap: 10, seeds: 0, spread: .3, cell: 3,
+  glyphs: 0, glayout: 'RANDOM', gsize: 3, gpaths: 3, diag: 0, dlines: 5, dangle: 40, dlen: .5,
+  mixB: 0, mixC: 0, mixG: 0, mixD: 0, twin: 'MIRROR', seed: 7, register: 1.4, pitch: 1.0, gap: 60 };
+
+function rngOf(seed) {
+  let a = (seed * 2654435761) >>> 0 || 1;
+  const r = () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  r.u = (a_, b) => a_ + (b - a_) * r();
+  r.pick = arr => arr[Math.floor(r() * arr.length)];
+  r.gauss = s => s * Math.sqrt(-2 * Math.log(r() + 1e-12)) * Math.cos(6.2832 * r());
+  return r;
+}
+const area = q => { let s = 0; for (let i = 0; i < q.length; i++) { const a = q[i], b = q[(i + 1) % q.length]; s += a[0] * b[1] - b[0] * a[1]; } return Math.abs(s) / 2; };
+function clipX(poly, x, keepGreater) {
+  const out = [];
+  for (let i = 0; i < poly.length; i++) {
+    const a = poly[i], b = poly[(i + 1) % poly.length];
+    const ina = keepGreater ? a[0] >= x : a[0] <= x, inb = keepGreater ? b[0] >= x : b[0] <= x;
+    if (ina) out.push(a);
+    if (ina !== inb) { const t = (x - a[0]) / (b[0] - a[0]); out.push([x, a[1] + (b[1] - a[1]) * t]); }
+  }
+  return out;
+}
+function toFaces(poly) {
+  const res = [];
+  for (const sh of [0, P, -P, 2 * P]) {
+    const sp = poly.map(p => [p[0] + sh, p[1]]);
+    for (let f = 0; f < 4; f++) {
+      const q = clipX(clipX(sp, OFF[f], true), OFF[f] + FACES[f].len, false);
+      if (q.length >= 3 && area(q) > 0.05) res.push({ f, q: q.map(p => [p[0] - OFF[f], p[1]]) });
+    }
+  }
+  return res;
+}
+function fit(sid, cx, cz, W, H, ang = 0, fx = false, fy = false) {
+  const c = Math.cos(ang), s = Math.sin(ang);
+  return SH[sid].p.map(pl => {
+    const pts = pl.map(([x, y]) => { x *= fx ? -W : W; y *= fy ? -H : H; return [cx + x * c - y * s, cz + x * s + y * c]; });
+    return fx !== fy ? pts.reverse() : pts;
+  });
+}
+function natural(sid, cx, cz, size, ang, r) {
+  const a = SH[sid].a, W = a >= 1 ? size : size * a, H = a >= 1 ? size / a : size;
+  return fit(sid, cx, cz, W, H, ang, r() < .5);
+}
+function along(sid, pa, za, pb, zb, w) {
+  const L = Math.hypot(pb - pa, zb - za) || 1, ang = Math.atan2(zb - za, pb - pa);
+  return SH[sid].a < 1 ? fit(sid, (pa + pb) / 2, (za + zb) / 2, w, L, ang - Math.PI / 2) : fit(sid, (pa + pb) / 2, (za + zb) / 2, L, w, ang);
+}
+function inside(q, x, z) {
+  let c = false;
+  for (let i = 0, j = q.length - 1; i < q.length; j = i++) {
+    const [xi, zi] = q[i], [xj, zj] = q[j];
+    if ((zi > z) !== (zj > z) && x < (xj - xi) * (z - zi) / (zj - zi + 1e-12) + xi) c = !c;
+  }
+  return c;
+}
+function scan(q, z) {
+  const xs = [];
+  for (let i = 0; i < q.length; i++) {
+    const [x1, z1] = q[i], [x2, z2] = q[(i + 1) % q.length];
+    if ((z1 > z) !== (z2 > z)) xs.push(x1 + (z - z1) * (x2 - x1) / (z2 - z1));
+  }
+  xs.sort((a, b) => a - b);
+  const out = []; for (let k = 0; k + 1 < xs.length; k += 2) out.push([xs[k], xs[k + 1]]);
+  return out;
+}
+
+// pools: the selected shapes, sorted by how they fit a role
+function pools(sel) {
+  const all = ID.filter(k => sel.has(k));
+  const by = c => { const l = all.filter(k => CLS[k] === c); return l.length ? l : all; };
+  return { L: by('L'), T: by('T'), C: by('C'), all };
+}
+
+function compose(p, sel, ti, seed, bandsOverride, gain) {
+  const r = rngOf(seed), pl = pools(sel), H = TW.H;
+  const total = P * H, target = p.erosion / 100 * total;
+  const mix = { B: p.bands > 0 ? p.mixB : 0, C: p.seeds > 0 ? p.mixC : 0, G: p.glyphs > 0 ? p.mixG : 0, D: p.diag > 0 ? p.mixD : 0 };
+  const ms = Object.values(mix).reduce((a, b) => a + b, 0) || 1;
+  const alloc = {}; for (const k in mix) alloc[k] = target * mix[k] / ms;
+  const zlo = p.plinth / 100 * H, zhi = H * (1 - p.cap / 100);
+  const gateF = ti === 0 ? 1 : 3, pc0 = OFF[gateF] + FACES[gateF].len / 2;
+  const cuts = []; const add = (kind, polys) => { for (const poly of polys) for (const c of toFaces(poly)) cuts.push({ kind, ...c }); };
+  // bands
+  let bands = [];
+  if (alloc.B > 0) {
+    const wrap = Math.max(.05, p.wrap), tot = Math.min(alloc.B / (P * wrap) * (gain.B || 1), (zhi - zlo) * .92);
+    if (bandsOverride) bands = bandsOverride(zlo, zhi, tot);
+    else {
+      const n = p.bands, w = [], g = [.35];
+      for (let k = 0; k < n; k++) { const x = k / Math.max(1, n - 1) - .5; w.push(Math.exp(p.rhythm * 2 * x) * (1 + p.variation * r.u(-.8, .8))); }
+      for (let k = 0; k < n - 1; k++) g.push(Math.exp(-p.rhythm * 2 * ((k + .5) / Math.max(1, n - 1) - .5)) * (1 + p.variation * r.u(-.6, .6)));
+      g.push(.35);
+      const sw = w.reduce((a, b) => a + b), sg = g.reduce((a, b) => a + b), gapT = zhi - zlo - tot;
+      let z = zlo + gapT * g[0] / sg;
+      for (let k = 0; k < n; k++) { const h = tot * w[k] / sw; bands.push([z, z + h]); z += h + gapT * g[k + 1] / sg; }
+    }
+    for (const [z0, z1] of bands) {
+      const L = wrap >= .99 ? P * 1.12 : wrap * P * 1.05;
+      const pc = pc0 + r.u(-.15, .15) * P * (1 - wrap);
+      add('BAND', fit(r.pick(pl.L), pc, (z0 + z1) / 2, L, (z1 - z0) * 1.3, 0, r() < .5, r() < .5));
+    }
+  }
+  const inBand = (z, m) => bands.some(([a, b]) => z >= a - m && z <= b + m);
+  // clusters
+  if (alloc.C > 0) {
+    const c = p.cell, cols = Math.max(4, Math.floor(P / c)), rows = Math.max(4, Math.floor(H / c));
+    const occ = new Set(), seeds = []; let got = 0;
+    for (let t = 0; t < p.seeds * 20 && seeds.length < p.seeds; t++) {
+      const i = Math.floor(r() * cols), j = Math.floor(r() * rows), z = (j + .5) * H / rows;
+      if (z > zlo && z < zhi && !inBand(z, c)) { seeds.push([[i, j]]); occ.add(i + ',' + j); }
+    }
+    for (let st = 0; seeds.length && got < alloc.C && st < 20000; st++) {
+      const cl = seeds[st % seeds.length], [i, j] = cl[Math.floor(r() * cl.length)];
+      let di, dj;
+      if (r() < p.spread) { const s = 2 + p.spread * 8; di = Math.round(r.gauss(s)); dj = Math.round(r.gauss(s * .7)); }
+      else[di, dj] = r.pick([[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1], [1, -1], [-1, 1]]);
+      const ni = ((i + di) % cols + cols) % cols, nj = j + dj;
+      if (nj < 0 || nj >= rows || occ.has(ni + ',' + nj)) continue;
+      const z = (nj + .5) * H / rows;
+      if (inBand(z, c * .6) || z < zlo || z > zhi) continue;
+      occ.add(ni + ',' + nj); cl.push([ni, nj]);
+      const polys = natural(r.pick(pl.C), (ni + .5) * P / cols, z, c * P / cols * r.u(.75, 1), 0, r);
+      add('CELL', polys); got += polys.reduce((a, q) => a + area(q), 0);
+    }
+  }
+  // glyphs
+  if (alloc.G > 0) {
+    const R0 = p.gsize * Math.sqrt(gain.G || 1), placed = [];
+    const size = () => R0 * Math.pow(r.u(.45, 1.5), 1.3);
+    const put = (pp, z, R, ang, long) => {
+      if (z < zlo + R * .3 || z > zhi - R * .3) return;
+      add('GLYPH', natural(r.pick(long ? pl.L : pl.C.concat(pl.T)), pp, z, 2 * R, ang, r)); placed.push([pp, z, R]);
+    };
+    if (p.glayout === 'FISSURE') {
+      const per = Math.max(1, Math.floor(p.glyphs / p.gpaths));
+      for (let k = 0; k < p.gpaths; k++) {
+        let pp = pc0 + r.u(-.3, .3) * P, z = zlo + r.u(0, .25) * (zhi - zlo), head = r.u(65, 115) * Math.PI / 180;
+        for (let i = 0; i < per && z <= zhi; i++) {
+          const R = size(); put(pp, z, R, head, true);
+          if (r() < .35) { const side = head + Math.PI / 2 * (r() < .5 ? 1 : -1), o = R * r.u(.7, 1.3); put(pp + Math.cos(side) * o, z + Math.sin(side) * o, R * .55, r.u(-.15, .15), false); }
+          pp += Math.cos(head) * R * 1.35; z += Math.sin(head) * R * 1.35;
+          head = Math.min(Math.max(head + r.gauss(.24), .44), 2.7);
+        }
+      }
+    } else {
+      for (let t = 0; placed.length < p.glyphs && t < p.glyphs * 80; t++) {
+        const pp = r() * P, z = r.u(zlo, zhi), R = size();
+        if (placed.some(([a, b, q]) => Math.hypot(Math.min(Math.abs(pp - a), P - Math.abs(pp - a)), z - b) < (R + q) * .8)) continue;
+        put(pp, z, R, r.u(-.15, .15), r() < .2);
+      }
+    }
+  }
+  // diagonals
+  if (alloc.D > 0) {
+    const span = zhi - zlo, ang = p.dangle * Math.PI / 180, lines = [];
+    for (let b = 0; b < p.diag; b++) {
+      const sg = b % 2 ? -1 : 1, L = span * p.dlen * r.u(.8, 1.15), zc = zlo + span * r.u(.3, .7), pc = pc0 + r.u(-.25, .25) * P;
+      for (let k = 0; k < p.dlines; k++) lines.push([pc, zc, Math.cos(ang) * sg, Math.sin(ang), L * r.u(.75, 1), k - (p.dlines - 1) / 2, r.u(-.15, .15) * L]);
+    }
+    const Lt = lines.reduce((a, l) => a + l[4], 0) || 1, w = Math.max(.35, Math.min(8, alloc.D / Lt * (gain.D || 1)));
+    for (const [pc, zc, ux, uz, L, k, sl] of lines) {
+      const cx = pc - uz * k * w * 2.1 + ux * sl, cz = zc + ux * k * w * 2.1 + uz * sl;
+      let pa = cx - ux * L / 2, pb = cx + ux * L / 2, za = cz - uz * L / 2, zb = cz + uz * L / 2;
+      if (za < zlo || zb > zhi) {
+        const t0 = Math.max(0, (zlo - za) / (zb - za)), t1 = Math.min(1, (zhi - za) / (zb - za));
+        if (t1 - t0 < .1) continue;
+        [pa, pb, za, zb] = [pa + (pb - pa) * t0, pa + (pb - pa) * t1, za + (zb - za) * t0, za + (zb - za) * t1];
+      }
+      add('DIAG', along(r.pick(pl.L), pa, za, pb, zb, w * 1.35));
+    }
+  }
+  const areas = {}; for (const c of cuts) areas[c.kind] = (areas[c.kind] || 0) + area(c.q);
+  return { cuts, bands, zlo, zhi, alloc, areas, actual: 100 * cuts.reduce((a, c) => a + area(c.q), 0) / total, r };
+}
+
+function composeCal(p, sel, ti, seed, bo) {
+  const a = compose(p, sel, ti, seed, bo, {});
+  const k2 = { BAND: 'B', CELL: 'C', GLYPH: 'G', DIAG: 'D' }, gain = {};
+  for (const k in k2) { const ar = a.areas[k]; if (ar > 1e-6 && a.alloc[k2[k]] > 0) gain[k2[k]] = Math.min(3, Math.max(.3, a.alloc[k2[k]] / ar)); }
+  return compose(p, sel, ti, seed, bo, gain);
+}
+
+// script: rails at register pitch + runs of hanging shapes, inside the bands
+function script(cuts, p, sel, seed) {
+  const r = rngOf(seed + 13), pl = pools(sel).C, out = [];
+  for (const c of cuts) {
+    if (c.kind !== 'BAND') continue;
+    const zs = c.q.map(v => v[1]), z0 = Math.min(...zs), z1 = Math.max(...zs), rails = [];
+    for (let z = Math.ceil(z0 / p.register) * p.register; z < z1; z += p.register) rails.push(z);
+    for (const zr of rails) for (const [a, b] of scan(c.q, zr)) if (b - a > .8) out.push({ f: c.f, rail: [[a, zr], [b, zr]] });
+    for (let k = 0; k + 1 < rails.length; k++) {
+      const hi = rails[k + 1] - .15, hr = p.register - .3, zm = (rails[k] + rails[k + 1]) / 2;
+      for (const [a, b] of scan(c.q, zm)) {
+        let s = a + p.pitch * r.u(.3, 1);
+        while (s < b - .3) {
+          const sid = r.pick(pl), run = 3 + Math.floor(r() * 10);
+          for (let i = 0; i < run && s < b - .3; i++) {
+            const h = hr * r.u(.5, .9), w = Math.min(h * SH[sid].a, p.pitch * .85);
+            const qs = fit(sid, s, hi - h / 2, w, h, 0, false, true);
+            if (qs.every(q => q.filter((_, j) => j % 4 === 0).every(v => inside(c.q, v[0], v[1])))) out.push({ f: c.f, q: qs });
+            s += p.pitch * r.u(.85, 1.15);
+          }
+          s += p.pitch * r.u(1, 3);
+        }
+      }
+    }
+  }
+  return out;
+}
+
+function counterBands(b1, zlo, zhi, tot) {
+  const gaps = []; let prev = zlo;
+  for (const [a, b] of b1) { if (a - prev > 1) gaps.push([prev, a]); prev = b; }
+  if (zhi - prev > 1) gaps.push([prev, zhi]);
+  const T = gaps.reduce((s, [a, b]) => s + b - a, 0) || 1, f = Math.min(.85, tot / T);
+  return gaps.map(([a, b]) => [(a + b) / 2 - (b - a) * f / 2, (a + b) / 2 + (b - a) * f / 2]);
+}
+function mirror(list) {
+  const M = { 0: 0, 1: 3, 2: 2, 3: 1 };
+  return list.map(c => {
+    const nf = M[c.f], L = FACES[nf].len, mp = q => q.map(([s, z]) => [L - s, z]).reverse();
+    const o = { ...c, f: nf };
+    if (c.q && !Array.isArray(c.q[0][0])) o.q = mp(c.q);
+    else if (c.q) o.q = c.q.map(mp);
+    if (c.rail) o.rail = c.rail.map(([s, z]) => [L - s, z]);
+    return o;
+  });
+}
+
+function build(p, sel) {
+  const t1 = composeCal(p, sel, 0, p.seed, null);
+  let t2;
+  if (p.twin === 'MIRROR') t2 = { ...t1, cuts: mirror(t1.cuts) };
+  else if (p.twin === 'COUNTER' && t1.bands.length) t2 = composeCal(p, sel, 1, p.seed + 101, (a, b, t) => counterBands(t1.bands, a, b, t));
+  else t2 = composeCal(p, sel, 1, p.seed + 101, null);
+  const s1 = script(t1.cuts, p, sel, p.seed);
+  const s2 = p.twin === 'MIRROR' ? mirror(s1) : script(t2.cuts, p, sel, p.seed + 101);
+  return [{ ...t1, script: s1 }, { ...t2, script: s2 }];
+}
+if (typeof module !== 'undefined') module.exports = { build, BASE, PRESETS, ID, CLS };
+
+</script>
+<script>
+const STEPS = [
+  ['Volume', 'The rational box: 30 × 55 m, 190 m, floors at 4.2 m.'],
+  ['Score', 'Plinth, cap and the band intervals the logic will erode.'],
+  ['Placement', 'Grammar shapes placed on the unrolled skin, before cutting.'],
+  ['Cut', 'Shapes subtracted through the 1.6 m skin; void hatched, floors visible inside.'],
+  ['Script', 'Rails and hanging shapes written inside the bands.']];
+const CTL = [
+  ['erosion', 'Erosion %', 2, 60, 1], ['seed', 'Seed', 1, 99, 1],
+  ['bands', 'Bands', 0, 20, 1], ['rhythm', 'Rhythm', -2, 2, .1], ['wrap', 'Wrap', .1, 1, .05],
+  ['plinth', 'Plinth %', 0, 40, 1], ['cap', 'Cap %', 0, 40, 1],
+  ['seeds', 'Cluster seeds', 0, 30, 1], ['spread', 'Spread', 0, 1, .05], ['cell', 'Cell m', 1, 8, .2],
+  ['glyphs', 'Glyphs', 0, 300, 5], ['diag', 'Diagonal bundles', 0, 6, 1], ['dangle', 'Diagonal angle', 10, 80, 1],
+  ['register', 'Script rail pitch m', .6, 4, .1]];
+const MIX = { bands: 'mixB', seeds: 'mixC', glyphs: 'mixG', diag: 'mixD' };
+let P_ = { ...BASE, ...PRESETS.CONTAGIO.v }, sel = new Set(ID), step = 4, model = null;
+const view = { az: -0.62, el: 0.5, zoom: 1, panX: 0, panY: 0 };
+const $ = id => document.getElementById(id);
+
+// --------------------------------------------------------------- UI
+STEPS.forEach(([n], i) => { const b = document.createElement('button'); b.textContent = String(i + 1).padStart(2, '0') + ' ' + n; b.onclick = () => { step = i; ui(); draw(); }; $('steps').append(b); });
+for (const k in PRESETS) { const o = document.createElement('option'); o.value = k; o.textContent = PRESETS[k].name; $('preset').append(o); }
+$('preset').value = 'CONTAGIO';
+$('preset').onchange = e => { P_ = { ...BASE, ...PRESETS[e.target.value].v, seed: P_.seed }; ui(); rebuild(); };
+CTL.forEach(([k, l, mn, mx, st]) => {
+  $('ctl').insertAdjacentHTML('beforeend', `<label for="c_${k}">${l}</label><output id="o_${k}"></output><input type="range" id="c_${k}" min="${mn}" max="${mx}" step="${st}">`);
+  $('c_' + k).oninput = e => {
+    P_[k] = +e.target.value;
+    if (MIX[k] && P_[k] > 0 && !P_[MIX[k]]) P_[MIX[k]] = .5;   // turning an instrument on gives it a share
+    $('o_' + k).textContent = P_[k]; rebuild();
+  };
+});
+['MIRROR', 'COUNTER', 'ECHO'].forEach(t => { const b = document.createElement('button'); b.textContent = t[0] + t.slice(1).toLowerCase(); b.dataset.t = t; b.onclick = () => { P_.twin = t; ui(); rebuild(); }; $('twin').append(b); });
+
+function thumb(k) {
+  // keep proportions: scale so the longer side = 90
+  const a = SH[k].a, W = a >= 1 ? 90 : 90 * a, H = a >= 1 ? 90 / a : 90;
+  const d2 = SH[k].p.map(pl => 'M' + pl.map(([x, y]) => (x * W).toFixed(1) + ',' + (-y * H).toFixed(1)).join('L') + 'Z').join('');
+  return `<svg viewBox="-50 -50 100 100"><path d="${d2}" fill="currentColor"/></svg>`;
+}
+ID.forEach(k => {
+  const b = document.createElement('button'); b.className = 'tile'; b.id = 't' + k;
+  b.innerHTML = thumb(k) + `<span class="row"><span>${k}</span><span>${{ L: 'long', T: 'tall', C: 'comp' }[CLS[k]]}</span></span>`;
+  b.title = SH[k].n; b.onclick = () => { if (sel.has(k)) { if (sel.size > 1) sel.delete(k); } else sel.add(k); ui(); rebuild(); };
+  $('cat').append(b);
+});
+$('all').onclick = () => { sel = new Set(ID); ui(); rebuild(); };
+$('none').onclick = () => { sel = new Set(['21']); ui(); rebuild(); };
+document.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { sel = new Set(ID.filter(k => CLS[k] === b.dataset.c)); ui(); rebuild(); });
+
+function ui() {
+  document.querySelectorAll('#steps button').forEach((b, i) => b.setAttribute('aria-pressed', i === step));
+  document.querySelectorAll('#twin button').forEach(b => b.setAttribute('aria-pressed', b.dataset.t === P_.twin));
+  ID.forEach(k => $('t' + k).setAttribute('aria-pressed', sel.has(k)));
+  $('selcount').textContent = sel.size + ' / 21 in use';
+  CTL.forEach(([k]) => { $('c_' + k).value = P_[k]; $('o_' + k).textContent = P_[k]; });
+  $('pnote').textContent = PRESETS[$('preset').value]?.note || '';
+  $('cap').textContent = String(step + 1).padStart(2, '0') + ' — ' + STEPS[step][1];
+}
+let timer = 0;
+function rebuild() { clearTimeout(timer); timer = setTimeout(() => { model = build(P_, sel); readout(); draw(); }, 30); }
+function readout() {
+  const [a, b] = model, n = k => a.cuts.filter(c => c.kind === k).length;
+  $('readout').innerHTML = [['Target', P_.erosion.toFixed(0) + ' %'], ['Tower 1', a.actual.toFixed(1) + ' %'], ['Tower 2', b.actual.toFixed(1) + ' %'],
+    ['Band cuts', n('BAND')], ['Cells', n('CELL')], ['Glyphs', n('GLYPH')], ['Diagonals', n('DIAG')], ['Script marks', a.script.length]]
+    .map(([k, v]) => `<span>${k}</span><span>${v}</span>`).join('');
+}
+
+// --------------------------------------------------------------- drawing
+const W3 = (t, f, s, z, d = 0) => { const F = FACES[f]; return [t.ox + F.o[0] + F.t[0] * s - F.n[0] * d, F.o[1] + F.t[1] * s - F.n[1] * d, z]; };
+let S_ = 1, CX = 0, CY = 0;
+function proj([x, y, z]) {
+  const c = Math.cos(view.az), s = Math.sin(view.az), xr = x * c - y * s, yr = x * s + y * c;
+  return [CX + xr * S_, CY - (z * Math.cos(view.el) + yr * Math.sin(view.el)) * S_, yr];
+}
+const pth = pts => 'M' + pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join('L') + 'Z';
+function draw() {
+  if (!model) return;
+  const box = $('stage').getBoundingClientRect();
+  S_ = Math.min(box.width, box.height * 1.1) / 330 * view.zoom;
+  CX = box.width / 2 + view.panX; CY = box.height / 2 + 95 * Math.cos(view.el) * S_ + view.panY;
+  const gap = P_.gap, towers = [{ ox: -(gap / 2 + 15), m: model[0] }, { ox: gap / 2 + 15, m: model[1] }];
+  const depth = t => proj([t.ox, 0, 0])[2];
+  towers.sort((a, b) => depth(b) - depth(a));
+  let defs = `<defs><pattern id="h" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="4" height="4" fill="var(--void)"/><line x1="0" y1="0" x2="0" y2="4" stroke="var(--ink)" stroke-width=".55"/></pattern>
+    <pattern id="h2" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)"><line x1="0" y1="0" x2="0" y2="7" stroke="var(--mute)" stroke-width=".4"/></pattern></defs>`;
+  let body = '', cid = 0;
+    // ground
+  const G = [[-110, -60, 0], [110, -60, 0], [110, 60, 0], [-110, 60, 0]].map(proj);
+  body += `<path d="${pth(G)}" fill="none" stroke="var(--rule)" stroke-dasharray="4 3"/>`;
+  const ax = [[0, -80, 0], [0, 80, 0]].map(proj);
+  body += `<path d="M${ax[0][0]},${ax[0][1]}L${ax[1][0]},${ax[1][1]}" stroke="var(--mute)" stroke-dasharray="10 3 2 3" stroke-width=".6"/>`;
+  for (const t of towers) {
+    const m = t.m, foot = [];
+    // face order: back-to-front among visible faces
+    const vis = [0, 1, 2, 3].filter(f => { const n = FACES[f].n, c = Math.cos(view.az), s = Math.sin(view.az); return n[0] * s + n[1] * c < 0; });
+    for (const f of vis) {
+      const F = FACES[f], L = F.len, H = TW.H;
+      const face = [[0, 0], [L, 0], [L, H], [0, H]].map(([s, z]) => proj(W3(t, f, s, z)));
+      const id = 'c' + (cid++);
+      const P2 = q => pth(q.map(([s, z]) => proj(W3(t, f, s, z))));
+      const P2in = q => pth(q.map(([s, z]) => proj(W3(t, f, s, z, TW.skin))));
+      body += `<clipPath id="${id}"><path d="${pth(face)}"/></clipPath><g clip-path="url(#${id})">`;
+      body += `<path d="${pth(face)}" fill="var(--sheet)"/>`;
+      // floor lines on the skin
+      let fl = '';
+      for (let z = 8.4; z < H; z += TW.f2f) { const a = proj(W3(t, f, 0, z)), b = proj(W3(t, f, L, z)); fl += `M${a[0].toFixed(1)},${a[1].toFixed(1)}L${b[0].toFixed(1)},${b[1].toFixed(1)}`; }
+      body += `<path d="${fl}" stroke="var(--rule)" stroke-width=".5" fill="none"/>`;
+      const cuts = m.cuts.filter(c => c.f === f);
+      if (step === 1) {
+        const band = (z0, z1, fill) => body += `<path d="${P2([[0, z0], [L, z0], [L, z1], [0, z1]])}" fill="${fill}" stroke="var(--ink)" stroke-width=".6" stroke-dasharray="3 2"/>`;
+        band(0, m.zlo, 'url(#h2)'); band(m.zhi, H, 'url(#h2)');
+        for (const [a, b] of m.bands) band(a, b, 'none');
+      }
+      if (step === 2) body += `<path d="${cuts.map(c => P2(c.q)).join('')}" fill="none" stroke="var(--ink)" stroke-width=".7" stroke-dasharray="2.5 1.5"/>`;
+      if (step >= 3 && cuts.length) {
+        const holes = cuts.map(c => P2(c.q)).join('');
+        const hid = 'k' + (cid++);
+        body += `<path d="${holes}" fill="none" stroke="var(--ink)" stroke-width="1.6"/>`;
+        body += `<path d="${holes}" fill="url(#h)"/>`;
+        body += `<clipPath id="${hid}"><path d="${holes}"/></clipPath><g clip-path="url(#${hid})">`;
+        // inner edge of the skin + slabs seen through the holes
+        body += `<path d="${cuts.map(c => P2in(c.q)).join('')}" fill="none" stroke="var(--ink)" stroke-width=".45"/>`;
+        let sl = '';
+        for (let z = 8.4; z < H; z += TW.f2f) { const a = proj(W3(t, f, 0, z, 3)), b = proj(W3(t, f, L, z, 3)); sl += `M${a[0].toFixed(1)},${a[1].toFixed(1)}L${b[0].toFixed(1)},${b[1].toFixed(1)}`; }
+        body += `<path d="${sl}" stroke="var(--ink)" stroke-width=".9" fill="none"/>`;
+        if (step >= 4) {
+          const sc = m.script.filter(s => s.f === f);
+          let rails = '', marks = '';
+          for (const s of sc) {
+            if (s.rail) { const a = proj(W3(t, f, s.rail[0][0], s.rail[0][1], .4)), b = proj(W3(t, f, s.rail[1][0], s.rail[1][1], .4)); rails += `M${a[0].toFixed(1)},${a[1].toFixed(1)}L${b[0].toFixed(1)},${b[1].toFixed(1)}`; }
+            else for (const q of s.q) marks += pth(q.filter((_, j) => j % 2 === 0).map(([u, z]) => proj(W3(t, f, u, z, .6))));
+          }
+          body += `<path d="${rails}" stroke="var(--ink)" stroke-width="1.3" fill="none"/><path d="${marks}" fill="var(--ink)"/>`;
+        }
+        body += `</g>`;
+      }
+      body += `</g><path d="${pth(face)}" fill="none" stroke="var(--ink)" stroke-width="1.1"/>`;
+    }
+    // roof with the skin ring
+    const r0 = [[-15, -27.5], [15, -27.5], [15, 27.5], [-15, 27.5]].map(([x, y]) => proj([t.ox + x, y, TW.H]));
+    const r1 = [[-13.4, -25.9], [13.4, -25.9], [13.4, 25.9], [-13.4, 25.9]].map(([x, y]) => proj([t.ox + x, y, TW.H]));
+    body += `<path d="${pth(r0)}" fill="var(--sheet)" stroke="var(--ink)" stroke-width="1.1"/><path d="${pth(r1)}" fill="url(#h2)" stroke="var(--ink)" stroke-width=".5"/>`;
+  }
+  // dimensions on the left tower
+  const lt = towers.find(t => t.ox < 0) || towers[0];
+  const d0 = proj([lt.ox - 15, -27.5, 0]), d1 = proj([lt.ox - 15, -27.5, TW.H]), dx = -14;
+  const lab = (x, y, s, rot = 0) => `<text x="${x}" y="${y}" font-family="Yiwu, Microsoft Yi Baiti, sans-serif" font-size="9" fill="var(--ink)" text-anchor="middle" transform="rotate(${rot} ${x} ${y})">${s}</text>`;
+  body += `<path d="M${d0[0] + dx},${d0[1]}L${d1[0] + dx},${d1[1]}M${d0[0] + dx - 3},${d0[1]}h6M${d1[0] + dx - 3},${d1[1]}h6" stroke="var(--ink)" stroke-width=".6"/>` + lab(d0[0] + dx - 6, (d0[1] + d1[1]) / 2, '+190.00', -90);
+  const e0 = proj([lt.ox - 15, -27.5, 0]), e1 = proj([lt.ox + 15, -27.5, 0]);
+  body += lab((e0[0] + e1[0]) / 2, (e0[1] + e1[1]) / 2 + 14, '30.00');
+  const g0 = proj([lt.ox + 15, -27.5, 0]), g1 = proj([lt.ox + 15 + P_.gap, -27.5, 0]);
+  body += lab((g0[0] + g1[0]) / 2, (g0[1] + g1[1]) / 2 + 14, 'gate ' + P_.gap.toFixed(0) + '.00');
+  const svg = $('svg');
+  svg.setAttribute('viewBox', `0 0 ${box.width} ${box.height}`);
+  svg.innerHTML = defs + `<g stroke-linejoin="round">${body}</g>`;
+}
+// orbit / zoom
+let drag = null;
+$('stage').addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, az: view.az, el: view.el, pan: e.shiftKey || e.button === 1, px: view.panX, py: view.panY }; $('stage').setPointerCapture(e.pointerId); });
+$('stage').addEventListener('pointermove', e => {
+  if (!drag) return;
+  const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+  if (drag.pan) { view.panX = drag.px + dx; view.panY = drag.py + dy; }
+  else { view.az = drag.az + dx * .008; view.el = Math.min(1.35, Math.max(.05, drag.el + dy * .005)); }
+  draw();
+});
+$('stage').addEventListener('pointerup', () => drag = null);
+$('stage').addEventListener('wheel', e => { e.preventDefault(); view.zoom = Math.min(8, Math.max(.4, view.zoom * (e.deltaY < 0 ? 1.12 : 1 / 1.12))); draw(); }, { passive: false });
+$('stage').addEventListener('dblclick', () => { Object.assign(view, { az: -0.62, el: 0.5, zoom: 1, panX: 0, panY: 0 }); draw(); });
+addEventListener('resize', draw);
+$('copy').onclick = async e => {
+  const txt = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${$('svg').getAttribute('viewBox')}">` + $('svg').innerHTML.replaceAll('var(--ink)', '#151515').replaceAll('var(--sheet)', '#fff').replaceAll('var(--void)', '#fff').replaceAll('var(--rule)', '#ccc').replaceAll('var(--mute)', '#888') + '</svg>';
+  try { await navigator.clipboard.writeText(txt); e.target.textContent = 'Copied'; } catch { e.target.textContent = 'Copy blocked here'; }
+  setTimeout(() => e.target.textContent = 'Copy drawing as SVG', 1600);
+};
+ui(); rebuild();
+</script>
+
+</body></html>

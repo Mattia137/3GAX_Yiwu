@@ -1,0 +1,901 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>[hidden]{display:none!important}</style><title>Yiwu Twin Towers Envelope</title>
+<meta name="description" content="Interactive zoning envelope for Yiwu Twin Towers Plot 2, plus an English guide to the competition folder.">
+<link rel="stylesheet" href="../assets/css/yiwu.css">
+<style>
+:root{
+  --ground:var(--y-bg); --panel:var(--y-card); --panel2:var(--y-row); --ink:var(--y-ink); --muted:var(--y-quiet); --rule:var(--y-hair);
+  --red:#e0391f; --green:#4f6b4b; --greenfill:#E3E3DF; --a:#1f63a8; --b:#a6512e; --amber:#b8a832;
+  --pass:#4f6b4b; --warn:#b8a832; --fail:#e0391f; --info:#6a6a68;
+  --vp:#F6F6F4; --vpground:#ECECE9; --podium:#CFCFCB; --lim200:#e0391f; --limair:#b8a832;
+  --f-disp:var(--y-font);
+  --f-body:var(--y-font);
+  --f-mono:var(--y-mono);
+  --f-cjk:"Noto Sans SC","Microsoft YaHei","PingFang SC",sans-serif;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font:14px/1.5 var(--f-body);margin:0}
+.cjk{font-family:var(--f-cjk)}
+.mono,.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:var(--f-disp);text-wrap:balance;margin:0;letter-spacing:.01em}
+.eyebrow{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;letter-spacing:.12em;font-size:12px;color:var(--muted)}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--y-pink);outline-offset:2px}
+
+/* ---------- title block ---------- */
+.sheet{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:0 24px;padding:8px 16px 0;background:transparent;border:0}
+.tb-title{padding:0;display:flex;flex-direction:column;gap:0}
+.tb-title h1{font-size:22px;font-weight:800;line-height:1.1;text-transform:uppercase;letter-spacing:.03em}
+.tb-title h1 .red{color:var(--ink)}
+.tb-title .eyebrow{font-size:10px;letter-spacing:.1em}
+.tb-cells{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:2px 22px;margin:0}
+.tb-cells div{padding:0;display:flex;flex-direction:column;gap:0;min-width:0}
+.tb-cells dt{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:9.5px;color:var(--muted);line-height:1.3}
+.tb-cells dd{margin:0;font-family:var(--f-mono);font-size:12.5px;font-weight:500;line-height:1.3;white-space:nowrap}
+.tabs{grid-column:1/-1;display:flex;gap:0;padding:0;align-items:stretch;margin-top:2px}
+.tab{background:none;border:0;border-bottom:2px solid transparent;padding:6px 12px 5px 0;margin-right:10px;font-family:var(--f-disp);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);cursor:pointer}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--y-pink)}
+.tabs .spacer{flex:1}
+.unit-toggle{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:3px;overflow:hidden}
+.seg button{background:transparent;border:0;padding:2px 8px;font-size:11px;cursor:pointer;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--panel)}
+
+/* ---------- workspace ---------- */
+main{padding:8px 12px 32px;display:flex;flex-direction:column;gap:12px;max-width:1680px;margin:0 auto}
+.work{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:10px;align-items:start}
+.vp{position:relative;background:var(--vp);border:1px solid var(--rule);border-radius:var(--y-radius);height:calc(100vh - 96px);min-height:520px;overflow:hidden}
+.vp canvas{display:block;width:100%;height:100%;cursor:grab}
+.vp canvas:active{cursor:grabbing}
+.vp-bar{position:absolute;top:10px;left:10px;display:flex;gap:6px;flex-wrap:wrap}
+.vp-bar button{background:var(--panel);border:1px solid var(--rule);padding:4px 10px;font-size:12px;cursor:pointer;border-radius:2px}
+.vp-bar button:hover{border-color:var(--ink)}
+.north{position:absolute;top:10px;right:12px;width:44px;height:44px}
+.legend{position:absolute;left:10px;bottom:10px;background:color-mix(in srgb,var(--panel) 92%,transparent);border:1px solid var(--rule);padding:8px 10px;font-size:11.5px;display:grid;grid-template-columns:auto 1fr;gap:4px 8px;align-items:center;max-width:330px}
+.legend .sw{width:26px;height:0;border-top:2px solid}
+.legend .sw.box{height:10px;border:0}
+.legend .cjk{color:var(--muted);font-size:11px}
+.labels{position:absolute;inset:0;pointer-events:none}
+.lbl{position:absolute;left:0;top:0;white-space:nowrap;font-size:11px;font-family:var(--f-disp);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);transform-origin:0 0}
+.lbl.road{font-size:12px;color:var(--muted)}
+.lbl.tower{font-size:13px;color:var(--ink);background:var(--panel);border:1px solid var(--rule);padding:1px 6px;letter-spacing:.04em;text-transform:none;font-family:var(--f-mono);font-weight:500}
+.lbl.lim{font-size:11px}
+.lbl.dim{font-family:var(--f-mono);font-weight:500;text-transform:none;letter-spacing:0;color:var(--ink);background:var(--vp);padding:0 3px}
+.hint{position:absolute;right:12px;bottom:10px;font-size:11px;color:var(--muted)}
+
+/* ---------- controls ---------- */
+.ctrl{display:flex;flex-direction:column;gap:8px}
+.tower{background:var(--panel);border:1px solid var(--rule);border-radius:var(--y-radius);box-shadow:var(--y-shadow);padding:10px 10px 8px;display:flex;flex-direction:column;gap:6px}
+.tower.driver{border-color:var(--ink)}
+.tower header{display:flex;align-items:center;gap:10px}
+.tower h2{font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.tower .chip{width:14px;height:14px}
+.role{margin-left:auto;font-size:11px;font-family:var(--f-disp);font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:2px 7px;border:1px solid var(--rule);color:var(--muted)}
+.tower.driver .role{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.read{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.read div{padding:6px 6px 5px;border-right:1px solid var(--rule);min-width:0}
+.read div:last-child{border-right:0}
+.read span{display:block;font-size:10.5px;font-family:var(--f-disp);font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.read b{font-family:var(--f-mono);font-weight:500;font-size:12.5px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.note{font-size:12px;color:var(--muted);min-height:18px}
+.note.auto{color:var(--ink)}
+.note.bad{color:var(--fail)}
+.sl{display:grid;grid-template-columns:56px minmax(0,1fr) 62px;gap:6px;align-items:center;font-size:12px}
+.sl label{color:var(--muted)}
+.sl output{font-family:var(--f-mono);font-size:12.5px;text-align:right;font-variant-numeric:tabular-nums}
+.sl .lim{grid-column:2/4;font-size:11px;color:var(--muted);margin-top:-6px}
+input[type=range]{width:100%;accent-color:var(--ink)}
+.tower.ta input[type=range]{accent-color:var(--a)}
+.tower.tb input[type=range]{accent-color:var(--b)}
+details.params{background:var(--panel);border:1px solid var(--rule);border-radius:var(--y-radius);padding:8px 12px}
+details.params summary{cursor:pointer;font-family:var(--f-disp);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:14px}
+details.params .body{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.rowsel{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)}
+
+/* ---------- analysis ---------- */
+.analysis{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:start}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:var(--y-radius);box-shadow:var(--y-shadow);padding:12px}
+.card h3{font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+.card .sub{font-size:12px;color:var(--muted);margin:0 0 10px}
+.svgwrap{overflow-x:auto}
+svg text{font-family:var(--f-mono)}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+td,th{padding:5px 6px;border-bottom:1px solid var(--rule);text-align:left;vertical-align:top}
+th{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:11px;color:var(--muted)}
+td.r,th.r{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.tot td{font-weight:600;border-top:1.5px solid var(--ink)}
+.checks{display:flex;flex-direction:column}
+.ck{display:grid;grid-template-columns:54px minmax(0,1fr);gap:4px 10px;padding:7px 0;border-bottom:1px solid var(--rule)}
+.ck:last-child{border-bottom:0}
+.pill{font-family:var(--f-disp);font-weight:800;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;padding:2px 0;text-align:center;border:1.5px solid;align-self:start}
+.pill.pass{color:var(--pass)} .pill.warn{color:var(--warn)} .pill.fail{color:var(--fail);background:color-mix(in srgb,var(--fail) 12%,transparent)} .pill.info{color:var(--info)}
+.ck .t{font-weight:600;font-size:13px}
+.ck .v{font-family:var(--f-mono);font-size:12px;font-variant-numeric:tabular-nums}
+.ck .s{grid-column:2;font-size:11.5px;color:var(--muted)}
+.assume{font-size:12px;color:var(--muted);max-width:110ch;line-height:1.55}
+.assume b{color:var(--ink);font-weight:600}
+
+/* ---------- guide ---------- */
+.guide{display:grid;grid-template-columns:260px minmax(0,1fr);gap:28px;align-items:start}
+.toc{position:sticky;top:12px;display:flex;flex-direction:column;gap:2px;font-size:13px}
+.toc a{color:var(--muted);text-decoration:none;padding:3px 0 3px 10px;border-left:2px solid var(--rule)}
+.toc a:hover{color:var(--ink);border-left-color:var(--ink)}
+.gsec{display:flex;flex-direction:column;gap:12px;margin-bottom:34px;scroll-margin-top:12px}
+.gsec>h2{font-size:26px;font-weight:800;text-transform:uppercase;letter-spacing:.03em}
+.gsec>p{max-width:78ch;margin:0;color:var(--muted)}
+.finder td:first-child{width:38%}
+.path{font-family:var(--f-cjk);font-size:12.5px;overflow-wrap:anywhere}
+.tree{font-family:var(--f-mono);font-size:12.5px;line-height:1.7;background:var(--panel);border:1px solid var(--rule);padding:14px 16px;overflow-x:auto;white-space:pre}
+.tree .cn{font-family:var(--f-cjk)}
+.tree .en{color:var(--muted)}
+.folder{border:1px solid var(--rule);background:var(--panel);border-radius:var(--y-radius);overflow:hidden}
+.folder>header{display:flex;gap:14px;align-items:baseline;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--rule);background:var(--panel2)}
+.folder>header .no{font-family:var(--f-disp);font-weight:800;font-size:22px;color:var(--muted);min-width:34px}
+.folder>header h3{font-size:19px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.folder>header .cn{font-family:var(--f-cjk);font-size:13px;color:var(--muted)}
+.file{display:grid;grid-template-columns:52px minmax(0,1fr) 90px;gap:4px 14px;padding:12px 16px;border-bottom:1px solid var(--rule)}
+.file:last-child{border-bottom:0}
+.ft{font-family:var(--f-disp);font-weight:800;font-size:11px;letter-spacing:.1em;text-align:center;padding:2px 0;border:1.5px solid var(--muted);color:var(--muted);align-self:start}
+.ft.pdf{border-color:var(--red);color:var(--red)} .ft.dwg{border-color:var(--a);color:var(--a)} .ft.doc{border-color:var(--ink);color:var(--ink)} .ft.zip{border-color:var(--b);color:var(--b)}
+.file .en{font-weight:600}
+.file .cnname{font-family:var(--f-cjk);font-size:12.5px;color:var(--muted);overflow-wrap:anywhere}
+.file .desc{grid-column:2/3;font-size:13px;max-width:82ch}
+.file .use{grid-column:2/3;font-size:12.5px;color:var(--muted)}
+.file .use b{color:var(--ink);font-weight:600}
+.file .size{font-family:var(--f-mono);font-size:12px;color:var(--muted);text-align:right}
+.flag{border-left:3px solid var(--y-line);background:var(--panel);padding:10px 14px;font-size:13px;max-width:92ch}
+.flag b{font-weight:600}
+.flags{display:flex;flex-direction:column;gap:8px}
+ul.tight{margin:4px 0 0;padding-left:18px}
+ul.tight li{margin:2px 0}
+
+@media (max-width:1180px){
+  .work{grid-template-columns:1fr}
+  .vp{height:70vh}
+  .analysis{grid-template-columns:1fr}
+  .sheet{grid-template-columns:1fr}
+  .tb-cells{justify-content:flex-start}
+  .guide{grid-template-columns:1fr}
+  .toc{position:static}
+}
+@media (max-width:640px){
+  .tb-title h1{font-size:20px}
+  main{padding:10px}
+  .file{grid-template-columns:44px minmax(0,1fr)}
+  .file .size{grid-column:2;text-align:left}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+</head><body><header class="sheet">
+  <div class="tb-title">
+    <span class="eyebrow">Plot 2 · <span class="cjk">地块二</span></span>
+    <h1>Zoning <span class="red">Envelope</span></h1>
+  </div>
+  <dl class="tb-cells">
+    <div><dt>Site area</dt><dd>29,778.53 m²</dd></div>
+    <div><dt>Net site</dt><dd>23,174.77 m²</dd></div>
+    <div><dt>FAR</dt><dd>6.0 – 7.0</dd></div>
+    <div><dt>Height</dt><dd>≤ 200 m · ≤ 264 m el.</dd></div>
+    <div><dt>Coverage · Green</dt><dd>≤ 50% · ≥ 10%</dd></div>
+  </dl>
+  <nav class="tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true" aria-controls="p-env" id="t-env">Envelope tool</button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="p-guide" id="t-guide">Document guide</button>
+    <span class="spacer"></span>
+    <div class="unit-toggle">Units
+      <div class="seg" id="units"><button aria-pressed="true" data-u="m">Metric</button><button aria-pressed="false" data-u="ft">Imperial</button></div>
+    </div>
+  </nav>
+</header>
+
+<main>
+<!-- ======================= ENVELOPE TOOL ======================= -->
+<section id="p-env" role="tabpanel" aria-labelledby="t-env" style="display:flex;flex-direction:column;gap:20px">
+  <div class="work">
+    <div class="vp" id="vp">
+      <canvas id="cv" aria-label="3D zoning envelope of Plot 2"></canvas>
+      <div class="labels" id="labels"></div>
+      <div class="vp-bar">
+        <button data-view="axo">Axonometric</button>
+        <button data-view="plan">Plan</button>
+        <button data-view="south">From Shangcheng Ave</button>
+        <button data-view="east">From the east (residential)</button>
+      </div>
+      <svg class="north" id="north" viewBox="-22 -22 44 44" aria-label="North arrow">
+        <circle r="20" fill="var(--panel)" stroke="var(--rule)"></circle>
+        <g id="northg"><path d="M0,-16 L6,8 L0,4 L-6,8 Z" fill="var(--ink)"></path><text y="-5" text-anchor="middle" font-size="7" fill="var(--panel)" font-family="var(--f-disp)" font-weight="800">N</text></g>
+      </svg>
+      <div class="legend">
+        <span class="sw" style="border-color:var(--red);border-top-width:3px"></span><span>Site red line <span class="cjk">地块红线</span></span>
+        <span class="sw box" style="background:var(--greenfill);outline:1px solid var(--green)"></span><span>Planned green, handed to city <span class="cjk">规划绿地</span></span>
+        <span class="sw" style="border-color:var(--muted);border-top-style:dashed"></span><span>Podium control line, 5–10 m <span class="cjk">低多层建筑控制线</span></span>
+        <span class="sw" style="border-color:var(--ink)"></span><span>Tower control line, 8–15 m <span class="cjk">高层建筑控制线</span></span>
+        <span class="sw box" style="background:var(--lim200);opacity:.5"></span><span>200 m planning height limit</span>
+        <span class="sw box" style="background:var(--limair);opacity:.5"></span><span>Airport ceiling, 264 m elevation</span>
+      </div>
+      <div class="hint">Drag to orbit · scroll to zoom · right-drag to pan</div>
+    </div>
+
+    <div class="ctrl">
+      <div class="tower ta" id="card-A">
+        <header><span class="chip" style="background:var(--a)"></span><h2>Tower A · West</h2><span class="role" id="role-A">Adjusting</span></header>
+        <div class="read">
+          <div><span>Height</span><b id="rA-h"></b></div>
+          <div><span>Floors</span><b id="rA-n"></b></div>
+          <div><span>Floor plate</span><b id="rA-p"></b></div>
+          <div><span>FAR GFA</span><b id="rA-g"></b></div>
+        </div>
+        <div class="note" id="note-A"></div>
+        <div class="sl"><label for="A-n">Height</label><input type="range" id="A-n" data-t="A" data-k="n" step="1"><output id="oA-n"></output></div>
+        <div class="sl"><label for="A-W">Width</label><input type="range" id="A-W" data-t="A" data-k="W" min="20" max="70" step="0.5"><output id="oA-W"></output><div class="lim">along Shangcheng Ave · frontage ≤ 55 m</div></div>
+        <div class="sl"><label for="A-D">Depth</label><input type="range" id="A-D" data-t="A" data-k="D" min="20" max="70" step="0.5"><output id="oA-D"></output></div>
+        <div class="sl"><label for="A-s">Position</label><input type="range" id="A-s" data-t="A" data-k="s" min="0" max="284" step="1"><output id="oA-s"></output></div>
+      </div>
+
+      <div class="tower tb" id="card-B">
+        <header><span class="chip" style="background:var(--b)"></span><h2>Tower B · East</h2><span class="role" id="role-B">Auto</span></header>
+        <div class="read">
+          <div><span>Height</span><b id="rB-h"></b></div>
+          <div><span>Floors</span><b id="rB-n"></b></div>
+          <div><span>Floor plate</span><b id="rB-p"></b></div>
+          <div><span>FAR GFA</span><b id="rB-g"></b></div>
+        </div>
+        <div class="note" id="note-B"></div>
+        <div class="sl"><label for="B-n">Height</label><input type="range" id="B-n" data-t="B" data-k="n" step="1"><output id="oB-n"></output></div>
+        <div class="sl"><label for="B-W">Width</label><input type="range" id="B-W" data-t="B" data-k="W" min="20" max="70" step="0.5"><output id="oB-W"></output><div class="lim">along Shangcheng Ave · frontage ≤ 55 m</div></div>
+        <div class="sl"><label for="B-D">Depth</label><input type="range" id="B-D" data-t="B" data-k="D" min="20" max="70" step="0.5"><output id="oB-D"></output></div>
+        <div class="sl"><label for="B-s">Position</label><input type="range" id="B-s" data-t="B" data-k="s" min="0" max="284" step="1"><output id="oB-s"></output></div>
+      </div>
+
+      <details class="params" open>
+        <summary>Site &amp; program assumptions</summary>
+        <div class="body">
+          <div class="rowsel">When the other tower must shrink
+            <div class="seg" id="shrink"><button aria-pressed="true" data-v="height">Height first</button><button aria-pressed="false" data-v="plate">Floor plate first</button></div>
+          </div>
+          <div class="sl"><label for="g-pod">Podium GFA</label><input type="range" id="g-pod" min="20000" max="46000" step="500"><output id="o-pod"></output></div>
+          <div class="sl"><label for="g-pf">Podium floors</label><input type="range" id="g-pf" min="1" max="4" step="1"><output id="o-pf"></output></div>
+          <div class="sl"><label for="g-pfh">Podium floor ht</label><input type="range" id="g-pfh" min="4.5" max="7" step="0.1"><output id="o-pfh"></output></div>
+          <div class="sl"><label for="g-f">Office floor ht</label><input type="range" id="g-f" min="3.6" max="4.2" step="0.05"><output id="o-f"></output><div class="lim">typical floor-to-floor ≤ 4.2 m</div></div>
+          <div class="sl"><label for="g-grade">Grade elev.</label><input type="range" id="g-grade" min="72.4" max="76.5" step="0.1"><output id="o-grade"></output><div class="lim">road levels around site 72.40–75.93 m</div></div>
+          <div class="sl"><label for="g-crown">Crown above roof</label><input type="range" id="g-crown" min="0" max="20" step="0.5"><output id="o-crown"></output><div class="lim">parapet, masts, BMU; counts toward the airport limit</div></div>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <div class="analysis">
+    <div class="card">
+      <h3>Floor area ledger</h3>
+      <p class="sub">FAR-counted GFA against the 6.0–7.0 band on the 23,174.77 m² net site</p>
+      <div class="svgwrap"><svg id="bar" viewBox="0 0 520 96" width="100%" role="img" aria-label="GFA against FAR band"></svg></div>
+      <table id="ledger"></table>
+    </div>
+    <div class="card">
+      <h3>Height section</h3>
+      <p class="sub">Towers against the height limits, looking north, to scale</p>
+      <div class="svgwrap"><svg id="sec" viewBox="0 0 520 330" width="100%" role="img" aria-label="Section through towers and height limits"></svg></div>
+      <table id="plates"></table>
+    </div>
+    <div class="card">
+      <h3>Compliance</h3>
+      <p class="sub">Live checks, with the document each rule comes from</p>
+      <div class="checks" id="checks"></div>
+    </div>
+  </div>
+
+  <p class="assume"><b>How the auto-adjust works.</b> The tower you last touched leads. If total FAR GFA falls below FAR 6.0, the other tower first adds floors up to the height cap, then widens its floor plate (up to 55 m per side and the tower control line). If the total goes over FAR 7.0, it drops floors (or shrinks its floor plate first, per the toggle) down to 100 m, the brief's “super-high-rise” threshold, and the H/7 slenderness minimum. <b>Modelling assumptions:</b> office floors start above the podium; refuge floors (one every ≤ 50 m on towers over 100 m, per GB 50016) are excluded from FAR, which matches the brief's program (46,000 + 116,000 = 162,000 m² counted, plus 8,000 m² refuge); the podium footprint is the podium control line inset to podium GFA ÷ floors. Site geometry is traced from the 2000-system coordinates on drawing 01 and reproduces the documented areas to within 0.3%. The east green strip width is solved so the net site equals 23,174.77 m². Treat this as a massing check, not a survey.</p>
+</section>
+
+<!-- ======================= DOCUMENT GUIDE ======================= -->
+<section id="p-guide" role="tabpanel" aria-labelledby="t-guide" hidden>
+  <div class="guide">
+    <nav class="toc" aria-label="Guide contents">
+      <a href="#g-find">Find a document fast</a>
+      <a href="#g-flags">Corrections &amp; flags</a>
+      <a href="#g-tree">Folder tree</a>
+      <a href="#g-root">Root: tender &amp; brief</a>
+      <a href="#g-00">Red-line folder, items 01–04</a>
+      <a href="#g-06">06 · Plot 1 (north)</a>
+      <a href="#g-07">07 · East resettlement housing</a>
+      <a href="#g-08">08 · Light-rail station</a>
+      <a href="#g-09">09 · Local codes &amp; standards</a>
+      <a href="#g-10">10 · Futian Wetland Park</a>
+      <a href="#g-11">11 · Utilities</a>
+      <a href="#g-gloss">Glossary of Chinese terms</a>
+    </nav>
+    <div>
+      <div class="gsec" id="g-find">
+        <h2>Find a document fast</h2>
+        <p>Start with the question you have, then open the file on the right. Paths are relative to the competition folder.</p>
+        <div class="card" style="padding:6px 14px;overflow-x:auto">
+        <table class="finder">
+          <tr><th>I need…</th><th>Open</th></tr>
+          <tr><td>The brief in English</td><td class="path">Yiwu_Twin_Towers_Bilingual_Competition_Brief_CN_EN.docx</td></tr>
+          <tr><td>FAR, height, coverage, parking ratio, podium limits</td><td class="path">义乌双子塔项目设计红线图 / 02-地块二规划条件书.pdf</td></tr>
+          <tr><td>Site boundary and setback lines (drawing)</td><td class="path">义乌双子塔项目设计红线图 / 01-地块二控制红线图.pdf</td></tr>
+          <tr><td>Site boundary in CAD</td><td class="path">义乌双子塔项目设计红线图 / 01-地块二控制红线图CAD版本.dwg</td></tr>
+          <tr><td>Site boundary with the rail line overlaid</td><td class="path">义乌双子塔项目设计红线图 / 01-…CAD版本(轨道公司套图）.dwg</td></tr>
+          <tr><td>Green-building star rating, sponge-city targets, rainwater tank</td><td class="path">义乌双子塔项目设计红线图 / 03-地块二国有建设用地建设条件书118号….pdf</td></tr>
+          <tr><td>Civil-defense (air-raid shelter) requirement</td><td class="path">义乌双子塔项目设计红线图 / 04-地块二人防建设条件书-65号.pdf</td></tr>
+          <tr><td>The plot to the north you must connect to</td><td class="path">义乌双子塔项目设计红线图 / 06临近地块一红线控规 / …</td></tr>
+          <tr><td>Residential towers to the east (sunlight analysis)</td><td class="path">义乌双子塔项目设计红线图 / 07东前王总图及建筑图纸 / …</td></tr>
+          <tr><td>Light-rail station and entrance details</td><td class="path">义乌双子塔项目设计红线图 / 08-商城大道轻轨站提资 / …</td></tr>
+          <tr><td>Road setbacks, building spacing, frontage limits</td><td class="path">09-项目当地规范性文件 / 09-义乌市城乡规划管理技术规定（2018版）….pdf</td></tr>
+          <tr><td>How GFA is measured (what counts toward FAR)</td><td class="path">09-项目当地规范性文件 / 09-建筑工程建筑面积计算和竣工综合测量技术规程….pdf</td></tr>
+          <tr><td>Rules for 150–250 m towers</td><td class="path">09-项目当地规范性文件 / 浙江省超高层建筑150-250m设计专项审查工作指南-定稿.pdf</td></tr>
+          <tr><td>Wetland park to the west (sky-bridge interface)</td><td class="path">义乌双子塔项目设计红线图 / 10-福田湿地公园总图 / …</td></tr>
+          <tr><td>Existing underground pipes and drainage</td><td class="path">义乌双子塔项目设计红线图 / 11-周边管线资料 / …</td></tr>
+          <tr><td>Submission rules, scoring, page limits, contract</td><td class="path">义乌双子塔项目设计招标文件终稿.doc</td></tr>
+        </table>
+        </div>
+      </div>
+
+      <div class="gsec" id="g-flags">
+        <h2>Corrections &amp; flags</h2>
+        <p>Things in the folder that a reader without Chinese would miss.</p>
+        <div class="flags">
+          <div class="flag"><b>Green-building rating was corrected to Three-Star.</b> Document 03 prints “Two-Star” (二星级), but a red annotation on the scan says it is wrong and was later confirmed as <b>Three-Star</b> (有误，后确认为三星级). The brief also requires Three-Star for the towers.</div>
+          <div class="flag"><b>Civil-defense GFA figures in 04 are wrong.</b> Document 04 gives 178,671–208,450 m² (FAR 6–7 applied to the full 29,778.53 m² site). The annotation says to deduct the planned green first (规模数据有误，应扣除规划绿地后再计算计容面积), giving <b>139,049–162,223 m²</b>. This tool uses the corrected basis.</div>
+          <div class="flag"><b>The two tender .doc files have identical text.</b> <span class="cjk">义乌双子塔项目设计招标文件终稿.doc</span> and <span class="cjk">…终稿(2).doc</span> are the same size and produce identical text; only file metadata differs. Use either one.</div>
+          <div class="flag"><b>There is no item 05.</b> The red-line folder numbering jumps from 04 to 06. Planning conditions 02 lists three attachments (01, 03, 04), and all are present.</div>
+          <div class="flag"><b>The airport limit sets the real height cap.</b> Airport clearance is an absolute <b>264 m elevation</b> (Yellow Sea datum), and it applies to the highest point, including tower cranes during construction. Grade is about 72.4–75.9 m, so the practical ceiling is <b>about 188–192 m above grade</b>, below the 200 m planning limit.</div>
+          <div class="flag"><b>Validity periods.</b> The planning conditions (02) are valid for two years from 17 Nov 2025. The construction conditions (03) must be reissued if the land is not sold within one year of 3 Dec 2025. The brief gives the bid deadline as <b>10 Sep 2026, 09:00 Beijing time</b>.</div>
+        </div>
+      </div>
+
+      <div class="gsec" id="g-tree">
+        <h2>Folder tree</h2>
+        <p>Every file, with a short English name. The 06–11 folders each contain a same-named subfolder, which is how the files were delivered.</p>
+<div class="tree">YIWU TWIN TOWERS COMPETITION MATERIAL/
+├─ <span class="cn">义乌双子塔项目设计招标文件终稿.doc</span>            <span class="en">Tender documents, final (7 chapters)</span>
+├─ <span class="cn">义乌双子塔项目设计招标文件终稿(2).doc</span>         <span class="en">Duplicate of the above</span>
+├─ Yiwu_Twin_Towers_Bilingual_Competition_Brief_CN_EN.docx  <span class="en">English/Chinese brief</span>
+└─ <span class="cn">义乌双子塔项目设计红线图/</span>                      <span class="en">"Design red-line drawings": site data package</span>
+   ├─ <span class="cn">01-地块二控制红线图.pdf</span>                     <span class="en">Plot 2 control red-line drawing, 1:1000</span>
+   ├─ <span class="cn">01-地块二控制红线图CAD版本.dwg</span>              <span class="en">Same, CAD</span>
+   ├─ <span class="cn">01-地块二控制红线图CAD版本(轨道公司套图）.dwg</span>  <span class="en">Same, CAD, with rail company overlay</span>
+   ├─ <span class="cn">02-地块二规划条件书.pdf</span>                     <span class="en">Planning conditions (the zoning rules)</span>
+   ├─ <span class="cn">03-地块二国有建设用地建设条件书118号（…）.pdf</span>  <span class="en">State land construction conditions No.118</span>
+   ├─ <span class="cn">04-地块二人防建设条件书-65号.pdf</span>             <span class="en">Civil-defense conditions No.65</span>
+   ├─ <span class="cn">06临近地块一红线控规/</span>                        <span class="en">Adjacent Plot 1 (north) package</span>
+   │  ├─ <span class="cn">C1地块红线图.dwg</span>                          <span class="en">Plot 1 red line, CAD</span>
+   │  ├─ <span class="cn">人防建设条件书-64号.pdf</span>                    <span class="en">Plot 1 civil-defense conditions No.64</span>
+   │  ├─ <span class="cn">国有建设用地建设条件书117号（…地块一）.pdf</span>   <span class="en">Plot 1 construction conditions No.117</span>
+   │  └─ <span class="cn">福田街道商城大道与商博路交叉口东北侧地块一KG.pdf</span> <span class="en">Plot 1 control red-line drawing</span>
+   ├─ <span class="cn">07东前王总图及建筑图纸/</span>                      <span class="en">Dongqianwang resettlement housing (east)</span>
+   │  ├─ <span class="cn">项目东侧东前往安置项目总图.dwg</span>              <span class="en">Site plan of the housing east of the project</span>
+   │  └─ <span class="cn">东前王.zip</span>                                <span class="en">20 building CAD sets (A1–D6, podium, kindergarten)</span>
+   ├─ <span class="cn">08-商城大道轻轨站提资/</span>                       <span class="en">Shangcheng Ave light-rail station data</span>
+   │  ├─ <span class="cn">21浙大附属医院站-主体内出入口详图_t3.dwg</span>      <span class="en">Station 21, entrance details</span>
+   │  └─ <span class="cn">21浙大附属医院站-总图-近期_t3.dwg</span>           <span class="en">Station 21, site plan (near term)</span>
+   ├─ <span class="cn">09-项目当地规范性文件/</span>                       <span class="en">Local codes &amp; standards (8 files)</span>
+   ├─ <span class="cn">10-福田湿地公园总图/</span>                         <span class="en">Futian Wetland Park master plan</span>
+   │  └─ <span class="cn">湿地公园总分幅平面图.dwg</span>
+   └─ <span class="cn">11-周边管线资料/</span>                             <span class="en">Surrounding utilities</span>
+      ├─ <span class="cn">商城大道最终排水-2023.10.28(1).dwg</span>          <span class="en">Shangcheng Ave final drainage</span>
+      ├─ <span class="cn">商城大道管线套总图_t7(1).dwg</span>                <span class="en">Shangcheng Ave composite utilities</span>
+      └─ <span class="cn">现场管线测量成果/义乌成果资料/</span>              <span class="en">Field utility survey results</span>
+         ├─ <span class="cn">义乌双子塔项目管线测绘成果报告.pdf</span>         <span class="en">Survey report</span>
+         └─ <span class="cn">义乌双子塔项目综合管线图.dwg</span>              <span class="en">Composite utility map, 1:500</span></div>
+      </div>
+
+      <div class="gsec" id="g-root">
+        <h2>Root: tender &amp; brief</h2>
+        <div class="folder">
+          <header><span class="no">—</span><h3>Competition folder root</h3><span class="cn">YIWU TWIN TOWERS COMPETITION MATERIAL</span></header>
+          <div class="file"><span class="ft doc">DOCX</span><div><div class="en">Bilingual Competition Design Brief</div><div class="cnname">Yiwu_Twin_Towers_Bilingual_Competition_Brief_CN_EN.docx</div></div><span class="size">60 KB</span>
+            <div class="desc">A working English translation of Chapter 5 of the tender (Employer's Requirements / design brief), plus key tender facts. Chinese remains the controlling text. It covers site controls, the program table (podium 46,000 m², offices 116,000 m², refuge 8,000 m²), planning, architecture and connection requirements, the RMB 1.43 bn construction-cost cap, and submission rules.</div>
+            <div class="use"><b>Use it for:</b> reading the brief without Chinese. Start here.</div></div>
+          <div class="file"><span class="ft doc">DOC</span><div><div class="en">Tender documents, final</div><div class="cnname">义乌双子塔项目设计招标文件终稿.doc</div></div><span class="size">658 KB</span>
+            <div class="desc">The full official tender. Chapters, with page numbers from its contents list:
+              <ul class="tight">
+                <li><b>Ch. 1 Tender notice</b> <span class="cjk">招标公告</span> (p.2): project, qualification, JV rules, deadline</li>
+                <li><b>Ch. 2 Instructions to bidders</b> <span class="cjk">投标人须知</span> (p.7): data sheet, anonymous submission, packaging, opening procedure, grounds for rejection</li>
+                <li><b>Ch. 3 Evaluation method</b> <span class="cjk">评标办法</span> (p.42): design 80, credentials 10, commercial 10; 7-member panel; award decided separately from scoring</li>
+                <li><b>Ch. 4 Contract terms &amp; forms</b> <span class="cjk">合同条款及格式</span> (p.49): design contract, with Attachments 1–7 (integrity pledge, scope and stages, client-supplied data, deliverables list, staff table, fee and payment schedule, site-service notice)</li>
+                <li><b>Ch. 5 Employer's requirements</b> <span class="cjk">发包人要求</span> (p.80): the design brief, translated in the bilingual docx</li>
+                <li><b>Ch. 6 Bid document formats</b> <span class="cjk">投标文件格式</span> (p.83): forms to fill in</li>
+                <li><b>Ch. 7 Live-stream + supplementary presentation materials</b> <span class="cjk">直播演示+辅助演示申报资料</span> (p.104): cover, contents, authenticity pledge, company and project-lead track records since 1 Jan 2023</li>
+              </ul></div>
+            <div class="use"><b>Use it for:</b> submission format, page limits, scoring, contract and fee terms.</div></div>
+          <div class="file"><span class="ft doc">DOC</span><div><div class="en">Tender documents, final (copy)</div><div class="cnname">义乌双子塔项目设计招标文件终稿(2).doc</div></div><span class="size">658 KB</span>
+            <div class="desc">Same text as the file above.</div></div>
+        </div>
+      </div>
+
+      <div class="gsec" id="g-00">
+        <h2>Red-line folder, items 01–04</h2>
+        <p><span class="cjk">义乌双子塔项目设计红线图</span> means “Yiwu Twin Towers project design red-line drawings”. Items 01–04 are the official planning package for Plot 2, your site.</p>
+        <div class="folder">
+          <header><span class="no">01</span><h3>Control red-line drawing</h3><span class="cn">地块二控制红线图</span></header>
+          <div class="file"><span class="ft pdf">PDF</span><div><div class="en">Plot 2 control red-line drawing, 1:1000, 2000 coordinate system</div><div class="cnname">01-地块二控制红线图.pdf</div></div><span class="size">1.2 MB</span>
+            <div class="desc">The stamped site drawing, issued 13 Nov 2025 by Zhejiang Hanyu Design. It shows the red line (S1 = 23,174.77 m² buildable plus S2 = 6,603.76 m² planned green, total 29,778.53 m²), corner coordinates, and three nested setback lines: underground, low/multi-storey and high-rise. Setbacks for towers: 15 m (west, Shangbo Rd), 8 m (north), and 8 m from the green edge on the south and east. For podium: 10 / 5 / 5 / 5 m. It also shows the 17 m green strip along Shangcheng Ave, no-access road frontages, the Jin-Yi-Dong rail protection zone and the Zhejiang 4th Hospital station exit B to the east. Road levels are 72.40–75.93 m.</div>
+            <div class="use"><b>Use it for:</b> setbacks, buildable envelope, and where vehicle entrances are not allowed (grey bars).</div></div>
+          <div class="file"><span class="ft dwg">DWG</span><div><div class="en">Red-line drawing, CAD</div><div class="cnname">01-地块二控制红线图CAD版本.dwg</div></div><span class="size">4.2 MB</span>
+            <div class="desc">Editable CAD of the drawing above. Use it as the base for your site plan.</div></div>
+          <div class="file"><span class="ft dwg">DWG</span><div><div class="en">Red-line drawing, CAD, rail-company overlay</div><div class="cnname">01-地块二控制红线图CAD版本(轨道公司套图）.dwg</div></div><span class="size">4.2 MB</span>
+            <div class="desc">The same CAD overlaid with the rail operator's drawings (<span class="cjk">轨道公司套图</span>), showing the light-rail alignment and protection zone against the site.</div>
+            <div class="use"><b>Use it for:</b> basement edges and station connections near the rail line.</div></div>
+        </div>
+        <div class="folder">
+          <header><span class="no">02</span><h3>Planning conditions</h3><span class="cn">地块二规划条件书 · 义规条件[2025]428号</span></header>
+          <div class="file"><span class="ft pdf">PDF</span><div><div class="en">Planning conditions for Plot 2 (the zoning rules)</div><div class="cnname">02-地块二规划条件书.pdf</div></div><span class="size">337 KB</span>
+            <div class="desc">Issued 17 Nov 2025 by the Yiwu Natural Resources &amp; Planning Bureau. It is the primary zoning document:
+              <ul class="tight">
+                <li>Land use: park green, protective green, business/finance, commercial</li>
+                <li>FAR 6.0–7.0, coverage ≤ 50%, green ratio ≥ 10%, height ≤ 200 m, airport limit on the highest point</li>
+                <li>Podium ≤ 4 floors and ≤ 46,000 m², owner-held. Offices sellable in units ≥ 300 m², with sold area ≤ 70% of above-ground FAR GFA. A hotel, if any, must be ≥ 5,000 m² and unsold</li>
+                <li>Typical tower floor-to-floor ≤ 4.2 m; common-corridor layout; no apartment-style units</li>
+                <li>Basement down to −20 m; up to 10,000 m² basement retail outside FAR</li>
+                <li>Parking 0.6 spaces per 100 m² above-ground area, ≤ 10% at grade, stalls ≥ 2.5 × 6 m</li>
+                <li>The 6,603.76 m² green is excluded from all indices; its underground may be used, and it is handed to the city</li>
+                <li>Two or more schemes and a 3D simulation are required for approval</li>
+              </ul></div>
+            <div class="use"><b>Use it for:</b> any numeric zoning question.</div></div>
+        </div>
+        <div class="folder">
+          <header><span class="no">03</span><h3>Construction conditions No.118</h3><span class="cn">国有建设用地建设条件书 · 义建条件[2025]118号</span></header>
+          <div class="file"><span class="ft pdf">PDF</span><div><div class="en">State land construction conditions, Plot 2</div><div class="cnname">03-地块二国有建设用地建设条件书118号（福田街道商城大道与商博路交叉口东北侧地块二）.pdf</div></div><span class="size">359 KB</span>
+            <div class="desc">Issued 3 Dec 2025 by the Yiwu Housing &amp; Urban-Rural Development Bureau (scanned, 4 pages; page 4 is blank). Requirements:
+              <ul class="tight">
+                <li>Green building <b>Three-Star</b> (corrected by annotation from Two-Star); renewable share ≥ 10%; operational carbon reduced by ≥ 13.3 kgCO₂/m²·yr; prefabricated construction</li>
+                <li>Sponge city: annual runoff control ≥ 74%, runoff coefficient ≤ 0.54, rainwater storage tank ≥ 70 m³</li>
+                <li>Storm and sewer separation, piped gas (reserved for retail), property-management space ≥ 0.3% of above-ground GFA on floors 1–2</li>
+                <li>Site hoarding within 3 months; dust-control standards</li>
+              </ul></div>
+            <div class="use"><b>Use it for:</b> sustainability targets and utility obligations.</div></div>
+        </div>
+        <div class="folder">
+          <header><span class="no">04</span><h3>Civil-defense conditions No.65</h3><span class="cn">人防条件书 · [2025]65号</span></header>
+          <div class="file"><span class="ft pdf">PDF</span><div><div class="en">Civil-defense (air-raid shelter) conditions, Plot 2</div><div class="cnname">04-地块二人防建设条件书-65号.pdf</div></div><span class="size">505 KB</span>
+            <div class="desc">Issued 2 Dec 2025 by the Yiwu Development &amp; Reform Bureau. Shelter basement is 5% of above-ground area for non-residential use, as a Class A, Grade 6, Level 2 personnel shelter, with a power station per code. Shelter and its entrances are handed to a city-owned company. The GFA figures printed here are wrong; see Corrections.</div>
+            <div class="use"><b>Use it for:</b> sizing the shelter part of the basement.</div></div>
+        </div>
+      </div>
+
+      <div class="gsec" id="g-06">
+        <div class="folder">
+          <header><span class="no">06</span><h3>Adjacent Plot 1, north</h3><span class="cn">06临近地块一红线控规</span></header>
+          <div class="file" style="grid-template-columns:1fr"><div class="desc" style="grid-column:1">Plot 1 sits directly north of your site and shares its whole north boundary. It is a near-twin parcel (30,373.08 m², including 5,623.89 m² of road and 1,454.12 m² of green). The brief requires the podium, basement, ramps and a pedestrian corridor to be coordinated and connected with Plot 1.</div></div>
+          <div class="file"><span class="ft pdf">PDF</span><div><div class="en">Plot 1 control red-line drawing</div><div class="cnname">福田街道商城大道与商博路交叉口东北侧地块一KG.pdf</div></div><span class="size">1.2 MB</span>
+            <div class="desc">Same format as 01. Buildable S1 = 23,295.07 m² with setbacks of 15/10/6 m (west) and 5/10 m (north). A 20 m planned road runs along its north edge.</div></div>
+          <div class="file"><span class="ft dwg">DWG</span><div><div class="en">Plot 1 (C1) red line, CAD</div><div class="cnname">C1地块红线图.dwg</div></div><span class="size">4.8 MB</span></div>
+          <div class="file"><span class="ft pdf">PDF</span><div><div class="en">Plot 1 construction conditions No.117</div><div class="cnname">国有建设用地建设条件书117号（福田街道商城大道与商博路交叉口东北侧地块一）.pdf</div></div><span class="size">338 KB</span>
+            <div class="desc">Scanned, 3 pages. The counterpart to 03 for Plot 1.</div></div>
+          <div class="file"><span class="ft pdf">PDF</span><div><div class="en">Plot 1 civil-defense conditions No.64</div><div class="cnname">人防建设条件书-64号.pdf</div></div><span class="size">426 KB</span>
+            <div class="desc">Scanned, 1 page. The counterpart to 04 for Plot 1.</div></div>
+        </div>
+      </div>
+
+      <div class="gsec" id="g-07">
+        <div class="folder">
+          <header><span class="no">07</span><h3>Dongqianwang resettlement housing, east</h3><span class="cn">07东前王总图及建筑图纸</span></header>
+          <div class="file" style="grid-template-columns:1fr"><div class="desc" style="grid-column:1">High-rise resettlement housing east of the site. The brief requires the master plan to protect its sunlight access. Yiwu rules require ≥ 2 hours of sun on the “Great Cold” day (大寒日) for affected housing, and ≥ 24 m between a high-rise and housing to its east, west or north.</div></div>
+          <div class="file"><span class="ft dwg">DWG</span><div><div class="en">Site plan of the resettlement project east of the site</div><div class="cnname">项目东侧东前往安置项目总图.dwg</div></div><span class="size">2.5 MB</span>
+            <div class="use"><b>Use it for:</b> building positions and heights for sunlight (shadow) analysis.</div></div>
+          <div class="file"><span class="ft zip">ZIP</span><div><div class="en">Building construction drawings, 20 CAD files</div><div class="cnname">东前王.zip</div></div><span class="size">55 MB</span>
+            <div class="desc">Construction drawings for buildings A1–A4, B1–B4, C1–C4 and D1–D6, plus the D-zone podium (<span class="cjk">D区裙房</span>) and the kindergarten (<span class="cjk">东前王幼儿园</span>). The kindergarten needs extra sunlight protection.</div></div>
+        </div>
+      </div>
+
+      <div class="gsec" id="g-08">
+        <div class="folder">
+          <header><span class="no">08</span><h3>Light-rail station data</h3><span class="cn">08-商城大道轻轨站提资</span></header>
+          <div class="file" style="grid-template-columns:1fr"><div class="desc" style="grid-column:1">Station 21, “Zhejiang University Affiliated Hospital Station” (<span class="cjk">浙大附属医院站</span>), on the Jin-Yi-Dong line along the site's east side. The drawing 01 labels it as the Zhejiang 4th Hospital station, exit B. The brief asks for direct connections from the podium and basement to the station exits.</div></div>
+          <div class="file"><span class="ft dwg">DWG</span><div><div class="en">Station 21: entrances within the main structure, details</div><div class="cnname">21浙大附属医院站-主体内出入口详图_t3.dwg</div></div><span class="size">8.3 MB</span></div>
+          <div class="file"><span class="ft dwg">DWG</span><div><div class="en">Station 21: general plan, near-term phase</div><div class="cnname">21浙大附属医院站-总图-近期_t3.dwg</div></div><span class="size">3.0 MB</span></div>
+        </div>
+      </div>
+
+      <div class="gsec" id="g-09">
+        <div class="folder">
+          <header><span class="no">09</span><h3>Local codes &amp; standards</h3><span class="cn">09-项目当地规范性文件</span></header>
+          <div class="file"><span class="ft pdf">PDF</span><div><div class="en">Yiwu Urban &amp; Rural Planning Management Technical Regulations (2018)</div><div class="cnname">09-义乌市城乡规划管理技术规定（2018版）2018-12-14.pdf</div></div><span class="size">14 MB</span>
+            <div class="desc">Scanned, 48 pages, referenced by 02 for anything not stated there. PDF page = printed page + 3. Articles most relevant here:
+              <ul class="tight">
+                <li>Art. 22: ground floor ±0.00 no more than 1.5 m above the outdoor high point (with basement)</li>
+                <li>Art. 29–30: high-rise to housing on its E/W/N ≥ 24 m; gable spacing ≥ 13 m</li>
+                <li>Art. 36: basement ≥ 5 m from site boundary</li>
+                <li>Art. 37: road setbacks by height (towers over 100 m set by the bureau, here per drawing 01)</li>
+                <li>Art. 39: podium main entrances ≥ 8 m from the road red line</li>
+                <li>Art. 49: airport clearance controls height</li>
+                <li><b>Art. 62: towers facing streets, water or parks, frontage ≤ 55 m, gable spacing ≥ 15 m</b></li>
+                <li>Art. 66: night-lighting design required for high-rises</li>
+                <li>Art. 68: commercial sites over 10,000 m² provide ≥ 5% public open space</li>
+              </ul></div></div>
+          <div class="file"><span class="ft pdf">PDF</span><div><div class="en">Technical specification for building area calculation and completion survey (Zhejiang)</div><div class="cnname">09-建筑工程建筑面积计算和竣工综合测量技术规程（正式）.pdf</div></div><span class="size">11 MB</span>
+            <div class="desc">123 pages, searchable text. It defines how GFA and FAR-counted area are measured: balconies, refuge floors, mechanical floors, double-height spaces.</div>
+            <div class="use"><b>Use it for:</b> confirming what counts toward FAR.</div></div>
+          <div class="file"><span class="ft pdf">PDF</span><div><div class="en">Sponge city control indicators (Yiwu general rules, Annex 5)</div><div class="cnname">09-海绵城市要求资料（主控指标）.pdf</div></div><span class="size">575 KB</span>
+            <div class="desc">A one-page table of stormwater targets by land use. New commercial: annual runoff control ≥ 70%, runoff coefficient ≤ 0.6, storage ≥ 30 m³/ha. Park green ≥ 90% and ≤ 0.3. The project-specific figures in 03 are stricter.</div></div>
+          <div class="file"><span class="ft pdf">PDF</span><div><div class="en">Yiwu sponge-city management process, briefing slides</div><div class="cnname">09-海绵城市要求资料（义乌市海绵城市管理流程宣贯会）.pdf</div></div><span class="size">11 MB</span>
+            <div class="desc">83 slides on how sponge-city design is reviewed and approved in Yiwu, with required calculations and submittals.</div></div>
+          <div class="file"><span class="ft pdf">PDF</span><div><div class="en">Yiwu Green Building Special Plan 2022–2030</div><div class="cnname">09-绿色建筑资料（义乌市绿色建筑专项规划2022-2030）.pdf</div></div><span class="size">27 MB</span>
+            <div class="desc">174 pages. It sets city-wide green-building star levels, prefabrication and renewable-energy targets. The brief requires compliance, and Three-Star for the towers.</div></div>
+          <div class="file"><span class="ft pdf">PDF</span><div><div class="en">Zhejiang super-high-rise (150–250 m) design special review guideline</div><div class="cnname">浙江省超高层建筑150-250m设计专项审查工作指南-定稿.pdf</div></div><span class="size">899 KB</span>
+            <div class="desc">36 pages. It triggers a provincial expert review for towers of 150–250 m and covers fire strategy (ring corridors around cores, refuge floors every ≤ 50 m, refuge smoke control), structure, facade safety and MEP, with review forms.</div>
+            <div class="use"><b>Use it for:</b> anything over 150 m.</div></div>
+          <div class="file"><span class="ft doc">DOCX</span><div><div class="en">2015 technical points for seismic review of out-of-code high-rises (MOHURD)</div><div class="cnname">2015超限高层建筑工程抗震设防专项审查技术要点_secret.docx</div></div><span class="size">65 KB</span>
+            <div class="desc">National rules for when a tower is “out of code” (<span class="cjk">超限</span>) and needs special seismic review: height beyond code limits, irregularity, large slenderness. Annex 1 tabulates height limits by structural system and seismic intensity.</div></div>
+          <div class="file"><span class="ft pdf">PDF</span><div><div class="en">Interim provisions on fire design review and acceptance, MOHURD Order No. 51 (2020)</div><div class="cnname">7.建设工程消防设计审查验收管理暂行规定，20年51号令.pdf</div></div><span class="size">1.1 MB</span>
+            <div class="desc">Scanned, 12 pages. The national procedure for fire-design approval and completion acceptance. Super-high-rises are “special construction projects” requiring fire-design review.</div></div>
+        </div>
+      </div>
+
+      <div class="gsec" id="g-10">
+        <div class="folder">
+          <header><span class="no">10</span><h3>Futian Wetland Park</h3><span class="cn">10-福田湿地公园总图</span></header>
+          <div class="file"><span class="ft dwg">DWG</span><div><div class="en">Wetland park master plan, sheet index</div><div class="cnname">湿地公园总分幅平面图.dwg</div></div><span class="size">4.9 MB</span>
+            <div class="desc">The park across Shangbo Rd to the west. The brief asks for tower plans to take in park views and for an interface to a future elevated walkway into the park.</div></div>
+        </div>
+      </div>
+
+      <div class="gsec" id="g-11">
+        <div class="folder">
+          <header><span class="no">11</span><h3>Surrounding utilities</h3><span class="cn">11-周边管线资料</span></header>
+          <div class="file"><span class="ft dwg">DWG</span><div><div class="en">Shangcheng Ave final drainage design (28 Oct 2023)</div><div class="cnname">商城大道最终排水-2023.10.28(1).dwg</div></div><span class="size">30 MB</span></div>
+          <div class="file"><span class="ft dwg">DWG</span><div><div class="en">Shangcheng Ave composite utilities plan</div><div class="cnname">商城大道管线套总图_t7(1).dwg</div></div><span class="size">4.1 MB</span></div>
+          <div class="file"><span class="ft pdf">PDF</span><div><div class="en">Utility survey report</div><div class="cnname">现场管线测量成果/义乌成果资料/义乌双子塔项目管线测绘成果报告.pdf</div></div><span class="size">7.2 MB</span>
+            <div class="desc">By Zhejiang Land Survey &amp; Planning Co., June 2026, 13 pages. It covers 131 surveyed pipe points (49 visible, 82 concealed) and 1,937 m of lines: water, storm, sewer, gas, power and others, with depth, size and material.</div></div>
+          <div class="file"><span class="ft dwg">DWG</span><div><div class="en">Composite utility map, 1:500</div><div class="cnname">现场管线测量成果/义乌成果资料/义乌双子塔项目综合管线图.dwg</div></div><span class="size">536 KB</span>
+            <div class="use"><b>Use it for:</b> existing lines to protect or divert before the basement.</div></div>
+        </div>
+      </div>
+
+      <div class="gsec" id="g-gloss">
+        <h2>Glossary of Chinese terms</h2>
+        <div class="card" style="padding:6px 14px;overflow-x:auto">
+        <table>
+          <tr><th>Chinese</th><th>English</th><th>Meaning here</th></tr>
+          <tr><td class="cjk">红线 / 地块红线</td><td>Red line</td><td>Legal site boundary</td></tr>
+          <tr><td class="cjk">控制红线图</td><td>Control red-line drawing</td><td>Official site and setback drawing</td></tr>
+          <tr><td class="cjk">规划条件书</td><td>Planning conditions</td><td>Zoning rules for the parcel</td></tr>
+          <tr><td class="cjk">容积率 / 计容面积</td><td>FAR / FAR-counted area</td><td>Floor area ratio and the GFA that counts toward it</td></tr>
+          <tr><td class="cjk">建筑密度</td><td>Building coverage</td><td>Footprint ÷ net site area</td></tr>
+          <tr><td class="cjk">绿地率</td><td>Green ratio</td><td>Green area ÷ net site area</td></tr>
+          <tr><td class="cjk">高层 / 低多层建筑控制线</td><td>High-rise / low- &amp; multi-storey control line</td><td>Setback line for towers / for podium (≤ 24 m)</td></tr>
+          <tr><td class="cjk">地下建筑控制线</td><td>Underground control line</td><td>Basement limit</td></tr>
+          <tr><td class="cjk">裙房</td><td>Podium</td><td>Low base building, here retail, ≤ 4 floors</td></tr>
+          <tr><td class="cjk">超高层</td><td>Super-high-rise</td><td>Building taller than 100 m</td></tr>
+          <tr><td class="cjk">避难层</td><td>Refuge floor</td><td>Fire refuge level, every ≤ 50 m</td></tr>
+          <tr><td class="cjk">人防</td><td>Civil air defense</td><td>Air-raid shelter in the basement</td></tr>
+          <tr><td class="cjk">海绵城市</td><td>Sponge city</td><td>Stormwater retention and infiltration</td></tr>
+          <tr><td class="cjk">三星级绿色建筑</td><td>Three-Star green building</td><td>Top tier of the Chinese green-building standard</td></tr>
+          <tr><td class="cjk">黄海高程</td><td>Yellow Sea datum</td><td>National elevation datum used for the airport limit</td></tr>
+          <tr><td class="cjk">暗标</td><td>Anonymous bid</td><td>Design volume with no identifying marks</td></tr>
+          <tr><td class="cjk">提资</td><td>Data handover</td><td>Information supplied by another party, here the rail company</td></tr>
+          <tr><td class="cjk">亩</td><td>Mu</td><td>Land unit, about 666.7 m²; the site is 44.67 mu</td></tr>
+        </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+const G = {"angle":7.395165550368188,"red":[[72.229,211.78],[370.777,250.529],[377.192,211.087],[386.137,214.964],[380.9,202.536],[389.826,173.403],[390.398,170.683],[339.424,159.951],[340.135,165.445],[330.806,166.077],[329.265,157.813],[209.354,132.568],[75.93,104.478],[70.204,104.8],[65.462,107.912],[68.127,142.162],[70.077,167.236],[71.259,188.306],[71.89,201.722]],"S1":[[66.39,119.842],[68.127,142.162],[70.077,167.236],[71.259,188.306],[71.89,201.722],[72.229,211.78],[354.744,248.448],[370.685,183.906]],"green":[[[370.777,250.529],[377.192,211.087],[386.137,214.964],[380.9,202.536],[389.826,173.403],[390.398,170.683],[339.424,159.951],[340.135,165.445],[330.806,166.077],[329.265,157.813],[209.354,132.568],[75.93,104.478],[70.204,104.8],[65.462,107.912],[66.39,119.842],[370.685,183.906],[354.744,248.448]]],"hi":[[82.018,131.308],[86.859,205.612],[348.69,239.595],[360.933,190.028]],"lo":[[76.735,127.13],[82.004,208.007],[350.96,242.915],[364.59,187.732]],"ug":[[340.104,165.204],[340.135,165.445],[330.806,166.077],[330.257,163.131],[71.523,108.66],[78.293,212.567],[365.787,249.881],[384.398,174.529]],"plot1":[[72.229,211.78],[73.185,223.467],[73.624,237.266],[68.172,237.512],[72.998,344.428],[75.405,338.34],[80.99,336.068],[332.393,336.068],[342.043,340.357],[345.269,350.913],[348.467,327.891],[353.99,301.577],[362.014,274.012],[370.777,250.529]],"eastGreen":16.06421480067391,"podium":[{"a":19139.6,"p":[[76.73,127.13],[82.0,208.01],[350.96,242.91],[364.59,187.73]]},{"a":18788.9,"p":[[77.28,127.76],[82.48,207.56],[350.58,242.36],[363.98,188.11]]},{"a":18440.4,"p":[[77.82,128.38],[82.95,207.12],[350.2,241.81],[363.37,188.5]]},{"a":18093.8,"p":[[78.36,129.01],[83.42,206.68],[349.82,241.26],[362.76,188.88]]},{"a":17749.3,"p":[[78.9,129.63],[83.89,206.24],[349.45,240.7],[362.15,189.26]]},{"a":17406.8,"p":[[79.44,130.26],[84.37,205.79],[349.07,240.15],[361.54,189.65]]},{"a":17066.4,"p":[[79.99,130.88],[84.84,205.35],[348.69,239.6],[360.93,190.03]]},{"a":16728.0,"p":[[80.53,131.51],[85.31,204.91],[348.31,239.04],[360.32,190.41]]},{"a":16391.6,"p":[[81.07,132.13],[85.78,204.46],[347.93,238.49],[359.71,190.79]]},{"a":16057.3,"p":[[81.61,132.76],[86.25,204.02],[347.55,237.94],[359.1,191.18]]},{"a":15724.9,"p":[[82.15,133.38],[86.73,203.58],[347.18,237.38],[358.49,191.56]]},{"a":15394.7,"p":[[82.69,134.01],[87.2,203.14],[346.8,236.83],[357.89,191.94]]},{"a":15066.4,"p":[[83.24,134.63],[87.67,202.69],[346.42,236.28],[357.28,192.32]]},{"a":14740.2,"p":[[83.78,135.26],[88.14,202.25],[346.04,235.72],[356.67,192.71]]},{"a":14416.1,"p":[[84.32,135.88],[88.61,201.81],[345.66,235.17],[356.06,193.09]]},{"a":14093.9,"p":[[84.86,136.51],[89.09,201.36],[345.28,234.62],[355.45,193.47]]},{"a":13773.8,"p":[[85.4,137.13],[89.56,200.92],[344.91,234.06],[354.84,193.85]]},{"a":13455.7,"p":[[85.95,137.76],[90.03,200.48],[344.53,233.51],[354.23,194.24]]},{"a":13139.7,"p":[[86.49,138.38],[90.5,200.03],[344.15,232.96],[353.62,194.62]]},{"a":12825.7,"p":[[87.03,139.01],[90.98,199.59],[343.77,232.4],[353.01,195.0]]},{"a":12513.7,"p":[[87.57,139.63],[91.45,199.15],[343.39,231.85],[352.4,195.38]]},{"a":12203.8,"p":[[88.11,140.26],[91.92,198.71],[343.01,231.3],[351.79,195.77]]},{"a":11895.9,"p":[[88.65,140.88],[92.39,198.26],[342.64,230.74],[351.18,196.15]]},{"a":11590.1,"p":[[89.2,141.51],[92.86,197.82],[342.26,230.19],[350.57,196.53]]},{"a":11286.2,"p":[[89.74,142.13],[93.34,197.38],[341.88,229.64],[349.96,196.92]]},{"a":10984.4,"p":[[90.28,142.76],[93.81,196.93],[341.5,229.08],[349.35,197.3]]},{"a":10684.7,"p":[[90.82,143.38],[94.28,196.49],[341.12,228.53],[348.74,197.68]]},{"a":10386.9,"p":[[91.36,144.01],[94.75,196.05],[340.74,227.98],[348.13,198.06]]},{"a":10091.3,"p":[[91.9,144.63],[95.23,195.61],[340.37,227.42],[347.52,198.45]]},{"a":9797.6,"p":[[92.45,145.26],[95.7,195.16],[339.99,226.87],[346.91,198.83]]},{"a":9506.0,"p":[[92.99,145.88],[96.17,194.72],[339.61,226.32],[346.3,199.21]]},{"a":9216.4,"p":[[93.53,146.51],[96.64,194.28],[339.23,225.76],[345.69,199.59]]},{"a":8928.8,"p":[[94.07,147.13],[97.11,193.83],[338.85,225.21],[345.08,199.98]]},{"a":8643.3,"p":[[94.61,147.76],[97.59,193.39],[338.47,224.66],[344.48,200.36]]},{"a":8359.8,"p":[[95.16,148.38],[98.06,192.95],[338.1,224.1],[343.87,200.74]]},{"a":8078.4,"p":[[95.7,149.01],[98.53,192.51],[337.72,223.55],[343.26,201.12]]},{"a":7799.0,"p":[[96.24,149.63],[99.0,192.06],[337.34,223.0],[342.65,201.51]]},{"a":7521.6,"p":[[96.78,150.26],[99.48,191.62],[336.96,222.44],[342.04,201.89]]},{"a":7246.2,"p":[[97.32,150.88],[99.95,191.18],[336.58,221.89],[341.43,202.27]]},{"a":6972.9,"p":[[97.86,151.51],[100.42,190.73],[336.2,221.34],[340.82,202.65]]},{"a":6701.6,"p":[[98.41,152.13],[100.89,190.29],[335.83,220.78],[340.21,203.04]]},{"a":6432.4,"p":[[98.95,152.76],[101.36,189.85],[335.45,220.23],[339.6,203.42]]},{"a":6165.2,"p":[[99.49,153.38],[101.84,189.4],[335.07,219.68],[338.99,203.8]]},{"a":5900.0,"p":[[100.03,154.01],[102.31,188.96],[334.69,219.12],[338.38,204.19]]},{"a":5636.9,"p":[[100.57,154.63],[102.78,188.52],[334.31,218.57],[337.77,204.57]]},{"a":5375.7,"p":[[101.12,155.26],[103.25,188.08],[333.93,218.02],[337.16,204.95]]},{"a":5116.7,"p":[[101.66,155.88],[103.73,187.63],[333.56,217.46],[336.55,205.33]]},{"a":4859.6,"p":[[102.2,156.51],[104.2,187.19],[333.18,216.91],[335.94,205.72]]},{"a":4604.6,"p":[[102.74,157.13],[104.67,186.75],[332.8,216.36],[335.33,206.1]]},{"a":4351.7,"p":[[103.28,157.76],[105.14,186.3],[332.42,215.8],[334.72,206.48]]},{"a":4100.7,"p":[[103.82,158.38],[105.61,185.86],[332.04,215.25],[334.11,206.86]]},{"a":3851.8,"p":[[104.37,159.01],[106.09,185.42],[331.66,214.7],[333.5,207.25]]},{"a":3604.9,"p":[[104.91,159.63],[106.56,184.98],[331.29,214.14],[332.89,207.63]]},{"a":3360.1,"p":[[105.45,160.26],[107.03,184.53],[330.91,213.59],[332.28,208.01]]},{"a":3117.3,"p":[[105.99,160.88],[107.5,184.09],[330.53,213.04],[331.68,208.39]]},{"a":2876.5,"p":[[106.53,161.51],[107.98,183.65],[330.15,212.48],[331.07,208.78]]},{"a":2637.8,"p":[[107.07,162.13],[108.45,183.2],[329.77,211.93],[330.46,209.16]]},{"a":2401.1,"p":[[107.62,162.76],[108.92,182.76],[329.39,211.38],[329.85,209.54]]},{"a":2166.4,"p":[[108.16,163.38],[109.39,182.32],[329.01,210.82],[329.24,209.92]]},{"a":1933.8,"p":[[108.7,164.01],[109.86,181.88],[328.15,210.21]]},{"a":1709.6,"p":[[109.24,164.63],[110.34,181.43],[315.58,208.07]]}],"c":[211.79,189.94]};
+const NET=23174.77, FAR_MIN=6, FAR_MAX=7, H_PLAN=200, AIR=264, FRONT=55, GABLE=15, SLEND=7, SUPER=100, REVIEW=150, POD_MAX=46000;
+const S = {
+  units:'m', shrink:'height', podGFA:46000, podFloors:4, podFH:5.5, f:4.2, grade:74.0, crown:0,
+  driver:'A',
+  base:{A:{n:40,W:40,D:40,s:75}, B:{n:40,W:40,D:40,s:205}},
+  shown:{A:null,B:null}, notes:{A:'',B:''}, bad:{A:false,B:false}
+};
+const $=id=>document.getElementById(id);
+
+/* ---------- axis frame ---------- */
+const ang=G.angle*Math.PI/180, U=[Math.cos(ang),Math.sin(ang)], V=[-Math.sin(ang),Math.cos(ang)];
+const dot=(p,d)=>p[0]*d[0]+p[1]*d[1];
+const hiU=G.hi.map(p=>dot(p,U)), HI0=Math.min(...hiU), HILEN=Math.max(...hiU)-HI0;
+const redU=G.red.map(p=>dot(p,U)), RED0=Math.min(...redU), RED1=Math.max(...redU);
+function vRange(poly,along){
+  let lo=Infinity,hi=-Infinity;
+  for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length];
+    const da=dot(a,U)-along, db=dot(b,U)-along;
+    if((da<=0&&db>=0)||(da>=0&&db<=0)){ if(da===db) continue; const t=da/(da-db);
+      const p=[a[0]+t*(b[0]-a[0]),a[1]+t*(b[1]-a[1])]; const v=dot(p,V); lo=Math.min(lo,v); hi=Math.max(hi,v);} }
+  return [lo,hi];
+}
+function inside(pt,poly){let c=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[i],b=poly[j];
+  if(((a[1]>pt[1])!==(b[1]>pt[1]))&&(pt[0]<(b[0]-a[0])*(pt[1]-a[1])/(b[1]-a[1])+a[0]))c=!c;}return c;}
+function towerGeo(t){
+  const along=HI0+t.s; const [lo,hi]=vRange(G.hi,along); const vc=isFinite(lo)?(lo+hi)/2:dot(G.c,V);
+  const C=[U[0]*along+V[0]*vc, U[1]*along+V[1]*vc];
+  const corners=[[-1,-1],[1,-1],[1,1],[-1,1]].map(([a,b])=>[C[0]+U[0]*a*t.W/2+V[0]*b*t.D/2, C[1]+U[1]*a*t.W/2+V[1]*b*t.D/2]);
+  return {C,corners,fits:corners.every(p=>inside(p,G.hi))};
+}
+function depthAvail(s,W){let m=Infinity;for(const k of [-.5,0,.5]){const [lo,hi]=vRange(G.hi,HI0+s+k*W);m=Math.min(m,isFinite(lo)?hi-lo:0);}return m;}
+
+/* ---------- program math ---------- */
+const podH=()=>S.podFloors*S.podFH;
+const roof=n=>podH()+n*S.f;
+const refuge=n=>{const r=roof(n);return r>100?Math.floor((r-1e-6)/50):0;};
+const gfa=t=>Math.max(0,t.n-refuge(t.n))*t.W*t.D;
+const hMax=()=>Math.min(H_PLAN, AIR-S.grade-S.crown);
+const nMax=()=>Math.max(1,Math.floor((hMax()-podH())/S.f+1e-9));
+const nMin=()=>Math.min(nMax(),Math.floor((SUPER-podH())/S.f+1e-9)+1);
+const sideMin=n=>roof(n)/SLEND;
+const Tmin=()=>FAR_MIN*NET-S.podGFA, Tmax=()=>FAR_MAX*NET-S.podGFA;
+
+function solve(base,lo,hi){
+  const t={...base}; const n0=t.n, a0=t.W*t.D; let ok=true, parts=[];
+  const g=()=>gfa(t);
+  t.n=Math.min(Math.max(t.n,nMin()),nMax());
+  if(g()<lo){
+    while(g()<lo&&t.n<nMax()) t.n++;
+    if(g()<lo){
+      const need=lo/(t.n-refuge(t.n)); const k=Math.sqrt(need/(t.W*t.D));
+      let W=t.W*k, D=t.D*k; const Wc=FRONT, Dc=Math.min(FRONT,depthAvail(t.s,Math.min(W,Wc)));
+      if(W>Wc){W=Wc;D=need/W;} if(D>Dc){D=Dc;W=Math.min(Wc,need/D);}
+      t.W=W;t.D=D; if(W*D<need-1) ok=false;
+    }
+  } else if(g()>hi){
+    const shrinkH=()=>{while(g()>hi&&t.n>nMin()) t.n--;};
+    const shrinkP=()=>{ if(g()<=hi) return; const need=hi/(t.n-refuge(t.n)); const k=Math.sqrt(need/(t.W*t.D));
+      let W=t.W*k, D=t.D*k; const m=sideMin(t.n); if(W<m){W=m;D=Math.max(m,need/W);} if(D<m){D=m;W=Math.max(m,need/D);} t.W=W;t.D=D; };
+    if(S.shrink==='height'){shrinkH();shrinkP();} else {shrinkP();shrinkH();shrinkP();}
+    if(g()>hi+1) ok=false;
+  }
+  const dn=t.n-n0, a1=t.W*t.D;
+  if(dn) parts.push(`${dn>0?'+':'−'}${Math.abs(dn)} floor${Math.abs(dn)>1?'s':''} (${dn>0?'+':'−'}${L(Math.abs(dn)*S.f)})`);
+  if(Math.abs(a1-a0)>1) parts.push(`plate ${A(a0)} → ${A(a1)}`);
+  return {t,ok,parts};
+}
+function compute(){
+  const d=S.driver, o=d==='A'?'B':'A';
+  const dt={...S.base[d]}; dt.n=Math.min(Math.max(dt.n,nMin()),nMax()); S.base[d]=dt;
+  const gd=gfa(dt); const r=solve(S.base[o],Tmin()-gd,Tmax()-gd);
+  S.shown[d]=dt; S.shown[o]=r.t;
+  S.notes[d]='Driving; the other compensates.'; S.bad[d]=false;
+  if(!r.ok){ S.notes[o]= (gd+gfa(r.t)>Tmax()) ? `Can't compensate: at 100 m and minimum plate, total still exceeds FAR 7.0. Reduce Tower ${d}.` : `Can't compensate: at max height and 55 m plate, total is still below FAR 6.0. Enlarge Tower ${d} or the podium.`; S.bad[o]=true; }
+  else { S.notes[o]= r.parts.length? 'Auto-adjusted: '+r.parts.join(', ') : 'Auto: within the FAR band, no change needed.'; S.bad[o]=false; }
+}
+
+/* ---------- units ---------- */
+const FT=3.28084, SF=10.7639;
+const fmt=(x,d=0)=>x.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const L=(m,d=1)=>S.units==='m'?`${fmt(m,d)} m`:`${fmt(m*FT,0)} ft`;
+const A=(m2)=>S.units==='m'?`${fmt(m2)} m²`:`${fmt(m2*SF)} ft²`;
+const Ak=(m2)=>S.units==='m'?`${fmt(m2/1000,1)}k m²`:`${fmt(m2*SF/1000,0)}k ft²`;
+
+/* ---------- UI ---------- */
+function syncControls(){
+  for(const k of ['A','B']){ const t=S.shown[k];
+    const n=$(k+'-n'); n.min=nMin(); n.max=nMax(); n.value=t.n;
+    $(k+'-W').value=t.W; $(k+'-D').value=t.D; $(k+'-s').max=Math.round(HILEN); $(k+'-s').value=t.s;
+    $('o'+k+'-n').textContent=L(roof(t.n)); $('o'+k+'-W').textContent=L(t.W); $('o'+k+'-D').textContent=L(t.D); $('o'+k+'-s').textContent=L(t.s,0);
+    $('r'+k+'-h').textContent=L(roof(t.n)); $('r'+k+'-n').textContent=`${t.n}+${S.podFloors}`;
+    $('r'+k+'-p').textContent=A(t.W*t.D); $('r'+k+'-g').textContent=Ak(gfa(t));
+    const card=$('card-'+k); card.classList.toggle('driver',S.driver===k);
+    $('role-'+k).textContent=S.driver===k?'Leading':'Auto';
+    const nt=$('note-'+k); nt.textContent=S.notes[k]; nt.className='note'+(S.bad[k]?' bad':(S.driver!==k?' auto':''));
+  }
+  $('g-pod').value=S.podGFA; $('o-pod').textContent=A(S.podGFA);
+  $('g-pf').value=S.podFloors; $('o-pf').textContent=S.podFloors;
+  $('g-pfh').value=S.podFH; $('o-pfh').textContent=L(S.podFH);
+  $('g-f').value=S.f; $('o-f').textContent=L(S.f,2);
+  $('g-grade').value=S.grade; $('o-grade').textContent=`${fmt(S.grade,1)} m`;
+  $('g-crown').value=S.crown; $('o-crown').textContent=L(S.crown);
+}
+document.querySelectorAll('.tower input[type=range]').forEach(el=>el.addEventListener('input',()=>{
+  const k=el.dataset.t, f=el.dataset.k;
+  if(S.driver!==k){ const o=S.driver; S.base[o]={...S.shown[o]}; S.base[k]={...S.shown[k]}; S.driver=k; }
+  S.base[k][f]=parseFloat(el.value); update();
+}));
+const gl=[['g-pod','podGFA'],['g-pf','podFloors'],['g-pfh','podFH'],['g-f','f'],['g-grade','grade'],['g-crown','crown']];
+gl.forEach(([id,k])=>$(id).addEventListener('input',e=>{S[k]=parseFloat(e.target.value);update();}));
+function segs(id,cb){const el=$(id);el.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{el.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));cb(b);}));}
+segs('shrink',b=>{S.shrink=b.dataset.v;update();});
+segs('units',b=>{S.units=b.dataset.u;update();});
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x===t));
+  $('p-env').hidden=t.id!=='t-env'; $('p-guide').hidden=t.id!=='t-guide';
+  if(t.id==='t-env'){resize();}
+}));
+
+/* ---------- ledger, section, checks ---------- */
+function ledger(){
+  const a=S.shown.A,b=S.shown.B, gA=gfa(a), gB=gfa(b), tot=S.podGFA+gA+gB, far=tot/NET;
+  const rA=refuge(a.n)*a.W*a.D, rB=refuge(b.n)*b.W*b.D;
+  const lo=FAR_MIN*NET, hi=FAR_MAX*NET, max=185000, W=500, x=v=>10+v/max*W;
+  const tk=getComputedStyle(document.documentElement);
+  let s=`<rect x="${x(lo)}" y="6" width="${x(hi)-x(lo)}" height="54" fill="var(--greenfill)" stroke="var(--green)" stroke-dasharray="3 2"/>`;
+  s+=`<text x="${(x(lo)+x(hi))/2}" y="16" text-anchor="middle" font-size="9" fill="var(--green)">FAR 6.0–7.0 band</text>`;
+  let cx=x(0); [[S.podGFA,'var(--podium)'],[gA,'var(--a)'],[gB,'var(--b)']].forEach(([v,c])=>{s+=`<rect x="${cx}" y="24" width="${Math.max(0,x(v)-10)}" height="24" fill="${c}"/>`;cx+=x(v)-10;});
+  const ok=tot>=lo-1&&tot<=hi+1;
+  s+=`<line x1="${x(tot)}" x2="${x(tot)}" y1="20" y2="54" stroke="var(--ink)" stroke-width="2"/>`;
+  s+=`<text x="${Math.min(x(tot),470)}" y="72" text-anchor="middle" font-size="10.5" fill="var(--${ok?'ink':'fail'})">FAR ${far.toFixed(2)}</text>`;
+  [0,50000,100000,150000].forEach(v=>{s+=`<line x1="${x(v)}" x2="${x(v)}" y1="50" y2="54" stroke="var(--muted)"/><text x="${x(v)}" y="88" font-size="9" text-anchor="${v?'middle':'start'}" fill="var(--muted)">${S.units==='m'?fmt(v/1000)+'k m²':fmt(v*SF/1e6,1)+'M ft²'}</text>`;});
+  $('bar').innerHTML=s;
+  const above=tot+rA+rB;
+  $('ledger').innerHTML=`<tr><th>Component</th><th class="r">Counted GFA</th><th class="r">Share</th></tr>
+   <tr><td>Podium retail, ${S.podFloors} floors</td><td class="r">${A(S.podGFA)}</td><td class="r">${(S.podGFA/tot*100).toFixed(1)}%</td></tr>
+   <tr><td><span style="color:var(--a)">■</span> Tower A offices</td><td class="r">${A(gA)}</td><td class="r">${(gA/tot*100).toFixed(1)}%</td></tr>
+   <tr><td><span style="color:var(--b)">■</span> Tower B offices</td><td class="r">${A(gB)}</td><td class="r">${(gB/tot*100).toFixed(1)}%</td></tr>
+   <tr class="tot"><td>FAR-counted total</td><td class="r">${A(tot)}</td><td class="r">FAR ${far.toFixed(2)}</td></tr>
+   <tr><td>Band: FAR 6.0 / 7.0</td><td class="r" colspan="2">${A(lo)} – ${A(hi)}</td></tr>
+   <tr><td>Refuge floors (not counted)</td><td class="r">${A(rA+rB)}</td><td class="r">${refuge(a.n)}+${refuge(b.n)} fl</td></tr>
+   <tr><td>Above-ground total</td><td class="r">${A(above)}</td><td class="r"></td></tr>`;
+  return {gA,gB,tot,far,above,lo,hi};
+}
+function section(){
+  const W=520,H=330, padL=40, padR=108, top=14, bot=300, maxH=215;
+  const k=(W-padL-padR)/(RED1-RED0), y=h=>bot-h/maxH*(bot-top), x=a=>padL+(a-RED0)*k;
+  let s='';
+  [0,50,100,150,200].forEach(h=>{s+=`<line x1="${padL}" x2="${W-padR}" y1="${y(h)}" y2="${y(h)}" stroke="var(--rule)"/><text x="${padL-6}" y="${y(h)+3}" font-size="9" text-anchor="end" fill="var(--muted)">${S.units==='m'?h:fmt(h*FT)}</text>`;});
+  const lines=[[H_PLAN,'var(--lim200)','200 m planning limit',0],[AIR-S.grade,'var(--limair)',`Airport ${fmt(AIR-S.grade,1)} m`,0],[REVIEW,'var(--muted)','150 m special review',1],[SUPER,'var(--muted)','100 m super-high-rise',1]];
+  lines.forEach(([h,c,t,d])=>{ if(h>maxH) return; s+=`<line x1="${padL}" x2="${W-padR}" y1="${y(h)}" y2="${y(h)}" stroke="${c}" stroke-width="${d?1:1.6}" ${d?'stroke-dasharray="4 3"':''}/><text x="${W-padR+6}" y="${y(h)+3}" font-size="9" fill="${c}">${t}</text>`;});
+  // podium
+  const pp=podPoly(); const pu=pp.map(p=>dot(p,U)); s+=`<rect x="${x(Math.min(...pu))}" y="${y(podH())}" width="${(Math.max(...pu)-Math.min(...pu))*k}" height="${y(0)-y(podH())}" fill="var(--podium)"/>`;
+  for(const key of ['A','B']){ const t=S.shown[key], c=key==='A'?'var(--a)':'var(--b)'; const a0=HI0+t.s-t.W/2;
+    s+=`<rect x="${x(a0)}" y="${y(roof(t.n))}" width="${t.W*k}" height="${y(podH())-y(roof(t.n))}" fill="${c}" fill-opacity=".22" stroke="${c}" stroke-width="1.2"/>`;
+    const ref=[]; for(let i=1;i<=refuge(t.n);i++) ref.push(i*50);
+    for(let i=1;i<t.n;i++){const h=podH()+i*S.f; s+=`<line x1="${x(a0)}" x2="${x(a0)+t.W*k}" y1="${y(h)}" y2="${y(h)}" stroke="${c}" stroke-opacity=".35" stroke-width=".5"/>`;}
+    // refuge: mark the floor nearest below each 50 m multiple
+    ref.forEach(r=>{const i=Math.floor((r-podH())/S.f); const h=podH()+i*S.f; s+=`<rect x="${x(a0)}" y="${y(h+S.f)}" width="${t.W*k}" height="${y(h)-y(h+S.f)}" fill="var(--amber)" fill-opacity=".8"/>`;});
+    s+=`<text x="${x(a0)+t.W*k/2}" y="${y(roof(t.n))-5}" font-size="10" text-anchor="middle" fill="${c}" font-weight="500">${key} ${L(roof(t.n))}</text>`;
+  }
+  s+=`<line x1="${x(RED0)}" x2="${x(RED1)}" y1="${y(0)}" y2="${y(0)}" stroke="var(--ink)" stroke-width="1.5"/>`;
+  s+=`<line x1="${x(RED0)}" x2="${x(RED0)}" y1="${y(0)-6}" y2="${y(0)+6}" stroke="var(--red)" stroke-width="2"/><line x1="${x(RED1)}" x2="${x(RED1)}" y1="${y(0)-6}" y2="${y(0)+6}" stroke="var(--red)" stroke-width="2"/>`;
+  s+=`<text x="${x(RED0)}" y="${y(0)+18}" font-size="9" fill="var(--muted)">W · Shangbo Rd</text><text x="${x(RED1)}" y="${y(0)+18}" font-size="9" text-anchor="end" fill="var(--muted)">E · rail / housing</text>`;
+  s+=`<rect x="${W-padR+6}" y="${bot-26}" width="10" height="6" fill="var(--amber)"/><text x="${W-padR+20}" y="${bot-20}" font-size="9" fill="var(--muted)">refuge floor</text>`;
+  $('sec').innerHTML=s;
+  // plate table
+  const row=(k)=>{const t=S.shown[k];const m=sideMin(t.n);return `<tr><td>${k==='A'?'<span style="color:var(--a)">■</span>':'<span style="color:var(--b)">■</span>'} Tower ${k}</td><td class="r">${A(t.W*t.D)}</td><td class="r">${A(m*m)}</td><td class="r">${A(Math.min(FRONT,depthAvail(t.s,t.W))*FRONT)}</td></tr>`;};
+  $('plates').innerHTML=`<tr><th>Floor plate</th><th class="r">Current</th><th class="r">Min (H/7)²</th><th class="r">Max</th></tr>${row('A')}${row('B')}
+   <tr><td colspan="4" style="color:var(--muted);font-size:11.5px">Max: 55 m frontage (Yiwu Art. 62) × depth available inside the tower control line (53–71 m, narrowing to the east). Min: slenderness H/B ≤ 7 for a concrete core-and-frame tower (JGJ 3), so it grows with height.</td></tr>`;
+}
+function checks(led){
+  const a=S.shown.A,b=S.shown.B, out=[];
+  const add=(st,t,v,s)=>out.push({st,t,v,s});
+  add(led.tot>=led.lo-1&&led.tot<=led.hi+1?'pass':'fail','FAR 6.0–7.0',`FAR ${led.far.toFixed(2)} · ${A(led.tot)}`,'02 Planning conditions');
+  const hA=roof(a.n),hB=roof(b.n), top=Math.max(hA,hB);
+  add(top<=H_PLAN?'pass':'fail','Height ≤ 200 m',`A ${L(hA)} · B ${L(hB)}`,'02 Planning conditions');
+  const peak=S.grade+top+S.crown;
+  add(peak<=AIR+1e-6?'pass':'fail','Highest point ≤ 264 m elevation',`${fmt(peak,1)} m = grade ${fmt(S.grade,1)} + ${fmt(top,1)} + crown ${fmt(S.crown,1)}`,'02 Planning conditions · includes cranes during construction');
+  add(hA>SUPER&&hB>SUPER?'pass':'fail','Both towers super-high-rise (> 100 m)',`min ${L(Math.min(hA,hB))}`,'Brief: “two super-high-rise buildings”');
+  add(S.f<=4.2?'pass':'fail','Typical floor-to-floor ≤ 4.2 m',L(S.f,2),'02 Planning conditions');
+  add(S.podFloors<=4&&S.podGFA<=POD_MAX?'pass':'fail','Podium ≤ 4 floors, ≤ 46,000 m²',`${S.podFloors} fl · ${A(S.podGFA)}`,'02 Planning conditions (brief: use the full 46,000)');
+  add(podH()<=24?'pass':'warn','Podium ≤ 24 m (podium setbacks apply)',L(podH()),'01 Control drawing · Yiwu regs Art. 37');
+  const foot=S.podGFA/S.podFloors;
+  add(foot<=NET*.5?'pass':'fail','Coverage ≤ 50%',`${(foot/NET*100).toFixed(1)}% · ${A(foot)} / ${A(NET*.5)} max`,'02 Planning conditions');
+  const gA=towerGeo(a),gB=towerGeo(b);
+  add(gA.fits&&gB.fits?'pass':'fail','Towers inside tower control line',`A ${gA.fits?'inside':'outside'} · B ${gB.fits?'inside':'outside'}`,'01 Control drawing (15 m W, 8 m N/S/E)');
+  const fr=Math.max(a.W,a.D,b.W,b.D);
+  add(fr<=FRONT?'pass':'warn','Tower frontage ≤ 55 m',`widest side ${L(fr)}`,'Yiwu regs Art. 62 (should not exceed)');
+  const [w1,w2]=a.s<b.s?[a,b]:[b,a]; const gap=(w2.s-w2.W/2)-(w1.s+w1.W/2);
+  add(gap>=GABLE?'pass':(gap>=13?'warn':'fail'),'Tower spacing ≥ 15 m',`${L(gap)} clear`,'Yiwu regs Art. 62; 13 m fire minimum');
+  const sl=Math.max(hA/Math.min(a.W,a.D),hB/Math.min(b.W,b.D));
+  add(sl<=SLEND?'pass':'warn','Slenderness H/B ≤ 7',`worst ${sl.toFixed(1)}`,'JGJ 3 (national code, not in folder) · 超限 review doc');
+  if(top>REVIEW) add('info','Over 150 m: special reviews','Zhejiang 150–250 m review + seismic out-of-code review','09 Zhejiang guideline · 2015 超限 technical points');
+  const office=led.gA+led.gB, saleCap=.7*led.tot, hold=Math.max(0,office-saleCap);
+  add('info','Saleable offices ≤ 70% of FAR GFA',hold>0?`hold ≥ ${A(hold)} of office unsold`:`all office saleable (cap ${A(saleCap)})`,'02 Planning conditions');
+  add('info','Parking 0.6 per 100 m² above ground',`${fmt(led.above*.006)} spaces · ≤ ${fmt(led.above*.0006)} at grade`,'02 Planning conditions');
+  add('info','Civil-defense shelter 5%',`≈ ${A(led.tot*.05)} basement`,'04 Civil-defense (corrected basis)');
+  add('info','Green ratio ≥ 10% of net site',`≥ ${A(NET*.1)} inside S1`,'02 · planned green does not count');
+  add('info','Public open space ≥ 5%',`≥ ${A(NET*.05)}`,'Yiwu regs Art. 68');
+  $('checks').innerHTML=out.map(c=>`<div class="ck"><span class="pill ${c.st}">${c.st}</span><div><div class="t">${c.t}</div><div class="v">${c.v}</div></div><div class="s">${c.s}</div></div>`).join('');
+}
+function podPoly(){const f=S.podGFA/S.podFloors; let best=G.podium[0]; for(const p of G.podium){ if(Math.abs(p.a-f)<Math.abs(best.a-f)) best=p; } return best.p;}
+
+/* ---------- 3D ---------- */
+const vp=$('vp'), cv=$('cv'), labels=$('labels');
+const renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true});
+renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(32,1,1,6000);
+const controls=new THREE.OrbitControls(camera,cv);
+controls.target.set(0,60,0); controls.maxPolarAngle=Math.PI*0.495;
+const [CX,CY]=G.c;
+const W3=p=>new THREE.Vector3(p[0]-CX,0,-(p[1]-CY));
+let stat=new THREE.Group(), dyn=new THREE.Group(); scene.add(stat,dyn);
+let lbls=[];
+const tok=k=>getComputedStyle(document.documentElement).getPropertyValue(k).trim();
+const col=k=>new THREE.Color(tok(k));
+function shapeOf(poly){const sh=new THREE.Shape(); poly.forEach((p,i)=>{const x=p[0]-CX,y=p[1]-CY; i?sh.lineTo(x,y):sh.moveTo(x,y);}); return sh;}
+function flat(poly,color,y,op=1){const g=new THREE.ShapeGeometry(shapeOf(poly)); g.rotateX(-Math.PI/2);
+  const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color,transparent:op<1,opacity:op,side:THREE.DoubleSide,depthWrite:op>=1}));m.position.y=y;return m;}
+function prism(poly,h,color,op,y0=0){const g=new THREE.ExtrudeGeometry(shapeOf(poly),{depth:h,bevelEnabled:false}); g.rotateX(-Math.PI/2);
+  const m=new THREE.Mesh(g,new THREE.MeshLambertMaterial({color,transparent:op<1,opacity:op,depthWrite:op>=1})); m.position.y=y0; return m;}
+function outline(poly,color,y,dashed){const pts=poly.map(W3); pts.push(pts[0]); pts.forEach(p=>p.y=y);
+  const g=new THREE.BufferGeometry().setFromPoints(pts);
+  const m=dashed?new THREE.LineDashedMaterial({color,dashSize:3,gapSize:2}):new THREE.LineBasicMaterial({color});
+  const l=new THREE.Line(g,m); if(dashed) l.computeLineDistances(); return l;}
+function ribbon(poly,w,y,color){const pos=[]; const P=poly.map(W3);
+  for(let i=0;i<P.length;i++){const a=P[i],b=P[(i+1)%P.length]; const dx=b.x-a.x,dz=b.z-a.z,L0=Math.hypot(dx,dz); const nx=-dz/L0*w/2,nz=dx/L0*w/2;
+    const q=[[a.x+nx,a.z+nz],[a.x-nx,a.z-nz],[b.x-nx,b.z-nz],[b.x+nx,b.z+nz]];
+    [0,1,2,0,2,3].forEach(j=>pos.push(q[j][0],y,q[j][1]));}
+  const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+  return new THREE.Mesh(g,new THREE.MeshBasicMaterial({color,side:THREE.DoubleSide}));}
+function label(text,pos,cls){const el=document.createElement('div'); el.className='lbl '+(cls||''); el.textContent=text; labels.appendChild(el); lbls.push({el,pos}); return el;}
+function clearGroup(g){g.traverse(o=>{if(o.geometry)o.geometry.dispose(); if(o.material)o.material.dispose();}); g.clear();}
+
+function worldAt(along,v,y=0){const p=[U[0]*along+V[0]*v,U[1]*along+V[1]*v]; const w=W3(p); w.y=y; return w;}
+function buildStatic(){
+  clearGroup(stat); scene.background=col('--vp');
+  scene.children.filter(o=>o.isLight).forEach(l=>scene.remove(l));
+  scene.add(new THREE.AmbientLight(0xffffff,.75)); const sun=new THREE.DirectionalLight(0xffffff,.55); sun.position.set(-200,400,300); scene.add(sun);
+  const gp=new THREE.Mesh(new THREE.PlaneGeometry(1400,1000),new THREE.MeshBasicMaterial({color:col('--vpground')})); gp.rotation.x=-Math.PI/2; gp.position.y=-0.2; stat.add(gp);
+  stat.add(outline(G.plot1,col('--muted'),0.05,true));
+  G.green.forEach(p=>stat.add(flat(p,col('--greenfill'),0.08)));
+  G.green.forEach(p=>stat.add(outline(p,col('--green'),0.1)));
+  stat.add(ribbon(G.red,1.6,0.25,col('--red')));
+  stat.add(outline(G.lo,col('--muted'),0.3,true));
+  stat.add(outline(G.hi,col('--ink'),0.35));
+}
+function buildDyn(){
+  clearGroup(dyn); labels.innerHTML=''; lbls=[];
+  const hm=hMax();
+  // tower zone prism (edges only + faint fill)
+  const zone=prism(G.hi,hm,col('--ink'),.035); dyn.add(zone);
+  const eg=new THREE.EdgesGeometry(new THREE.ExtrudeGeometry(shapeOf(G.hi),{depth:hm,bevelEnabled:false}).rotateX(-Math.PI/2));
+  dyn.add(new THREE.LineSegments(eg,new THREE.LineBasicMaterial({color:col('--muted'),transparent:true,opacity:.35})));
+  // limit planes over red line
+  const air=AIR-S.grade;
+  const p200=flat(G.red,col('--lim200'),H_PLAN,.10); dyn.add(p200); const o200=outline(G.red,col('--lim200'),H_PLAN); dyn.add(o200);
+  const pa=flat(G.red,col('--limair'),air,.14); dyn.add(pa); dyn.add(outline(G.red,col('--limair'),air));
+  // podium
+  dyn.add(prism(podPoly(),podH(),col('--podium'),1));
+  const pe=new THREE.EdgesGeometry(new THREE.ExtrudeGeometry(shapeOf(podPoly()),{depth:podH(),bevelEnabled:false}).rotateX(-Math.PI/2));
+  dyn.add(new THREE.LineSegments(pe,new THREE.LineBasicMaterial({color:col('--muted')})));
+  // towers
+  for(const key of ['A','B']){ const t=S.shown[key]; const tg=towerGeo(t); const c=col(key==='A'?'--a':'--b'); const H=roof(t.n);
+    const box=new THREE.Mesh(new THREE.BoxGeometry(t.W,H,t.D),new THREE.MeshLambertMaterial({color:c,transparent:true,opacity:.88}));
+    const cw=W3(tg.C); box.position.set(cw.x,H/2,cw.z); box.rotation.y=ang; dyn.add(box);
+    const be=new THREE.LineSegments(new THREE.EdgesGeometry(box.geometry),new THREE.LineBasicMaterial({color:tg.fits?c.clone().multiplyScalar(.6):col('--fail')})); be.position.copy(box.position); be.rotation.copy(box.rotation); dyn.add(be);
+    const pts=[]; const cs=tg.corners.map(W3); const refH=[]; for(let i=1;i<=refuge(t.n);i++){const k=Math.floor((i*50-podH())/S.f); refH.push(podH()+k*S.f);}
+    for(let i=1;i<t.n;i++){const h=podH()+i*S.f; for(let j=0;j<4;j++){const a=cs[j],b=cs[(j+1)%4]; pts.push(a.x,h,a.z,b.x,h,b.z);}}
+    const fg=new THREE.BufferGeometry(); fg.setAttribute('position',new THREE.Float32BufferAttribute(pts,3));
+    dyn.add(new THREE.LineSegments(fg,new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:.35})));
+    refH.forEach(h=>{const g=new THREE.BoxGeometry(t.W+0.6,S.f,t.D+0.6); const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:col('--amber')})); m.position.set(cw.x,h+S.f/2,cw.z); m.rotation.y=ang; dyn.add(m);});
+    label(`${key} · ${L(H)} · ${t.n+S.podFloors} fl`,new THREE.Vector3(cw.x,H+8,cw.z),'tower');
+  }
+  // labels
+  const west=HI0-20, east=HI0+HILEN+26, mid=HI0+HILEN/2;
+  const [lv,hv]=vRange(G.red,mid);
+  label('200 m planning limit',worldAt(RED0+4,hv,H_PLAN+3),'lim').style.color=tok('--lim200');
+  label(`Airport ceiling · ${fmt(air,1)} m above grade`,worldAt(RED0+4,hv,air-3),'lim').style.color=tok('--limair');
+  label('Shangcheng Ave 商城大道',worldAt(mid,lv-30,0),'road');
+  label('Shangbo Rd 商博路',worldAt(RED0-34,dot(G.c,V),0),'road');
+  label('Futian Wetland Park ←',worldAt(RED0-70,dot(G.c,V)+30,0),'road');
+  label('Plot 1 · connect podium & basement',worldAt(mid-40,hv+50,0),'road');
+  label('Light rail · station exit B',worldAt(RED1+18,lv+40,0),'road');
+  label('Resettlement housing →',worldAt(RED1+40,hv-10,0),'road');
+  // setback dims
+  const [l2,h2]=vRange(G.hi,mid);
+  label('8 m',worldAt(mid,h2+4,0.5),'dim'); label('8 m + 17 m green',worldAt(mid+40,l2-9,0.5),'dim');
+  const [l3,h3]=vRange(G.hi,HI0+8); label('15 m',worldAt(HI0-8,(l3+h3)/2,0.5),'dim');
+  const [l4,h4]=vRange(G.hi,HI0+HILEN-6); label('8 m + green',worldAt(HI0+HILEN+10,(l4+h4)/2,0.5),'dim');
+}
+const views={
+  axo:()=>{camera.position.set(-470,380,600);controls.target.set(10,60,0);},
+  plan:()=>{camera.position.set(0,760,1);controls.target.set(0,0,0);},
+  south:()=>{const p=worldAt(dot(G.c,U),dot(G.c,V)-560,95);camera.position.copy(p);controls.target.set(0,95,0);},
+  east:()=>{const p=worldAt(dot(G.c,U)+620,dot(G.c,V)+40,110);camera.position.copy(p);controls.target.set(0,95,0);}
+};
+document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{views[b.dataset.view]();controls.update();render();}));
+const tmp=new THREE.Vector3();
+function render(){
+  renderer.render(scene,camera);
+  const w=cv.clientWidth,h=cv.clientHeight;
+  for(const l of lbls){tmp.copy(l.pos).project(camera); const vis=tmp.z<1&&tmp.z>-1;
+    l.el.style.display=vis?'':'none'; if(vis) l.el.style.transform=`translate(${(tmp.x*.5+.5)*w}px,${(-tmp.y*.5+.5)*h}px) translate(-50%,-50%)`;}
+  const az=Math.atan2(camera.position.x-controls.target.x,camera.position.z-controls.target.z);
+  $('northg').setAttribute('transform',`rotate(${az*180/Math.PI})`);
+}
+function resize(){const w=vp.clientWidth,h=vp.clientHeight; if(!w||!h) return; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); render();}
+new ResizeObserver(resize).observe(vp);
+controls.addEventListener('change',render);
+
+function update(){ compute(); syncControls(); const led=ledger(); section(); checks(led); buildDyn(); render(); }
+function retheme(){ buildStatic(); update(); }
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',retheme);
+new MutationObserver(retheme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+views.axo(); controls.update(); buildStatic(); update(); resize();
+document.fonts&&document.fonts.ready.then(render);
+</script>
+</body></html>

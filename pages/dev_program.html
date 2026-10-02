@@ -1,0 +1,1083 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>[hidden]{display:none!important}</style><title>Yiwu Urban Design Guide</title>
+<meta name="description" content="English version of the Nov 2024 urban-design guidelines for the Overseas Chinese Business Center (Yiwu Financial Business District Phase II), with a layered 3D model of the whole development.">
+<link rel="stylesheet" href="../assets/css/yiwu.css">
+<style>
+:root{
+  --ground:var(--y-bg); --panel:var(--y-card); --panel2:var(--y-row); --ink:var(--y-ink); --muted:var(--y-quiet); --rule:var(--y-hair);
+  --red:#e0391f; --green:#4f6b4b; --greenfill:#E3E3DF; --a:#1f63a8; --b:#a6512e; --amber:#b8a832;
+  --vp:#F6F6F4; --vpground:#ECECE9; --road:#D6D6D2; --parcel:#F1F1EF; --mass:#D4D4D0;
+  --h0:#DCE8EE; --h1:#1f63a8;
+  --f-disp:var(--y-font);
+  --f-body:var(--y-font);
+  --f-mono:var(--y-mono);
+  --f-cjk:"Noto Sans SC","Microsoft YaHei","PingFang SC",sans-serif;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font:14px/1.5 var(--f-body);margin:0}
+a{color:var(--a)}
+.cjk{font-family:var(--f-cjk)}
+.mono,.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:var(--f-disp);text-wrap:balance;margin:0;letter-spacing:.01em}
+.eyebrow{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;letter-spacing:.12em;font-size:12px;color:var(--muted)}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--y-pink);outline-offset:2px}
+
+/* title block */
+.sheet{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:0 24px;padding:8px 16px 0;background:transparent;border:0}
+.tb-title{padding:0;display:flex;flex-direction:column;gap:0;min-width:0}
+.tb-title h1{font-size:22px;font-weight:800;line-height:1.1;text-transform:uppercase;letter-spacing:.03em}
+.tb-title h1 .red{color:var(--ink)}
+.tb-title .src{font-size:10px;color:var(--muted)}
+.tb-cells{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:2px 22px;margin:0}
+.tb-cells div{padding:0;display:flex;flex-direction:column;gap:0;min-width:0}
+.tb-cells dt{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:9.5px;color:var(--muted);line-height:1.3}
+.tb-cells dd{margin:0;font-family:var(--f-mono);font-size:12.5px;font-weight:500;line-height:1.3;white-space:nowrap}
+.tabs{grid-column:1/-1;display:flex;flex-wrap:wrap;padding:0;align-items:stretch;margin-top:2px}
+.tab{background:none;border:0;border-bottom:2px solid transparent;padding:6px 12px 5px 0;margin-right:10px;font-family:var(--f-disp);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);cursor:pointer}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--y-pink)}
+.tabs .spacer{flex:1}
+.tabs .xlink{align-self:center;font-size:11px;padding:4px 0}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:3px;overflow:hidden}
+.seg button{background:transparent;border:0;padding:2px 8px;font-size:11px;cursor:pointer;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--panel)}
+
+main{padding:8px 12px 32px;display:flex;flex-direction:column;gap:12px;max-width:1680px;margin:0 auto}
+
+/* model */
+.work{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:10px;align-items:start}
+.vp{position:relative;background:var(--vp);border:1px solid var(--rule);border-radius:var(--y-radius);height:calc(100vh - 96px);min-height:520px;overflow:hidden}
+.vp canvas{display:block;width:100%;height:100%;cursor:grab}
+.vp canvas:active{cursor:grabbing}
+.vp-bar{position:absolute;top:10px;left:10px;display:flex;gap:6px;flex-wrap:wrap;max-width:calc(100% - 80px)}
+.vp-bar button{background:var(--panel);border:1px solid var(--rule);padding:4px 10px;font-size:12px;cursor:pointer;border-radius:2px}
+.vp-bar button:hover{border-color:var(--ink)}
+.north{position:absolute;top:10px;right:12px;width:44px;height:44px}
+.labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.lbl{position:absolute;left:0;top:0;white-space:nowrap;font-size:11px;font-family:var(--f-disp);font-weight:700;letter-spacing:.05em;color:var(--ink);transform:translate(-50%,-100%)}
+.lbl.pid{font-family:var(--f-mono);font-weight:500;letter-spacing:0;background:var(--panel);border:1px solid var(--rule);padding:0 4px;font-size:10.5px}
+.lbl.pid.comp{border-color:var(--red);color:var(--red)}
+.lbl.note{background:color-mix(in srgb,var(--panel) 88%,transparent);border-left:3px solid var(--c,var(--ink));padding:1px 6px;font-family:var(--f-body);font-weight:500;letter-spacing:0;font-size:11px;text-transform:none}
+.lbl.road{color:var(--muted);text-transform:uppercase;font-size:12px;letter-spacing:.12em}
+.hint{position:absolute;right:12px;bottom:10px;font-size:11px;color:var(--muted);background:color-mix(in srgb,var(--panel) 80%,transparent);padding:1px 6px}
+.legend{position:absolute;left:10px;bottom:10px;background:color-mix(in srgb,var(--panel) 92%,transparent);border:1px solid var(--rule);padding:8px 10px;font-size:11.5px;display:grid;grid-template-columns:auto 1fr;gap:3px 8px;align-items:center;max-width:300px}
+.legend .t{grid-column:1/-1;font-family:var(--f-disp);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:11px;color:var(--muted)}
+.legend .ramp{grid-column:1/-1;height:10px}
+.legend .rl{grid-column:1/-1;display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:10.5px;color:var(--muted)}
+.sw{display:inline-block;width:14px;height:10px;border-radius:1px}
+.sw4{display:inline-block;width:12px;height:10px;margin:0 4px -1px 2px;border-radius:1px}
+.pip{position:absolute;right:12px;top:64px;width:min(38%,360px);background:var(--panel);border:1px solid var(--rule);box-shadow:0 4px 18px rgba(0,0,0,.15)}
+.pip img{display:block;width:100%;cursor:zoom-in}
+.pip header{display:flex;gap:8px;align-items:center;padding:4px 8px;font-size:11.5px}
+.pip header b{font-family:var(--f-disp);text-transform:uppercase;letter-spacing:.06em}
+.pip header button{margin-left:auto;background:none;border:0;cursor:pointer;font-size:16px;line-height:1;color:var(--muted)}
+.pip p{margin:0;padding:0 8px 6px;font-size:11px;color:var(--muted)}
+
+.ctrl{display:flex;flex-direction:column;gap:8px}
+.box{background:var(--panel);border:1px solid var(--rule);border-radius:var(--y-radius);box-shadow:var(--y-shadow);padding:8px 10px}
+.box h2{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.box .legend{position:static;background:none;border:0;padding:0;max-width:none}
+.layer{border-top:1px solid var(--rule);padding:5px 0}
+.layer:first-of-type{border-top:0}
+.layer label.row{display:flex;gap:8px;align-items:center;cursor:pointer;font-weight:600;font-size:13px}
+.layer label.row input{accent-color:var(--ink);width:15px;height:15px;margin:0}
+.layer .src{margin-left:auto;font-size:11px;font-weight:400;color:var(--muted);font-family:var(--f-mono)}
+.layer .lg2{display:flex;flex-wrap:wrap;gap:3px 12px;font-size:11.5px;color:var(--muted);margin:4px 0 0 23px}
+.layer .keys{display:flex;gap:4px;margin:6px 0 0 23px;flex-wrap:wrap}
+.layer .keys button{border:1px solid var(--rule);padding:0;background:var(--panel2);cursor:zoom-in;width:52px;height:37px;overflow:hidden;position:relative}
+.layer .keys img{width:100%;height:100%;object-fit:cover;display:block}
+.layer .keys span{position:absolute;right:1px;bottom:1px;font:500 9px var(--f-mono);background:var(--panel);padding:0 2px;color:var(--ink)}
+.info{font-size:12.5px}
+.info table td:first-child{color:var(--muted);width:44%}
+.info .empty{color:var(--muted);font-size:12.5px}
+
+.renders{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.rk{background:var(--panel);border:1px solid var(--rule);padding:0;cursor:pointer;text-align:left;display:flex;flex-direction:column}
+.rk:hover{border-color:var(--ink)}
+.rk img{width:100%;aspect-ratio:3/2;object-fit:cover;display:block}
+.rk span{padding:6px 8px 7px;font-size:12px;line-height:1.3}
+.rk span b{display:block;font-family:var(--f-disp);text-transform:uppercase;letter-spacing:.06em;font-size:12.5px}
+.sec-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.sec-h h2{font-size:17px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.sec-h p{margin:0;color:var(--muted);font-size:13px}
+.assume{font-size:12px;color:var(--muted);max-width:120ch;line-height:1.55;margin:0}
+.assume b{color:var(--ink);font-weight:600}
+
+/* pages */
+.guide{display:grid;grid-template-columns:240px minmax(0,1fr);gap:28px;align-items:start}
+.toc{position:sticky;top:12px;display:flex;flex-direction:column;gap:1px;font-size:12.5px;max-height:calc(100vh - 24px);overflow:auto}
+.toc a{color:var(--muted);text-decoration:none;padding:2px 0 2px 10px;border-left:2px solid var(--rule)}
+.toc a:hover{color:var(--ink);border-left-color:var(--ink)}
+.toc .th{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:11px;color:var(--ink);margin-top:8px;padding-left:0}
+.filter{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.filter input{background:var(--panel);border:1px solid var(--rule);padding:6px 10px;min-width:260px;flex:1;max-width:420px}
+.sechead{font-family:var(--f-disp);font-weight:800;font-size:24px;text-transform:uppercase;letter-spacing:.04em;margin:26px 0 10px;border-bottom:2px solid var(--ink);padding-bottom:4px}
+.pg{display:grid;grid-template-columns:300px minmax(0,1fr);gap:18px;background:var(--panel);border:1px solid var(--rule);border-radius:var(--y-radius);padding:14px;margin-bottom:12px;scroll-margin-top:12px}
+.pg .thumb{border:1px solid var(--rule);padding:0;background:var(--panel2);cursor:zoom-in;align-self:start}
+.pg .thumb img{width:100%;display:block}
+.pg .no{font-family:var(--f-disp);font-weight:800;font-size:13px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.pg h3{font-size:20px;font-weight:800;letter-spacing:.02em;margin:2px 0 0}
+.pg .cn{font-family:var(--f-cjk);font-size:13px;color:var(--muted)}
+.does{border-left:3px solid var(--y-line);background:var(--y-row);padding:7px 11px;margin:10px 0;font-size:13.5px}
+.does b{font-family:var(--f-disp);text-transform:uppercase;letter-spacing:.08em;font-size:11.5px;margin-right:6px}
+.tr{font-size:13px;max-width:96ch}
+.tr p{margin:6px 0}
+.tr table{margin:6px 0}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.chip{border:1px solid var(--rule);background:var(--panel2);font-size:11.5px;padding:2px 8px;cursor:pointer;border-radius:2px}
+.chip:hover{border-color:var(--ink)}
+.lg{font-size:12px;color:var(--muted)}
+ul.tight,ol.tight{margin:4px 0;padding-left:20px}
+ul.tight li,ol.tight li{margin:2px 0}
+
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+td,th{padding:4px 6px;border-bottom:1px solid var(--rule);text-align:left;vertical-align:top}
+th{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:11px;color:var(--muted)}
+td.r,th.r{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.tot td{font-weight:600;border-top:1.5px solid var(--ink)}
+tr.comp td{background:color-mix(in srgb,var(--red) 8%,transparent)}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:var(--y-radius);box-shadow:var(--y-shadow);padding:14px 16px;overflow-x:auto}
+.card h3{font-size:18px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+.card .sub{font-size:12px;color:var(--muted);margin:0 0 10px}
+.stack{display:flex;flex-direction:column;gap:18px}
+.flags{display:flex;flex-direction:column;gap:8px}
+.flag{border-left:3px solid var(--amber);background:var(--panel);padding:10px 14px;font-size:13px;max-width:100ch}
+.flag b{font-weight:600}
+.ftag{font-family:var(--f-disp);font-weight:800;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;padding:1px 5px;border:1.5px solid;margin-right:4px}
+.ftag.c{color:var(--red)} .ftag.i{color:var(--amber)} .ftag.m{color:var(--a)}
+
+/* lightbox */
+.lb{position:fixed;inset:0;background:rgba(243,243,241,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:50;padding:16px;gap:8px}
+.lb img{max-width:100%;max-height:calc(100vh - 90px);background:#fff}
+.lb .bar{display:flex;gap:12px;align-items:center;color:var(--y-ink);font-size:13px;flex-wrap:wrap;justify-content:center}
+.lb .bar button{background:var(--y-card);border:1px solid var(--y-line);color:var(--y-ink);border-radius:var(--y-radius-s);padding:4px 10px;cursor:pointer}
+
+@media (max-width:1180px){
+  .work{grid-template-columns:1fr}
+  .sheet{grid-template-columns:1fr}
+  .tb-cells{justify-content:flex-start}
+  .vp{height:70vh}
+  .guide{grid-template-columns:1fr}
+  .toc{position:static;max-height:none;display:none}
+  .pg{grid-template-columns:1fr}
+  .pg .thumb{max-width:420px}
+}
+@media (max-width:640px){
+  .tb-title h1{font-size:20px}
+  main{padding:10px}
+  .legend{max-width:200px;font-size:10.5px}
+  .pip{width:46%}
+  .filter input{min-width:0}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head><body>
+<header class="sheet">
+  <div class="tb-title">
+    <h1>Urban Design <span class="red">Guidelines</span></h1>
+    <span class="src">Overseas Chinese Business Center · Shenzhen UPDI, Nov 2024 · 79 pp.</span>
+  </div>
+  <dl class="tb-cells">
+    <div><dt>Planning area</dt><dd>26 ha</dd></div>
+    <div><dt>Parcels</dt><dd>22 + heritage</dd></div>
+    <div><dt>Above-ground GFA</dt><dd>1,337,128 m² · FAR 6.49</dd></div>
+    <div><dt>Heights</dt><dd>100 – 180 m</dd></div>
+    <div><dt>Twin Towers (02-03 · 02-04)</dt><dd>180 · 172 m</dd></div>
+  </dl>
+  <nav class="tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true" aria-controls="p-model" id="t-model">3D development model</button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="p-pages" id="t-pages">Page by page (EN)</button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="p-tables" id="t-tables">Parcel tables</button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="p-notes" id="t-notes">Flags &amp; glossary</button>
+    <span class="spacer"></span>
+    <a class="xlink" href="00_ENGLISH_Zoning_Envelope_and_Document_Guide.html">Plot 2 zoning envelope →</a>
+  </nav>
+</header>
+
+<main>
+<!-- ======================= MODEL ======================= -->
+<section id="p-model" role="tabpanel" aria-labelledby="t-model" style="display:flex;flex-direction:column;gap:20px">
+  <div class="work">
+    <div class="vp" id="vp">
+      <canvas id="cv" aria-label="3D model of the Overseas Chinese Business Center"></canvas>
+      <div class="labels" id="labels"></div>
+      <div class="vp-bar">
+        <button data-view="axo">Axonometric</button>
+        <button data-view="plan">Plan</button>
+        <button data-view="comp">Competition site</button>
+        <button data-view="south">From the south</button>
+        <button data-view="under">Underground</button>
+      </div>
+      <svg class="north" viewBox="-22 -22 44 44" aria-label="North arrow">
+        <circle r="20" fill="var(--panel)" stroke="var(--rule)"></circle>
+        <g id="northg"><path d="M0,-16 L6,8 L0,4 L-6,8 Z" fill="var(--ink)"></path><text y="-5" text-anchor="middle" font-size="7" fill="var(--panel)" font-family="var(--f-disp)" font-weight="800">N</text></g>
+      </svg>
+      <div class="pip" id="pip" hidden><header><b id="pip-t"></b><span id="pip-p" class="mono"></span><button id="pip-x" aria-label="Close key">×</button></header><img id="pip-img" alt=""><p id="pip-d"></p></div>
+      <div class="hint">Drag to orbit · scroll to zoom · right-drag to pan · click a building</div>
+    </div>
+
+    <div class="ctrl">
+      <div class="box" id="massbox">
+        <h2>Massing · Program</h2>
+        <div class="legend" id="legend"></div>
+      </div>
+      <div class="box" id="layers"><h2>Layers</h2></div>
+      <div class="box info" id="info"><h2>Selected parcel</h2><p class="empty">Click a tower or podium in the model.</p></div>
+    </div>
+  </div>
+
+  <div class="sec-h"><h2>Rendering keys</h2><p>Click one to fly to its approximate viewpoint (read from each rendering’s key map) and pin it in the corner to compare.</p></div>
+  <div class="renders" id="renders"></div>
+
+  <p class="assume"><b>How the model was built.</b> Parcel outlines are traced from the parcel-division plan (p.18) and scaled so the 22 traced areas match the published site areas; each matches to within 8%, most within 3%. Heights, floor counts, typical floor plates, coverage and podium floors come from the unit tables (pp.11, 13, 15). Podiums are each parcel shrunk about its centre to the published coverage area. Towers are square plates of the published typical floor area, placed by eye from the master plan (p.6). Setback lines are offset per side from the control tables (pp.19–21). Basement depth = published basement area ÷ parcel area, using B1 5.5 m, B2 4.0 m, B3/B4 3.8 m (p.8). The loop road, entrances, station and walking routes are traced approximately from pp.22, 54, 57, 66–72. Program colours follow the p.28 axonometric, and some tower assignments there are approximate. The ground is shown flat; real grades run from about 66 m to 76 m. Use this for orientation and coordination, not as survey.</p>
+</section>
+
+<!-- ======================= PAGES ======================= -->
+<section id="p-pages" role="tabpanel" aria-labelledby="t-pages" hidden>
+  <div class="guide">
+    <nav class="toc" id="toc" aria-label="Pages"></nav>
+    <div>
+      <div class="filter"><input id="q" type="search" placeholder="Search pages (English or Chinese)…" aria-label="Search pages"><span class="lg" id="qn"></span></div>
+      <div id="pagelist"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= TABLES ======================= -->
+<section id="p-tables" role="tabpanel" aria-labelledby="t-tables" hidden>
+  <div class="stack" id="tables"></div>
+</section>
+
+<!-- ======================= NOTES ======================= -->
+<section id="p-notes" role="tabpanel" aria-labelledby="t-notes" hidden>
+  <div class="stack">
+    <div class="sec-h"><h2>Flags for the competition team</h2><p>Where this 2024 guideline meets, or conflicts with, the competition package.</p></div>
+    <div class="flags">
+      <div class="flag"><b>02-03 + 02-04 is the competition site.</b> The Twin Towers landmark (key 6 on p.6, key 2 on p.15) sits on parcels 02-03 and 02-04, south of 02-01/02-02 and on Shangcheng Ave. Together they are 30,843 m² here, against 29,778.53 m² in the competition red line. 02-01 + 02-02 match the “Plot 1 (north)” package. This mapping is inferred from position and area; the guideline itself never says “Plot 2”.</div>
+      <div class="flag"><b>Heights: 180 m and 172 m here, ≤ 200 m in the planning conditions.</b> This guideline (Nov 2024) suggests 180 m for 02-03 and 172 m for 02-04. The later planning conditions (义规条件[2025]428号, 17 Nov 2025) allow ≤ 200 m. The airport ceiling of 264 m elevation caps the highest point at about 188–192 m above grade. The planning conditions govern. Treat 180/172 as the city’s design intent, not a cap.</div>
+      <div class="flag"><b>FAR lines up.</b> The guideline’s above-ground GFA for 02-03 + 02-04 is 157,920 m². On the competition net site of 23,174.77 m² that is FAR 6.81, inside the 6.0–7.0 band. The guideline’s own FARs (4.8 and 5.4) use the gross parcel areas, including the green that is handed to the city.</div>
+      <div class="flag"><b>Hotel on the twin tower.</b> The program axonometric (p.28) puts a five-star hotel at the top of the tallest twin tower. The planning conditions say a hotel, if built, must be ≥ 5,000 m² and held, not sold.</div>
+      <div class="flag"><b>Parking ratio units are not printed.</b> Pages 22 and 65 give ratios of 0.70 (02-03) and 0.90 (02-04) without units. The planning conditions require 0.6 spaces per 100 m² of above-ground area. If the guideline means the same unit, 02-04 is planned well above the minimum: about 727 spaces on 80,782 m².</div>
+      <div class="flag"><b>Ratio mismatch for 01-03.</b> Page 22 gives 0.70; page 65 gives 0.60. Every other parcel matches.</div>
+      <div class="flag"><b>Vehicle access to the twin towers.</b> The control table (p.21) puts the main vehicle access at the SE corner of 02-03 and the SW corner of 02-04, i.e. where the two meet near Shangcheng Ave. Check this against the no-access frontage bars on red-line drawing 01 before you place ramps.</div>
+      <div class="flag"><b>Underground detail covers Unit 01 only.</b> The loop, ramps, fire compartments and B1–B4 layouts (pp.66–77) are drawn for Unit 01. Unit 02 gets basement areas, ratios and an “encouraged to connect to the intercity-rail underground space” note (p.22). The B3 tunnel under Shangcheng Ave (from 01-11) is the one stated link across the avenue.</div>
+      <div class="flag"><b>“5万” parking zones.</b> Pages 74–76 limit basement parking zones to “不大于5万” without a unit. Read as 50,000 m² under the Zhejiang guideline; confirm with the fire consultant.</div>
+      <div class="flag"><b>Duplicate page.</b> Page 73 repeats page 23’s underground table.</div>
+    </div>
+
+    <div class="card">
+      <h3>Glossary</h3>
+      <p class="sub">Terms used across the guideline</p>
+      <table>
+        <tr><th>Chinese</th><th>English</th><th>Meaning here</th></tr>
+        <tr><td class="cjk">城市设计导控</td><td>Urban-design guidance &amp; control</td><td>Design code layered over the zoning plan</td></tr>
+        <tr><td class="cjk">一图+一表</td><td>One map + one table</td><td>The binding control sheet for each unit</td></tr>
+        <tr><td class="cjk">刚性 / 弹性管控要素</td><td>Rigid / flexible controls</td><td>Must-meet limits (height, FAR, setbacks) vs. guidance (entrances, open space, frontage)</td></tr>
+        <tr><td class="cjk">单元 / 宗地</td><td>Unit / parcel</td><td>Unit 01 and 02; parcels like 02-03</td></tr>
+        <tr><td class="cjk">侨商中心</td><td>Overseas Chinese Business Center</td><td>The 26 ha project</td></tr>
+        <tr><td class="cjk">繁星坊 / 侨韵坊 / 丝路万象街区</td><td>Starry Quarter / Heritage Quarter / Silk Road Panorama</td><td>The three retail quarters</td></tr>
+        <tr><td class="cjk">限高 · 容积率 · 建筑密度</td><td>Height limit · FAR · coverage</td><td></td></tr>
+        <tr><td class="cjk">多层 / 高层建筑退线</td><td>Multi-storey / high-rise setback</td><td>Podium line / tower line</td></tr>
+        <tr><td class="cjk">退道路</td><td>From the road</td><td>Setback measured from the road red line, not the lot line</td></tr>
+        <tr><td class="cjk">商业活力 / 内部活力 / 形象展示界面</td><td>Commercial active / internal active / image-display frontage</td><td>The three frontage types (p.31)</td></tr>
+        <tr><td class="cjk">骑楼</td><td>Arcade</td><td>Covered colonnade along the shop front</td></tr>
+        <tr><td class="cjk">慢行系统</td><td>Slow-traffic system</td><td>Walking and cycling network</td></tr>
+        <tr><td class="cjk">地下环路</td><td>Underground loop road</td><td>Shared basement ring road at B1–B3</td></tr>
+        <tr><td class="cjk">地下活力空间 / 一般地下空间</td><td>Underground vibrant / general space</td><td>Basement retail streets vs. ordinary basement</td></tr>
+        <tr><td class="cjk">停车配比</td><td>Parking ratio</td><td>Spaces per unit of GFA; unit not printed</td></tr>
+        <tr><td class="cjk">消防登高面</td><td>Fire-truck climbing face</td><td>Hardstand along a tower side for aerial ladders</td></tr>
+        <tr><td class="cjk">防火分区 / 防火隔间</td><td>Fire compartment / fire-separation space</td><td></td></tr>
+        <tr><td class="cjk">下沉广场 / 下沉庭院</td><td>Sunken plaza / sunken courtyard</td><td></td></tr>
+        <tr><td class="cjk">文保单位 / 历史建筑 / 三普点</td><td>Protected relic / historic building / 3rd-survey site</td><td>Heritage grades on p.32</td></tr>
+        <tr><td class="cjk">金义东轨道线 · 浙医四院站</td><td>Jin–Yi–Dong rail line · Zhejiang 4th Hospital Station</td><td>Rail station on Shangcheng Ave</td></tr>
+        <tr><td class="cjk">商城大道 · 商博路 · 春风大道 · 银海路 · 振兴西路</td><td>Shangcheng Ave · Shangbo Rd · Chunfeng Ave · Yinhai Rd · Zhenxing W Rd</td><td>Roads around the site</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+</main>
+
+<div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-label="Page image">
+  <img id="lb-img" alt="">
+  <div class="bar"><span id="lb-t"></span><button id="lb-prev">← Prev</button><button id="lb-next">Next →</button><button id="lb-go">Read translation</button><button id="lb-x">Close (Esc)</button></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+const GEO = {"scale":0.4537008113626718,"parcels":[{"id":"02-01","unit":"02","poly":[[-220.04,-309.42],[-93.01,-309.42],[-86.2,-249.54],[-224.58,-220.04]],"pod":[[-199.42,-297.41],[-113.26,-297.41],[-108.64,-256.8],[-202.5,-236.79]],"msb":[[-215.29,-304.42],[-104.52,-304.42],[-98.56,-252.02],[-219.26,-226.29]],"tsb":[[-205.53,-299.42],[-105.46,-299.42],[-100.49,-255.7],[-208.92,-232.58]],"edges":[{"a":[-220.04,-309.42],"b":[-93.01,-309.42],"side":"N","fr":"c"},{"a":[-93.01,-309.42],"b":[-86.2,-249.54],"side":"E","fr":"i"},{"a":[-86.2,-249.54],"b":[-224.58,-220.04],"side":"S","fr":"i"},{"a":[-224.58,-220.04],"b":[-220.04,-309.42],"side":"W","fr":"m"}],"podF":4,"site":9992.72,"cover":4564.0,"comm":23069.0,"std":1800.0,"tgfa":57600.0,"totF":36,"towF":32,"H":148.0,"dens":46.0,"far":8.1,"gfa":80669.44,"ms":{"N":5.0,"S":5.0,"E":12.0,"W":5.0},"ts":{"N":10.0,"S":9.0,"E":13.5,"W":15.0},"ug":["g","\u2014",0.6,21000],"fz":0,"tc":[-181.48,-276.76]},{"id":"02-02","unit":"02","poly":[[-93.01,-309.42],[38.56,-309.42],[45.37,-276.76],[-86.2,-249.54]],"pod":[[-71.77,-302.32],[19.41,-302.32],[24.13,-279.68],[-67.05,-260.82]],"msb":[[-80.36,-304.42],[31.43,-304.42],[36.52,-280.03],[-74.97,-256.97]],"tsb":[[-78.29,-299.42],[30.43,-299.42],[33.74,-283.54],[-73.95,-261.27]],"edges":[{"a":[-93.01,-309.42],"b":[38.56,-309.42],"side":"N","fr":"c"},{"a":[38.56,-309.42],"b":[45.37,-276.76],"side":"E","fr":"c"},{"a":[45.37,-276.76],"b":[-86.2,-249.54],"side":"S","fr":"i"},{"a":[-86.2,-249.54],"b":[-93.01,-309.42],"side":"W","fr":"i"}],"podF":4,"site":6214.0,"cover":2968.0,"comm":11874.0,"std":1536.76,"tgfa":49176.0,"totF":36,"towF":32,"H":148.0,"dens":48.0,"far":9.9,"gfa":61050.24,"ms":{"N":5.0,"S":5.0,"E":8.0,"W":12.0},"ts":{"N":10.0,"S":9.0,"E":10.0,"W":13.5},"ug":["v","\u2014",0.7,16200],"fz":0,"tc":[-54.44,-288.1]},{"id":"02-03","unit":"02","poly":[[-224.58,-220.04],[-86.2,-249.54],[-68.96,-145.64],[-229.12,-112.52]],"pod":[[-199.05,-206.6],[-109.49,-225.69],[-98.33,-158.44],[-201.99,-137.01]],"msb":[[-219.75,-215.96],[-97.13,-242.1],[-82.03,-151.11],[-223.72,-121.81]],"tsb":[[-209.82,-213.98],[-97.94,-237.83],[-83.83,-152.78],[-213.54,-125.95]],"edges":[{"a":[-224.58,-220.04],"b":[-86.2,-249.54],"side":"N","fr":"i"},{"a":[-86.2,-249.54],"b":[-68.96,-145.64],"side":"E","fr":"i"},{"a":[-68.96,-145.64],"b":[-229.12,-112.52],"side":"S","fr":"c"},{"a":[-229.12,-112.52],"b":[-224.58,-220.04],"side":"W","fr":"m"}],"podF":4,"site":15944.11,"cover":6693.0,"comm":18638.0,"std":1500.0,"tgfa":58500.0,"totF":43,"towF":39,"H":180.0,"dens":42.0,"far":4.8,"gfa":77138.28,"ms":{"N":5.0,"S":8.0,"E":12.0,"W":5.0},"ts":{"N":9.0,"S":10.0,"E":13.5,"W":15.0},"ug":["g","\u2014",0.7,43800],"fz":0,"tc":[-198.72,-158.8]},{"id":"02-04","unit":"02","poly":[[-86.2,-249.54],[45.37,-276.76],[85.3,-177.85],[-68.96,-145.64]],"pod":[[-57.51,-236.25],[26.92,-253.72],[52.55,-190.25],[-46.45,-169.58]],"msb":[[-73.62,-247.04],[39.31,-270.4],[74.3,-183.73],[-58.51,-155.99]],"tsb":[[-71.5,-243.39],[38.84,-266.22],[71.55,-185.19],[-57.37,-158.28]],"edges":[{"a":[-86.2,-249.54],"b":[45.37,-276.76],"side":"N","fr":"i"},{"a":[45.37,-276.76],"b":[85.3,-177.85],"side":"E","fr":"c"},{"a":[85.3,-177.85],"b":[-68.96,-145.64],"side":"S","fr":"c"},{"a":[-68.96,-145.64],"b":[-86.2,-249.54],"side":"W","fr":"i"}],"podF":4,"site":14899.01,"cover":6318.0,"comm":21582.0,"std":1600.0,"tgfa":59200.0,"totF":41,"towF":37,"H":172.0,"dens":42.0,"far":5.4,"gfa":80782.0,"ms":{"N":5.0,"S":8.0,"E":8.0,"W":12.0},"ts":{"N":9.0,"S":10.0,"E":10.0,"W":13.5},"ug":["v","\u2014",0.9,40800],"fz":0,"tc":[-40.83,-197.36]},{"id":"01-01","unit":"01","poly":[[-225.49,-0.91],[-148.81,-15.43],[-131.57,79.4],[-223.22,84.39]],"pod":[[-207.97,14.41],[-162.38,5.77],[-152.13,62.15],[-206.62,65.12]],"msb":[[-220.38,3.21],[-152.83,-9.58],[-137.5,74.72],[-218.36,79.12]],"tsb":[[-210.29,6.39],[-156.85,-3.73],[-143.44,70.03],[-208.5,73.57]],"edges":[{"a":[-225.49,-0.91],"b":[-148.81,-15.43],"side":"N","fr":"m"},{"a":[-148.81,-15.43],"b":[-131.57,79.4],"side":"E","fr":"i"},{"a":[-131.57,79.4],"b":[-223.22,84.39],"side":"S","fr":"i"},{"a":[-223.22,84.39],"b":[-225.49,-0.91],"side":"W","fr":"m"}],"podF":4,"site":7751.46,"cover":2713.0,"comm":10000.0,"std":1600.0,"tgfa":48000.0,"totF":34,"towF":30,"H":148.0,"dens":35.0,"far":7.5,"gfa":58135.95,"ms":{"N":5.0,"S":5.0,"E":5.0,"W":5.0},"ts":{"N":10.0,"S":10.0,"E":10.0,"W":15.0},"ug":["g","E",0.6,21000],"fz":1,"tc":[-173.31,28.13]},{"id":"01-02","unit":"01","poly":[[-148.81,-15.43],[-30.85,-39.93],[-4.54,23.59],[-96.18,55.35],[-131.57,79.4]],"pod":[[-117.14,1.75],[-55.43,-11.07],[-41.66,22.16],[-89.6,38.78],[-108.12,51.36]],"msb":[[-143.02,-11.53],[-55.81,-29.64],[-32.01,27.82],[-98.44,50.84],[-128.03,70.95]],"tsb":[[-137.23,-7.62],[-58.85,-23.9],[-38.66,24.83],[-100.71,46.33],[-124.48,62.49]],"edges":[{"a":[-148.81,-15.43],"b":[-30.85,-39.93],"side":"N","fr":"m"},{"a":[-30.85,-39.93],"b":[-4.54,23.59],"side":"E","fr":"c"},{"a":[-4.54,23.59],"b":[-96.18,55.35],"side":"S","fr":"c"},{"a":[-96.18,55.35],"b":[-131.57,79.4],"side":"S","fr":"c"},{"a":[-131.57,79.4],"b":[-148.81,-15.43],"side":"W","fr":"i"}],"podF":4,"site":10168.94,"cover":2746.0,"comm":10000.0,"std":1600.0,"tgfa":48000.0,"totF":34,"towF":30,"H":148.0,"dens":27.0,"far":5.7,"gfa":57962.96,"ms":{"N":5.0,"S":5.0,"E":27.0,"W":5.0},"ts":{"N":10.0,"S":10.0,"E":32.0,"W":10.0},"ug":["g","S",0.8,28000],"fz":2,"tc":[-95.28,15.88]},{"id":"01-03","unit":"01","poly":[[-223.22,84.39],[-117.96,78.04],[-91.65,153.35],[-220.04,158.8]],"pod":[[-198.29,98.62],[-136.76,94.91],[-121.38,138.93],[-196.43,142.12]],"msb":[[-218.01,89.09],[-135.96,84.13],[-113.2,149.26],[-215.26,153.59]],"tsb":[[-207.82,93.48],[-139.43,89.35],[-120.15,144.55],[-205.48,148.17]],"edges":[{"a":[-223.22,84.39],"b":[-117.96,78.04],"side":"N","fr":"i"},{"a":[-117.96,78.04],"b":[-91.65,153.35],"side":"E","fr":"c"},{"a":[-91.65,153.35],"b":[-220.04,158.8],"side":"S","fr":"i"},{"a":[-220.04,158.8],"b":[-223.22,84.39],"side":"W","fr":"m"}],"podF":4,"site":8623.53,"cover":3018.0,"comm":11000.0,"std":1600.0,"tgfa":44800.0,"totF":32,"towF":28,"H":140.0,"dens":35.0,"far":6.5,"gfa":56052.95,"ms":{"N":5.0,"S":5.0,"E":19.0,"W":5.0},"ts":{"N":10.0,"S":10.0,"E":24.0,"W":15.0},"ug":["g","S",0.7,22000],"fz":1,"tc":[-181.48,120.23]},{"id":"01-05","unit":"01","poly":[[-220.04,158.8],[-91.65,153.35],[-65.79,225.94],[-216.87,231.39]],"pod":[[-190.62,172.62],[-115.09,169.41],[-99.88,212.12],[-188.76,215.33]],"msb":[[-214.83,163.58],[-109.76,159.12],[-87.46,221.72],[-212.09,226.21]],"tsb":[[-204.62,168.15],[-113.24,164.28],[-94.46,216.97],[-202.32,220.86]],"edges":[{"a":[-220.04,158.8],"b":[-91.65,153.35],"side":"N","fr":"i"},{"a":[-91.65,153.35],"b":[-65.79,225.94],"side":"E","fr":"c"},{"a":[-65.79,225.94],"b":[-216.87,231.39],"side":"S","fr":"i"},{"a":[-216.87,231.39],"b":[-220.04,158.8],"side":"W","fr":"m"}],"podF":4,"site":10109.99,"cover":3538.0,"comm":11000.0,"std":1800.0,"tgfa":50400.0,"totF":32,"towF":28,"H":140.0,"dens":35.0,"far":6.1,"gfa":61670.94,"ms":{"N":5.0,"S":5.0,"E":19.0,"W":5.0},"ts":{"N":10.0,"S":10.0,"E":24.0,"W":15.0},"ug":["g","N",0.6,22000],"fz":1,"tc":[-136.11,188.29]},{"id":"01-04","unit":"01","poly":[[-96.18,55.35],[-4.54,23.59],[31.76,106.62],[-58.98,142.92]],"pod":[[-65.49,68.15],[-17.66,51.57],[1.29,94.91],[-46.08,113.86]],"msb":[[-89.49,58.32],[-28.12,37.05],[4.68,112.07],[-56.29,136.46]],"tsb":[[-82.79,61.29],[-30.85,43.29],[-1.97,109.34],[-53.6,130.0]],"edges":[{"a":[-96.18,55.35],"b":[-4.54,23.59],"side":"N","fr":"c"},{"a":[-4.54,23.59],"b":[31.76,106.62],"side":"E","fr":"c"},{"a":[31.76,106.62],"b":[-58.98,142.92],"side":"S","fr":"i"},{"a":[-58.98,142.92],"b":[-96.18,55.35],"side":"W","fr":"c"}],"podF":4,"site":9109.35,"cover":2460.0,"comm":7500.0,"std":1800.0,"tgfa":43200.0,"totF":28,"towF":24,"H":124.0,"dens":27.0,"far":5.7,"gfa":51923.3,"ms":{"N":5.0,"S":5.0,"E":27.0,"W":5.0},"ts":{"N":10.0,"S":10.0,"E":32.0,"W":10.0},"ug":["g","E",0.8,22000],"fz":2,"tc":[-41.74,79.4]},{"id":"01-06","unit":"01","poly":[[-58.98,142.92],[31.76,106.62],[68.06,188.29],[-22.69,226.85]],"pod":[[-28.75,153.99],[18.8,134.97],[37.82,177.76],[-9.73,197.97]],"msb":[[-52.35,145.65],[8.71,121.23],[41.18,194.28],[-20.07,220.31]],"tsb":[[-45.72,148.39],[6.09,127.66],[34.54,191.67],[-17.46,213.76]],"edges":[{"a":[-58.98,142.92],"b":[31.76,106.62],"side":"N","fr":"i"},{"a":[31.76,106.62],"b":[68.06,188.29],"side":"E","fr":"c"},{"a":[68.06,188.29],"b":[-22.69,226.85],"side":"S","fr":"c"},{"a":[-22.69,226.85],"b":[-58.98,142.92],"side":"W","fr":"c"}],"podF":4,"site":9022.87,"cover":2436.0,"comm":7500.0,"std":1800.0,"tgfa":43200.0,"totF":28,"towF":24,"H":124.0,"dens":27.0,"far":5.7,"gfa":51430.36,"ms":{"N":5.0,"S":5.0,"E":27.0,"W":5.0},"ts":{"N":10.0,"S":10.0,"E":32.0,"W":10.0},"ug":["g","E",0.8,22000],"fz":3,"tc":[0.0,176.94]},{"id":"01-07","unit":"01","poly":[[-216.87,231.39],[-114.79,227.76],[-117.96,306.25],[-213.24,301.71]],"pod":[[-201.85,241.78],[-129.75,239.22],[-131.98,294.66],[-199.28,291.45]],"msb":[[-211.61,236.21],[-120.0,232.95],[-122.63,298.02],[-208.64,293.92]],"tsb":[[-201.36,240.84],[-125.22,238.14],[-127.42,292.78],[-198.86,289.38]],"edges":[{"a":[-216.87,231.39],"b":[-114.79,227.76],"side":"N","fr":"i"},{"a":[-114.79,227.76],"b":[-117.96,306.25],"side":"E","fr":"i"},{"a":[-117.96,306.25],"b":[-213.24,301.71],"side":"S","fr":"m"},{"a":[-213.24,301.71],"b":[-216.87,231.39],"side":"W","fr":"m"}],"podF":4,"site":7325.83,"cover":3663.0,"comm":9500.0,"std":1800.0,"tgfa":46800.0,"totF":30,"towF":26,"H":132.0,"dens":50.0,"far":7.7,"gfa":56408.89,"ms":{"N":5.0,"S":8.0,"E":5.0,"W":5.0},"ts":{"N":10.0,"S":13.0,"E":10.0,"W":15.0},"ug":["g","W",0.6,20000],"fz":1,"tc":[-167.87,262.24]},{"id":"01-08","unit":"01","poly":[[-114.79,227.76],[-22.69,226.85],[-21.78,310.79],[-117.96,306.25]],"pod":[[-99.22,241.5],[-38.64,240.9],[-38.04,296.12],[-101.31,293.13]],"msb":[[-109.99,232.71],[-27.64,231.9],[-26.87,302.54],[-112.64,298.49]],"tsb":[[-105.18,237.67],[-32.58,236.95],[-31.93,297.3],[-107.45,293.73]],"edges":[{"a":[-114.79,227.76],"b":[-22.69,226.85],"side":"N","fr":"c"},{"a":[-22.69,226.85],"b":[-21.78,310.79],"side":"E","fr":"i"},{"a":[-21.78,310.79],"b":[-117.96,306.25],"side":"S","fr":"m"},{"a":[-117.96,306.25],"b":[-114.79,227.76],"side":"W","fr":"i"}],"podF":4,"site":8271.78,"cover":3309.0,"comm":10000.0,"std":1800.0,"tgfa":46800.0,"totF":30,"towF":26,"H":132.0,"dens":40.0,"far":7.0,"gfa":57902.46,"ms":{"N":5.0,"S":8.0,"E":5.0,"W":5.0},"ts":{"N":10.0,"S":13.0,"E":10.0,"W":10.0},"ug":["g","N",0.6,20000],"fz":4,"tc":[-65.79,269.95]},{"id":"01-09","unit":"01","poly":[[-22.69,226.85],[68.06,188.29],[90.74,247.27],[98.91,317.59],[-21.78,310.79]],"pod":[[4.09,239.68],[57.64,216.93],[71.03,251.73],[75.85,293.23],[4.63,289.22]],"msb":[[-17.65,230.14],[44.99,203.52],[64.31,253.78],[70.61,307.98],[-16.86,303.05]],"tsb":[[-12.62,233.44],[42.18,210.15],[59.42,254.98],[64.96,302.66],[-11.91,298.33]],"edges":[{"a":[-22.69,226.85],"b":[68.06,188.29],"side":"N","fr":"c"},{"a":[68.06,188.29],"b":[90.74,247.27],"side":"E","fr":"c"},{"a":[90.74,247.27],"b":[98.91,317.59],"side":"E","fr":"c"},{"a":[98.91,317.59],"b":[-21.78,310.79],"side":"S","fr":"m"},{"a":[-21.78,310.79],"b":[-22.69,226.85],"side":"W","fr":"i"}],"podF":3,"site":12020.52,"cover":4207.0,"comm":13000.0,"std":1890.0,"tgfa":47250.0,"totF":28,"towF":25,"H":124.0,"dens":35.0,"far":5.3,"gfa":63708.76,"ms":{"N":5.0,"S":8.0,"E":27.0,"W":5.0},"ts":{"N":10.0,"S":13.0,"E":32.0,"W":10.0},"ug":["g","N",0.7,30000],"fz":4,"tc":[22.69,269.95]},{"id":"01-10","unit":"01","poly":[[-30.85,-39.93],[74.86,-62.61],[90.74,9.98],[-3.63,28.13]],"pod":[[-10.09,-32.16],[61.13,-47.44],[71.83,1.47],[8.25,13.7]],"msb":[[-9.13,-39.48],[71.04,-56.68],[84.76,6.04],[14.48,19.56]],"tsb":[[-7.24,-34.77],[67.22,-50.74],[78.78,2.1],[12.59,14.83]],"edges":[{"a":[-30.85,-39.93],"b":[74.86,-62.61],"side":"N","fr":"c"},{"a":[74.86,-62.61],"b":[90.74,9.98],"side":"E","fr":"i"},{"a":[90.74,9.98],"b":[-3.63,28.13],"side":"S","fr":"i"},{"a":[-3.63,28.13],"b":[-30.85,-39.93],"side":"W","fr":"c"}],"podF":4,"site":7540.21,"cover":3393.0,"comm":11000.0,"std":1700.0,"tgfa":45900.0,"totF":31,"towF":27,"H":136.0,"dens":45.0,"far":7.5,"gfa":56551.58,"ms":{"N":5.0,"S":5.0,"E":5.0,"W":20.0},"ts":{"N":10.0,"S":10.0,"E":10.0,"W":20.0},"ug":["v","S",0.6,21000],"fz":2,"tc":[34.03,-18.15]},{"id":"01-11","unit":"01","poly":[[74.86,-62.61],[151.99,-79.4],[181.48,-9.07],[90.74,9.98]],"pod":[[93.23,-52.55],[141.97,-63.16],[160.61,-18.71],[103.26,-6.67]],"msb":[[80.81,-58.79],[146.01,-72.98],[171.54,-12.09],[94.56,4.07]],"tsb":[[86.77,-54.97],[143.0,-67.21],[164.59,-15.74],[98.39,-1.84]],"edges":[{"a":[74.86,-62.61],"b":[151.99,-79.4],"side":"N","fr":"c"},{"a":[151.99,-79.4],"b":[181.48,-9.07],"side":"E","fr":"c"},{"a":[181.48,-9.07],"b":[90.74,9.98],"side":"S","fr":"i"},{"a":[90.74,9.98],"b":[74.86,-62.61],"side":"W","fr":"i"}],"podF":3,"site":6394.69,"cover":2558.0,"comm":5000.0,"std":1880.0,"tgfa":65800.0,"totF":38,"towF":35,"H":148.0,"dens":40.0,"far":11.0,"gfa":70341.59,"ms":{"N":5.0,"S":5.0,"E":8.0,"W":5.0},"ts":{"N":10.0,"S":10.0,"E":13.0,"W":10.0},"ug":["v","S",0.6,17000],"fz":2,"tc":[115.69,-36.3]},{"id":"01-12","unit":"01","poly":[[-3.63,28.13],[90.74,9.98],[120.23,83.93],[34.03,111.16]],"pod":[[25.19,41.72],[77.05,31.75],[93.25,72.38],[45.88,87.35]],"msb":[[18.69,28.93],[87.63,15.67],[113.59,80.78],[51.16,100.51]],"tsb":[[20.82,33.61],[84.51,21.36],[106.95,77.64],[49.08,95.92]],"edges":[{"a":[-3.63,28.13],"b":[90.74,9.98],"side":"N","fr":"i"},{"a":[90.74,9.98],"b":[120.23,83.93],"side":"E","fr":"i"},{"a":[120.23,83.93],"b":[34.03,111.16],"side":"S","fr":"i"},{"a":[34.03,111.16],"b":[-3.63,28.13],"side":"W","fr":"c"}],"podF":4,"site":7405.92,"cover":2370.0,"comm":7500.0,"std":1800.0,"tgfa":45000.0,"totF":29,"towF":25,"H":128.0,"dens":32.0,"far":7.1,"gfa":52582.03,"ms":{"N":5.0,"S":5.0,"E":5.0,"W":20.0},"ts":{"N":10.0,"S":10.0,"E":10.0,"W":20.0},"ug":["g","W",0.8,22200],"fz":2,"tc":[72.59,43.1]},{"id":"01-13","unit":"01","poly":[[90.74,9.98],[181.48,-9.07],[207.34,49.0],[120.23,83.93]],"pod":[[112.61,18.65],[169.83,6.64],[186.14,43.26],[131.21,65.28]],"msb":[[97.59,13.65],[175.55,-2.72],[197.87,47.41],[123.02,77.42]],"tsb":[[104.43,17.32],[172.63,3.01],[191.19,44.7],[125.81,70.92]],"edges":[{"a":[90.74,9.98],"b":[181.48,-9.07],"side":"N","fr":"i"},{"a":[181.48,-9.07],"b":[207.34,49.0],"side":"E","fr":"c"},{"a":[207.34,49.0],"b":[120.23,83.93],"side":"S","fr":"i"},{"a":[120.23,83.93],"b":[90.74,9.98],"side":"W","fr":"i"}],"podF":4,"site":6577.53,"cover":2631.0,"comm":8000.0,"std":1600.0,"tgfa":40000.0,"totF":29,"towF":25,"H":128.0,"dens":40.0,"far":7.3,"gfa":48015.97,"ms":{"N":5.0,"S":5.0,"E":8.0,"W":5.0},"ts":{"N":10.0,"S":10.0,"E":13.0,"W":10.0},"ug":["g","N",0.6,17000],"fz":2,"tc":[154.26,28.13]},{"id":"01-14","unit":"01","poly":[[34.03,111.16],[120.23,83.93],[151.99,154.26],[68.06,188.29]],"pod":[[59.36,121.05],[108.89,105.4],[127.15,145.82],[78.91,165.37]],"msb":[[55.25,109.7],[117.5,90.04],[145.29,151.58],[84.58,176.19]],"tsb":[[57.28,114.3],[114.77,96.14],[138.6,148.9],[82.56,171.62]],"edges":[{"a":[34.03,111.16],"b":[120.23,83.93],"side":"N","fr":"i"},{"a":[120.23,83.93],"b":[151.99,154.26],"side":"E","fr":"i"},{"a":[151.99,154.26],"b":[68.06,188.29],"side":"S","fr":"i"},{"a":[68.06,188.29],"b":[34.03,111.16],"side":"W","fr":"c"}],"podF":4,"site":7512.06,"cover":2404.0,"comm":7500.0,"std":1800.0,"tgfa":45000.0,"totF":29,"towF":25,"H":128.0,"dens":32.0,"far":7.0,"gfa":52584.42,"ms":{"N":5.0,"S":5.0,"E":5.0,"W":20.0},"ts":{"N":10.0,"S":10.0,"E":10.0,"W":20.0},"ug":["g","E",0.8,22500],"fz":3,"tc":[104.35,129.3]},{"id":"01-15","unit":"01","poly":[[68.06,188.29],[151.99,154.26],[186.92,235.92],[149.72,249.54],[90.74,247.27]],"pod":[[93.28,199.28],[142.75,179.22],[163.34,227.36],[141.41,235.38],[106.65,234.05]],"msb":[[88.39,185.44],[149.32,160.74],[180.25,233.04],[148.93,244.51],[110.54,243.03]],"tsb":[[90.19,190.11],[146.65,167.21],[173.58,230.16],[148.13,239.47],[108.58,237.95]],"edges":[{"a":[68.06,188.29],"b":[151.99,154.26],"side":"N","fr":"i"},{"a":[151.99,154.26],"b":[186.92,235.92],"side":"E","fr":"i"},{"a":[186.92,235.92],"b":[149.72,249.54],"side":"S","fr":"i"},{"a":[149.72,249.54],"b":[90.74,247.27],"side":"S","fr":"i"},{"a":[90.74,247.27],"b":[68.06,188.29],"side":"W","fr":"c"}],"podF":4,"site":7376.76,"cover":2582.0,"comm":9000.0,"std":1800.0,"tgfa":43200.0,"totF":28,"towF":24,"H":124.0,"dens":35.0,"far":7.0,"gfa":51637.32,"ms":{"N":5.0,"S":5.0,"E":5.0,"W":20.0},"ts":{"N":10.0,"S":10.0,"E":10.0,"W":20.0},"ug":["g","N",0.6,20000],"fz":3,"tc":[133.84,212.33]},{"id":"01-16","unit":"01","poly":[[120.23,83.93],[207.34,49.0],[271.31,197.36],[186.92,235.92],[151.99,154.26]],"pod":[[148.19,108.92],[199.12,88.49],[236.53,175.24],[187.18,197.79],[166.76,150.04]],"msb":[[126.93,86.63],[201.89,56.57],[262.05,196.09],[189.5,229.24],[156.57,152.25]],"tsb":[[133.64,89.33],[199.23,63.03],[255.52,193.58],[192.08,222.57],[161.14,150.24]],"edges":[{"a":[120.23,83.93],"b":[207.34,49.0],"side":"N","fr":"i"},{"a":[207.34,49.0],"b":[271.31,197.36],"side":"E","fr":"m"},{"a":[271.31,197.36],"b":[186.92,235.92],"side":"S","fr":"i"},{"a":[186.92,235.92],"b":[151.99,154.26],"side":"W","fr":"i"},{"a":[151.99,154.26],"b":[120.23,83.93],"side":"W","fr":"i"}],"podF":4,"site":14801.75,"cover":5200.0,"comm":18000.0,"std":1450.0,"tgfa":52200.0,"totF":22,"towF":18,"H":100.0,"dens":35.0,"far":4.8,"gfa":71048.4,"ms":{"N":5.0,"S":5.0,"E":8.0,"W":5.0},"ts":{"N":10.0,"S":10.0,"E":13.0,"W":10.0},"ug":["g","W/N",0.8,30000],"fz":3},{"id":"01-17","unit":"01","poly":[[90.74,247.27],[149.72,249.54],[186.92,235.92],[210.97,290.37],[210.06,324.4],[98.91,317.59]],"pod":[[115.57,258.45],[152.74,259.88],[176.19,251.3],[191.34,285.62],[190.77,307.07],[120.71,302.77]],"msb":[[111.55,253.07],[150.51,254.57],[184.24,242.23],[205.94,291.36],[205.28,316.09],[118.25,310.76]],"tsb":[[112.13,258.1],[151.31,259.61],[181.56,248.53],[200.91,292.35],[200.42,310.79],[117.66,305.71]],"edges":[{"a":[90.74,247.27],"b":[149.72,249.54],"side":"N","fr":"i"},{"a":[149.72,249.54],"b":[186.92,235.92],"side":"N","fr":"i"},{"a":[186.92,235.92],"b":[210.97,290.37],"side":"E","fr":"i"},{"a":[210.97,290.37],"b":[210.06,324.4],"side":"E","fr":"i"},{"a":[210.06,324.4],"b":[98.91,317.59],"side":"S","fr":"m"},{"a":[98.91,317.59],"b":[90.74,247.27],"side":"W","fr":"c"}],"podF":4,"site":8199.05,"cover":3280.0,"comm":10000.0,"std":1800.0,"tgfa":43200.0,"totF":28,"towF":24,"H":124.0,"dens":40.0,"far":6.5,"gfa":53293.83,"ms":{"N":5.0,"S":8.0,"E":5.0,"W":20.0},"ts":{"N":10.0,"S":13.0,"E":10.0,"W":20.0},"ug":["g","E",0.7,20000],"fz":4,"tc":[165.6,276.76]},{"id":"01-18","unit":"01","poly":[[186.92,235.92],[271.31,197.36],[315.32,308.52],[310.79,315.32],[210.06,324.4],[210.97,290.37]],"pod":[[212.29,252.86],[263.21,229.59],[289.77,296.67],[287.04,300.78],[226.25,306.26],[226.8,285.72]],"msb":[[193.49,238.42],[265.87,205.34],[306.34,307.57],[306.26,307.7],[215.29,315.9],[216.0,289.38]],"tsb":[[200.06,240.91],[263.16,212.08],[300.73,306.98],[303.42,302.93],[220.44,310.41],[221.03,288.39]],"edges":[{"a":[186.92,235.92],"b":[271.31,197.36],"side":"N","fr":"i"},{"a":[271.31,197.36],"b":[315.32,308.52],"side":"E","fr":"m"},{"a":[315.32,308.52],"b":[310.79,315.32],"side":"E","fr":"m"},{"a":[310.79,315.32],"b":[210.06,324.4],"side":"S","fr":"m"},{"a":[210.06,324.4],"b":[210.97,290.37],"side":"W","fr":"i"},{"a":[210.97,290.37],"b":[186.92,235.92],"side":"W","fr":"i"}],"podF":4,"site":10683.21,"cover":3739.0,"comm":12000.0,"std":1800.0,"tgfa":54000.0,"totF":34,"towF":30,"H":148.0,"dens":35.0,"far":6.2,"gfa":66235.9,"ms":{"N":5.0,"S":8.0,"E":8.0,"W":5.0},"ts":{"N":10.0,"S":13.0,"E":13.0,"W":10.0},"ug":["g","W",0.7,25000],"fz":4,"tc":[258.61,269.95]}],"her":[[-117.96,78.04],[-96.18,55.35],[-58.98,142.92],[-22.69,226.85],[-65.79,225.94],[-91.65,153.35]],"ctx":{"roads":{"shangcheng":[[-453.7,-80.76],[453.7,-266.78],[453.7,-217.78],[-453.7,-32.67]],"shangbo":[[-269.95,-453.7],[-231.39,-453.7],[-231.39,499.07],[-269.95,499.07]],"yinhai":[[-453.7,-334.83],[453.7,-367.5],[453.7,-340.28],[-453.7,-307.61]],"zhenxing":[[-453.7,317.59],[453.7,319.86],[453.7,344.81],[-453.7,342.54]],"chunfeng":[[65.79,-453.7],[97.55,-453.7],[149.72,-176.94],[208.7,-72.59],[353.89,272.22],[372.03,499.07],[340.28,499.07],[322.13,274.49],[176.94,-68.06],[117.96,-172.41]]},"greenS":[[-225.49,-0.91],[151.99,-79.4],[149.72,-88.02],[-226.85,-9.98]],"greenBand":[[-229.12,-58.98],[158.8,-137.47],[164.24,-90.74],[-226.85,-12.7]],"rail":[[-453.7,-56.71],[453.7,-242.28]],"station":[[93.01,-163.33],[174.67,-180.12],[177.85,-166.96],[95.73,-150.17]],"stationExits":{"A":[117.96,-174.67],"B":[181.48,-183.75],"C":[104.35,-140.65],"D":[186.02,-158.8]},"roadB":[[-30.85,-39.93],[-3.63,28.13],[34.03,111.16],[68.06,188.29],[90.74,247.27],[98.91,317.59]],"roadC":[[90.74,9.98],[120.23,83.93],[151.99,154.26],[186.92,235.92],[210.97,290.37],[210.06,324.4]],"roadA":[[-117.96,78.04],[-96.18,55.35],[-58.98,142.92],[-22.69,226.85],[-65.79,225.94],[-91.65,153.35],[-117.96,78.04]],"loop":[[-115.69,72.59],[-3.63,29.49],[90.74,11.34],[121.59,85.3],[153.35,155.62],[186.02,235.02],[90.74,245.91],[-21.78,226.85],[-63.52,223.22],[-115.69,72.59]],"spine":[[-3.63,29.49],[34.03,111.16],[68.06,188.29],[90.74,245.91]],"b3tunnel":[[131.57,-45.37],[136.11,-72.59],[140.65,-108.89]],"bridge":[[-299.44,108.89],[-220.04,104.35]],"loop18":[[-158.8,-272.22],[-90.74,-281.29],[-81.67,-226.85],[-68.96,-149.72],[-45.37,-45.37],[-4.54,27.22],[36.3,111.16],[-22.69,145.18],[-81.67,140.65],[-104.35,90.74],[-45.37,-45.37],[-68.96,-149.72],[-145.18,-149.72],[-158.8,-272.22]],"compSite":[[-224.58,-220.04],[-86.2,-249.54],[45.37,-276.76],[85.3,-177.85],[-229.12,-112.52]],"compGreen":[[-229.12,-112.52],[85.3,-177.85],[81.84,-194.49],[-232.58,-129.16]]}};
+/* Page-by-page English version of 【城市设计导控】义乌市金融商务区二期侨商中心详细规划 (Nov 2024).
+   Each entry: n page, s section, cn original title, en English title, does = what the page is doing,
+   tr = translation of the text on the page, k = 3D layer keys this page feeds. */
+const SECTIONS = {
+  front:'Front matter', p1:'1 · Overall plan', p2:'2.1 · Function & vitality', p3:'2.2 · Architectural character',
+  p4:'2.3 · Landscape', p5:'2.4 · Vehicle system', p6:'2.5 · Slow-traffic (walking & cycling)', p7:'2.6 · Underground space'
+};
+const FR_LEGEND = `<p class="lg"><b>Legend, rigid controls (刚性管控要素):</b> lot line; public green; low/multi-storey setback line; high-rise setback line; heritage protection zone; protected cultural relic; historic building. <b>Flexible controls (弹性管控要素):</b> public slow-traffic passage; main vehicle access; pedestrian entrance; ancillary green / open space; tower position; ground-floor commercial active frontage; primary setback line; secondary setback line; public art; suggested tower height (00 m).</p>`;
+const FRONT_TXT = `<p><b>Frontage &amp; uses (common to all parcels):</b> Commercial active frontages should mainly host retail, food &amp; beverage, leisure/entertainment and cultural-experience uses; active uses should exceed 80% of the frontage. Internal active frontages serve the actual needs of office and building users and can create shared spaces for corporate events and exchange. Image-display frontages should focus on podium facades and building signage; uses follow actual need.</p>
+<p><b>Architectural style (common):</b> Facades should be simple and dignified. Near the centre and the main slow-traffic corridors, arcades (骑楼) are recommended. Boundary walls are not allowed. Podium roof gardens are encouraged, and rooftop equipment should be screened or beautified.</p>`;
+const UG_RULE = `<p>Standard clause for every parcel: <i>“The basement shall be designed together with the neighbouring parcels; basement traffic shall follow the underground public passage scheme; and, at the vehicle-entry level, a public road shall connect to the surrounding city roads.”</i> Parcel-specific additions (★ = has an entrance, ★★ = entrance + shared ramp to the loop):</p>
+<ul class="tight">
+<li>01-01 + 01-02 share one two-lane basement entrance; 01-02 also hosts a shared ramp to the loop.</li>
+<li>01-03 + 01-05 share one two-lane entrance; each has a shared ramp to the loop.</li>
+<li>01-04, 01-06, 01-12, 01-14: no entrance, standard clause only.</li>
+<li>01-07 + 01-08 share one two-lane entrance.</li>
+<li>01-09 and 01-15 each have their own shared two-lane entrance plus a shared ramp to the loop.</li>
+<li>01-10 + 01-11 share one two-lane entrance (01-10 has the ramp); <b>01-11 hosts a public loop at B3 that connects to the reserved tunnel</b> under Shangcheng Ave.</li>
+<li>01-13 + 01-16 share one entrance; 01-16 + 01-18 share another; 01-16 has a ramp to the loop.</li>
+<li>01-17 + 01-18 share one two-lane entrance.</li></ul>`;
+const UG_LOOP = (lvl, h, extra) => `<p><b>Unit 01 public passage at ${lvl}:</b></p><ul class="tight"><li>Clear width: public passages and ramps 8 m${extra||''}.</li><li>Turning radius: minimum 8 m.</li><li>Clear height: ${h} m.</li><li>Entrances: a public road connects each entrance to the surrounding city roads.</li><li>Public ramps: positions can be refined with the design.</li></ul>`;
+const FIRE_TXT = (lvl) => `<p><b>Unit 01 fire compartments at ${lvl}:</b></p><ul class="tight"><li><b>Parking units:</b> divided into parking zones of no more than “5万” (read as 50,000 m²; the unit is not printed) under the Zhejiang fire-protection guideline; fire-separation spaces (防火隔间) are placed as shown and may be refined if codes are met.</li><li><b>Fire compartments:</b> basement compartments may be planned together with neighbouring parcels and may reasonably cross the red line in shared-driveway areas, subject to code.</li><li>Legend: green = fire-separation space at other interfaces; blue = fire-separation space at underground public passages.</li></ul>`;
+
+const PAGES = [
+{n:1,s:'front',cn:'义乌市金融商务区二期侨商中心详细规划【城市设计导控】',en:'Yiwu Financial Business District Phase II · Overseas Chinese Business Center · Detailed Plan [Urban Design Guidance & Control]',
+ does:'Cover. Names the project, the client and the author.',
+ tr:`<ul class="tight"><li>Client: Yiwu Free Trade Development Zone Administrative Committee (义乌自由贸易发展区管理委员会)</li><li>Author: Shenzhen Urban Planning &amp; Design Institute Co., Ltd. (深圳市城市规划设计研究院股份有限公司)</li><li>Date: November 2024</li></ul>`},
+{n:2,s:'front',cn:'目录',en:'Contents',does:'Table of contents. The book has two parts: the overall plan (Part 1) and the urban-design controls (Part 2).',
+ tr:`<p><b>1. Overall plan</b>: 1.1 Overall scheme structure · 1.2 Site elevation plan · 1.3 Unit scheme plans · 1.4 Urban-design control master plan + master table</p><p><b>2. Urban-design guidance &amp; control</b>: 2.1 Function · 2.2 Architectural form · 2.3 Green space &amp; landscape · 2.4 Traffic organisation · 2.5 Slow-traffic system · 2.6 Underground space</p>`},
+{n:3,s:'front',cn:'规划范围',en:'Planning extent',k:['transit'],
+ does:'Location plan. Places the 26 ha Overseas Chinese Business Center inside the 92 ha Financial Business District Phase II and names everything around it.',
+ tr:`<p><b>Overseas Chinese Business Center (侨商中心) extent: 26 ha.</b> Financial Business District Phase II extent: 92 ha. Three sub-areas are tagged 5.95 ha, 7.39 ha and 7.65 ha (*tagged areas exclude roads and green). Overall dimensions shown: 310 m, 640 m and 550 m.</p>
+<p><b>Neighbours labelled:</b> Futian Wetland Park; Yiwu River green-corridor park; Futian Jinmao Mansion; Yiwu Fudan Experimental School; Dongqianwang new community; Zhejiang University School of Medicine 4th Affiliated Hospital; International Trade City District 5; Yiwu Global Digital Trade Center; International Trade City District 3; Beixiazhu community; Dongfuzhai; Binjiang Yipin; Zhongfu Plaza; Xinguanghui shopping center; Futian Subdistrict Office; Yiwu River; Shared Cloud Warehouse; International Culture Center.</p>`},
+{n:4,s:'p1',cn:'01 整体规划',en:'Part 01 · Overall plan',does:'Section divider for Part 1 (1.1 scheme structure, 1.2 site elevations, 1.3 unit plans, 1.4 control master plan + table).',tr:''},
+{n:5,s:'p1',cn:'方案结构',en:'Scheme structure',k:['ped','program'],
+ does:'Concept diagram. Splits the district into three commercial quarters tied together by a central landscape plaza and two walking routes.',
+ tr:`<ul class="tight"><li><b>Core landscape plaza</b> (核心景观广场) at the centre.</li><li><b>Fanxing Fang, “Starry Quarter”</b> (繁星坊, north of Shangcheng Ave, Unit 02): top-tier art, brand flagship stores, trend-setting “first stores”, light-luxury block.</li><li><b>Qiaoyun Fang, “Overseas Chinese Heritage Quarter”</b> (侨韵坊, Unit 01 west): cultural theatre, Tsutaya bookstore, café bar, independent designer brands, fashion bar.</li><li><b>Silk Road Panorama District</b> (丝路万象街区, Unit 01 east): integrated commerce, entertainment centre, international food plaza, life services.</li><li>Orange arrows: commercial walking loop; green arrow: featured north–south route.</li></ul>`},
+{n:6,s:'p1',cn:'方案总平面',en:'Master plan',k:['program','heights'],
+ does:'The illustrative site plan, with parcel numbers and 14 keyed places. This is the plan the 3D model is traced from.',
+ tr:`<ol class="tight"><li>Qiaoyun Fang (heritage quarter)</li><li>Fanxing Fang (Starry Quarter)</li><li>Light-luxury brand street</li><li>Silk Road Panorama District</li><li>International food court</li><li><b>Twin Towers landmark</b> (双子塔地标)</li><li>History &amp; culture plaza</li><li>Commercial landscape plaza</li><li>Commercial slow-traffic loop</li><li>Youth apartments</li><li>Green-corridor park</li><li>International community service station</li><li>Corporate micro-garden</li><li>Waterfront specialty retail</li></ol><p>Spot levels on surrounding roads run from 75.90 (NW) to 66.14 (SE); Shangcheng Ave (商城大道) crosses the middle; Shangbo Rd (商博路) runs along the west.</p>`},
+{n:7,s:'p1',cn:'场地标高',en:'Site elevations (plan)',k:['heritage'],
+ does:'Grading plan with spot levels. Marks the heritage cluster where the original ground level is kept.',
+ tr:`<p>Spot levels across both units. Hatched area in Unit 01: <b>“retain the original terrain level”</b> (保留原有地形标高) around the historic buildings. Elsewhere, plazas are set at about 75.3 and fall to the roads on the south and east.</p>`},
+{n:8,s:'p1',cn:'场地标高',en:'Site elevations (sections)',k:['parking','heights'],
+ does:'Two site sections through Unit 01. Shows towers on commercial podiums over one continuous basement, and how the plaza level meets the city roads.',
+ tr:`<ul class="tight"><li>Each tower = <b>OFFICE</b> shaft on a <b>COMMERCIAL</b> podium; one continuous <b>underground car park</b> (地下停车场) runs under all of them.</li><li>Basement storey heights: <b>B1 5.5 m, B2 4.0 m, B3 3.8 m</b>, with a deeper fourth level locally.</li><li>Plaza level 75.3; retained historic buildings (保留历史建筑) at 77.0 and 79.0; city roads at 74.0 and 65.8 (section 1), 70.0 and 70.3 (section 2).</li><li>Vehicle entrances (车行入口) come straight off the city roads into the basement; where roads are low, basement commercial fronts the street.</li></ul>`},
+{n:9,s:'p1',cn:'金融商务二期整体鸟瞰图',en:'Aerial: Financial Business District Phase II',k:['render'],
+ does:'Rendering of the whole 92 ha district at dusk, with the Yiwu River in the foreground. Key map (top right) shows the viewpoint.',tr:''},
+{n:10,s:'p1',cn:'侨商中心整体鸟瞰图',en:'Aerial: Overseas Chinese Business Center',k:['render'],
+ does:'Rendering of the 26 ha center. Shows the target massing: office towers with green roofs, podium streets and the stream park to the east.',tr:''},
+{n:11,s:'p1',cn:'01单元（西）：打造融合多元文化的侨商历史文化商业街',en:'Unit 01 (west): an Overseas Chinese history & culture shopping street that blends many cultures',k:['heights','program'],
+ does:'Unit plan and data table for the nine western parcels (01-01 to 01-09). Gives each parcel’s area, GFA, floors, height, coverage and FAR.',
+ tr:`<p>Totals: site area 82,404.27 m²; above-ground GFA 515,196.55 m²; FAR 6.25. Full table in the <a href="#" data-goto="tables">Parcel tables</a> tab.</p><p>Key: 1 street-corner image park · 2 history &amp; culture plaza · 3 sunken landscape plaza · 4 slow-traffic specialty block · 5 green-corridor park · 6 corporate micro-garden · 7 terraced garden · 8 history &amp; culture experience hall · 9 specialty café.</p>`},
+{n:12,s:'p1',cn:'侨韵坊-空间效果',en:'Qiaoyun Fang: street view',k:['render','heritage'],
+ does:'Rendering of the heritage quarter at night. The restored historic houses sit at the foot of the towers.',tr:''},
+{n:13,s:'p1',cn:'01单元（东）：时尚引流的高品质的商业综合体',en:'Unit 01 (east): a high-quality, trend-driving commercial complex',k:['heights','program'],
+ does:'Unit plan and data table for the nine eastern parcels (01-10 to 01-18), including the twin youth-apartment slabs on 01-16.',
+ tr:`<p>Totals: site area 76,491.18 m²; above-ground GFA 522,291.03 m²; FAR 6.83. 01-16 has two 18-storey, 100 m slabs of 1,450 m² floor plate each (26,100 m² apiece).</p><p>Key: 1 metro gateway park · 2 commercial landscape plaza · 3 commercial slow-traffic loop · 4 youth apartments · 5 international community service station · 6 waterside specialty retail · 7 youth landscape plaza · 8 atrium café · 9 sloped landscape · 10 outdoor-seating zone.</p>`},
+{n:14,s:'p1',cn:'丝路万象街区-空间效果',en:'Silk Road Panorama District: street view',k:['render'],
+ does:'Rendering of the commercial landscape plaza with the shopping-mall podium and towers behind.',tr:''},
+{n:15,s:'p1',cn:'02单元：时尚引流的高品质的轻奢商业街区',en:'Unit 02: a high-quality, trend-driving light-luxury shopping district',k:['heights','program','comp'],
+ does:'Unit plan and data table for Unit 02, north of Shangcheng Ave. Parcels 02-03 and 02-04 hold the Twin Towers (180 m and 172 m), i.e. the competition site.',
+ tr:`<p>Totals: site area 47,049.84 m²; above-ground GFA 299,639.96 m²; FAR 6.37.</p><p>Key: 1 light-luxury brand street · <b>2 Twin Towers landmark towers</b> · 3 Starlight Avenue · 4 flagship retail · 5 central green-valley park · 6 green-corridor park · <b>7 rail station entrance</b> · 8 rooftop creative café · 9 art gallery · 10 art-living pavilion.</p>`},
+{n:16,s:'p1',cn:'繁星坊-空间效果',en:'Fanxing Fang: aerial view',k:['render','comp'],
+ does:'Rendering of the Unit 02 retail podium seen from above Shangcheng Ave, with an outdoor plaza and pavilions. The twin towers rise behind.',tr:''},
+{n:17,s:'p1',cn:'管控总图+总表',en:'Control master plan + master table',does:'Divider. Subtitle: “rigid and flexible controls combined, covering all elements” (刚弹结合 覆盖全要素).',tr:''},
+{n:18,s:'p1',cn:'宗地划分',en:'Parcel division',k:['heights'],
+ does:'Shows the 22 development parcels and their numbers, plus the heritage plot. This plan sets the parcel geometry in the 3D model.',
+ tr:`<p>Unit 02 (north of Shangcheng Ave): 02-01, 02-02, 02-03, 02-04. Unit 01 (south): 01-01 to 01-18, plus the heritage plot (01-文保) in the middle of the west half.</p>`},
+{n:19,s:'p1',cn:'城市设计管控“一图+一表”：01单元（西）',en:'Urban-design control “one map + one table”: Unit 01 (west)',k:['setbacks','frontage','heights','vehicle','ped'],
+ does:'The binding control sheet for parcels 01-01 to 01-09. For each parcel it sets the height limit, FAR and setbacks (rigid) and the entrances, passages, open space, art and frontage types (flexible).',
+ tr:`<p><b>Vehicle access for this sub-area:</b> one underground vehicle entrance on the north side of 01-02; one underground exit on the east side of 01-09; one underground entry/exit each on the south side of 01-03, north side of 01-05, east side of 01-07 and west side of 01-08. Vehicles are distributed underground between parcels.</p><p>Per-parcel rows are in the <a href="#" data-goto="tables">Parcel tables</a> tab. Note: where a setback is marked “from road” (退道路) it is measured from the municipal road red line; otherwise from the lot line.</p>${FR_LEGEND}${FRONT_TXT}`},
+{n:20,s:'p1',cn:'城市设计管控“一图+一表”：01单元（东）',en:'Urban-design control “one map + one table”: Unit 01 (east)',k:['setbacks','frontage','heights','vehicle','ped'],
+ does:'The binding control sheet for parcels 01-10 to 01-18 (same columns as page 19).',
+ tr:`<p><b>Vehicle access for this sub-area:</b> one underground vehicle exit on the north side of 01-10; one underground entrance on the west side of 01-17; one underground entry/exit each on the south side of 01-13, north and south sides of 01-16, north side of 01-18, east side of 01-17 and west side of 01-18. Vehicles are distributed underground.</p><p>Parcels on the west of this sub-area (01-10, 12, 14, 15, 17) keep a 20 m setback with open space “between the setback line and the municipal road red line”.</p>${FR_LEGEND}`},
+{n:21,s:'p1',cn:'城市设计管控“一图+一表”：02单元',en:'Urban-design control “one map + one table”: Unit 02 (incl. the Twin Towers)',k:['setbacks','frontage','heights','vehicle','ped','comp'],
+ does:'The control sheet for Unit 02. Sets 180 m (02-03) and 172 m (02-04) height limits for the twin towers, their setbacks, entrances and frontage types.',
+ tr:`<ul class="tight"><li><b>02-03</b>: height limit 180 m, FAR 4.8; multi-storey setbacks N5 S8 E12 W5; high-rise N9 S10 E13.5 W15; main vehicle access SE; pedestrian N &amp; S; public passages reserved E &amp; N; open space links north to 02-01 and east to 02-04. Frontage: E &amp; N internal, W image, S (Shangcheng Ave) commercial.</li>
+<li><b>02-04</b>: height limit 172 m, FAR 5.4; multi-storey N5 S8 E8 W12; high-rise N9 S10 E10 W13.5; main vehicle access SW; pedestrian N &amp; S; passages W &amp; N; links north to 02-02 and west to 02-03. <b>Landmark suggested at the SE corner together with the rail station exit.</b> Frontage: W &amp; N internal, E &amp; S commercial.</li>
+<li>02-01 (148 m, FAR 8.1) and 02-02 (148 m, FAR 9.9) are the plot to the north. A <b>commercial landmark is suggested at the centre where the four parcels meet</b>.</li></ul>${FR_LEGEND}`},
+{n:22,s:'p1',cn:'城市设计管控“一图+一表”：地下空间',en:'Urban-design control “one map + one table”: underground space',k:['parking','vehicle'],
+ does:'Underground control sheet. Gives every parcel its basement area, parking ratio, loop-road interface side and type of underground space (general or vibrant). Maps all basement entrances.',
+ tr:`<p>Entrances mapped: B1 and B2 entrances on all four city roads; 1F entrance and 1F exit off Shangcheng Ave; <b>B3 exit connecting to the underground tunnel</b> beside the Zhejiang 4th Hospital station.</p><p>Remarks: the underground loop for 01-01–01-09 is built in phase 1. 01-10/01-11 and 02-01/02-02 are encouraged to connect to the intercity-rail underground space and open underground retail; 01-11’s B3 connects to the Shangcheng Ave underground tunnel.</p><p>Legend: site boundary · lot line · basement entrance · underground loop · loop entrance · <b>underground vibrant space</b> · general underground space · underground pedestrian passage (indicative). Full table in <a href="#" data-goto="tables">Parcel tables</a>.</p>`},
+{n:23,s:'p1',cn:'城市设计管控“一图+一表”：地下空间',en:'Underground space: Unit 01 loop & entrance requirements',k:['parking','vehicle'],
+ does:'Table of basement entrance and ramp requirements for each Unit 01 parcel (repeated on page 73).',tr:UG_RULE},
+{n:24,s:'p2',cn:'02 城市设计导控',en:'Part 02 · Urban-design guidance & control',does:'Section divider (2.1 function, 2.2 architecture, 2.3 landscape, 2.4 traffic, 2.5 slow traffic, 2.6 underground).',tr:''},
+{n:25,s:'p2',cn:'整体空间导控意向',en:'Overall spatial guidance intent',
+ does:'The design intent in one table: an overall tone, a goal for each of six topics and the control elements under each.',
+ tr:`<p><b>Overall tone: a modern, international metropolitan new district.</b></p><table><tr><th>Topic</th><th>Goal</th><th>Control elements</th></tr>
+<tr><td>Function</td><td>Integrated blocks, vibrant ground plane</td><td>Use layout · active frontage · public-service layout · heritage activation</td></tr>
+<tr><td>Architecture</td><td>Modern &amp; simple, light &amp; flowing, refined</td><td>Colour · material · height · massing combination · building signage</td></tr>
+<tr><td>Landscape</td><td>Elegant, fashionable &amp; lively, relaxed &amp; natural</td><td>Public art · planting · paving · lighting</td></tr>
+<tr><td>Vehicles</td><td>Orderly, convenient</td><td>Vehicle entrances · pedestrian entrances · fire routes · bus links</td></tr>
+<tr><td>Slow traffic</td><td>Comfortable &amp; safe, continuous &amp; borderless</td><td>Walking routes · crossing bridges · in-parcel public passages · featured street sections</td></tr>
+<tr><td>Underground</td><td>Economical, practical, moderate development</td><td>Underground traffic &amp; zoning · loop &amp; entrances · underground fire organisation · spatial function</td></tr></table>`},
+{n:26,s:'p2',cn:'功能活力',en:'Function & vitality',does:'Divider: “integrated blocks, vibrant ground”. Topics: use layout, active frontage, public services, heritage activation.',tr:''},
+{n:27,s:'p2',cn:'空间功能建议',en:'Spatial function suggestions (finance industry)',k:['program'],
+ does:'Argues what the finance tenants need and what space answers each need. This sets up the office/hotel/conference program.',
+ tr:`<p>Quoting the <i>Yiwu Silk Road New Area 14th Five-Year Plan</i>: concentrate financial-service institutions and regional trade and management headquarters; especially banks and specialist insurers; attract regional HQs, representative offices and member firms of global professional-service firms related to digital trade.</p>
+<table><tr><th>Front-office need</th><th>Spatial response</th></tr><tr><td>Chase high-end clients; project credibility and strength</td><td>Corporate “cover” and showcase space</td></tr><tr><td>Frequent business negotiation; large business forums</td><td>Conference facilities of some scale, and a hotel</td></tr><tr><td>High demand for qualified finance talent</td><td>Comprehensive supporting services</td></tr><tr><td>Differentiated division of labour; agglomeration economies</td><td>Many office types (cost: start-ups vs large-firm labs; function: tech, finance, legal, user-facing)</td></tr><tr><td>Easy information exchange; short distance to HQ</td><td>Convenient transport links</td></tr></table>
+<p><b>Back office</b> (document processing, customer service, disaster recovery, data centres, R&amp;D, archives, cash processing): mainly blue-collar staff, not location-sensitive, sited within the service radius of the front office.</p>`},
+{n:28,s:'p2',cn:'空间功能建议',en:'Spatial function suggestions (program axonometric)',k:['program'],
+ does:'Axonometric that colours every building by use. This is the source for the Program colours in the 3D model.',
+ tr:`<p>Legend: <span class="sw4" style="background:#E44D63"></span>retail · <span class="sw4" style="background:#8DCDE6"></span>office · <span class="sw4" style="background:#E8571F"></span>hotel · <span class="sw4" style="background:#b090c0"></span>culture · <span class="sw4" style="background:#E8C27A"></span>apartments.</p>
+<p>Tags: <b>five-star hotel</b> (top of the tallest twin tower) · creative shared space · terrace gardens · shared meeting rooms · brand first store · light-luxury street · flagship store · high-end retail complex · corporate sky gardens · innovation-industry centre · innovation lab · comprehensive reception centre · shared exhibition hall · industry service centre · <b>sky art gallery</b> · start-up offices · international shared canteen · café · culture pop-up store · culture shopping street · trend-brand stores · cultural gift shop · mass-market retail · talent-education base · cinema · <b>business hotel</b> · Overseas Chinese culture centre · cultural space · creative-industry offices · <b>youth apartments</b> · specialty dining · tech-life pavilion · product service centre.</p>`},
+{n:29,s:'p2',cn:'商业布局建议',en:'Retail layout suggestions',k:['program'],
+ does:'Positions the three retail quarters: who each one is for, its format and its anchor tenants.',
+ tr:`<p>Lessons from international cases: differentiated area positioning; brand clustering at scale; complementary high-end + mass-market mix.</p>
+<table><tr><th>Quarter</th><th>Positioning</th><th>Target users</th><th>Format &amp; features</th></tr>
+<tr><td>1 · Fanxing Fang (Unit 02)</td><td>International light-luxury fashion centre</td><td>High-income shoppers, trend seekers, domestic and foreign visitors</td><td>Mall + street retail; 300 m light-luxury brand street, top-tier art, first-store economy, renowned international restaurants. Tenants: haute couture, fashion jewellery, personal styling, flagship stores, luxury watches, trend first stores, art, performing-arts centre.</td></tr>
+<tr><td>2 · Qiaoyun Fang (Unit 01 W)</td><td>Creative-brand quarter</td><td>Finance office workers, commuters, individual trend seekers</td><td>Street retail; ordinary podiums for daily needs; international dining, cultural-scenario retail, rare independents. Tenants: independent designers, music restaurant, cultural gifts, brand event hall, pop-ups, Tsutaya books, café, small theatre.</td></tr>
+<tr><td>3 · Silk Road Panorama (Unit 01 E)</td><td>Integrated retail-service quarter</td><td>Office workers, all city residents, visitors</td><td>Shopping centre + ordinary podiums; one-stop shopping, experiential retail, weekend leisure destination. Tenants: city theatre, convenience store, supermarket, food court, youth apartments, trend fashion, livehouse, department store, leisure &amp; entertainment centre, art training, fine dining, cafés, bars.</td></tr></table>`},
+{n:30,s:'p2',cn:'商业流线组织建议',en:'Retail circulation suggestions',k:['ped'],
+ does:'Maps the 1.8 km retail walking loop (about 20 minutes on foot) and the eat / see / shop / play / stay nodes along it.',
+ tr:`<p>Lessons from international cases: mix fast and slow movement; landscape nodes that make people linger; connect the whole area so each part feeds the others; <b>a single shopping street should not exceed 500 m</b>.</p><p>Map labels: brand flagship centre; light-luxury street; integrated retail-service quarter; culture &amp; dining; experiential retail quarter; core social plaza; historic culture quarter; phase-2 landscape plaza; link to phase 1. <b>1.8 km loop, about 20 minutes walking.</b> Icons: 吃 eat · 游 see · 购 shop · 娱 play · 住 stay.</p>`},
+{n:31,s:'p2',cn:'商业业态及首层活力界面',en:'Retail uses & ground-floor active frontage',k:['frontage'],
+ does:'Defines the three frontage types used in the control tables and what each one requires at ground level.',
+ tr:`<table><tr><th></th><th>Commercial active frontage</th><th>Internal active frontage</th><th>Image-display frontage</th></tr>
+<tr><td>Ground-floor active uses</td><td>F&amp;B, retail, culture, entrance lobbies; <b>≥ 80% active</b> recommended</td><td>Same uses; <b>≥ 50% active</b> recommended</td><td>No requirement</td></tr>
+<tr><td>Outdoor seating</td><td>Recommended</td><td>Recommended</td><td>No requirement</td></tr>
+<tr><td>Surface parking</td><td>Not recommended</td><td>Not recommended</td><td>A small amount allowed</td></tr>
+<tr><td>Arcade (骑楼)</td><td>Encouraged</td><td>No requirement</td><td>No requirement</td></tr>
+<tr><td>Vehicle openings</td><td>Generally not recommended; if needed, avoid main shopper flows</td><td>Allowed</td><td>Allowed</td></tr></table><p>Map legend: specialty retail cluster · commercial active frontage · internal active frontage · general display frontage · planning boundary.</p>`},
+{n:32,s:'p2',cn:'文保活化要求：现代生活与传统文化相互交融的特色体验',en:'Heritage activation: where modern life and traditional culture meet',k:['heritage'],
+ does:'Assigns a new use and a level of intervention to each of the five historic buildings, and draws their core protection zone.',
+ tr:`<table><tr><th>Building</th><th>Area</th><th>Grade</th><th>New use</th><th>Intervention</th><th>Allowed activities</th></tr>
+<tr><td>Shisanjian 十三间 (“Thirteen Bays”)</td><td>726 m²</td><td>City-level protected unit</td><td>History &amp; culture experience hall</td><td>Repair and reuse in place</td><td>Exhibitions, interactive experiences, multimedia, community classes</td></tr>
+<tr><td>Wujiantou 五间头 (“Five Bays”)</td><td>268 m²</td><td>City-level</td><td>Café</td><td>Repair and reuse in place</td><td>Specialty dining, art and creative exchange, reading corner</td></tr>
+<tr><td>Liuruitang 六瑞堂</td><td>492 m²</td><td>Third national survey point</td><td>Brand bookstore</td><td>Relocate, partial alteration</td><td>Reading club, retail, literary lectures</td></tr>
+<tr><td>Shunshoutang 顺受堂</td><td>661 m²</td><td>Third survey point</td><td>Cultural-gift shop</td><td>Relocate, partial alteration</td><td>Retail, craft workshops, festivals</td></tr>
+<tr><td>Gong clan ancestral hall 龚氏祠堂</td><td>113 m²</td><td>Third survey point</td><td>Community cultural station</td><td>Partial alteration in place</td><td>Education, social gatherings, science outreach</td></tr></table>
+<p><b>Core protection zone:</b> keep a fire lane; no other construction, blasting, drilling or excavation is allowed. Inset: spacing between historic buildings and new buildings.</p>`},
+{n:33,s:'p3',cn:'建筑风貌',en:'Architectural character',does:'Divider: “modern and simple, light and flowing, refined”. Topics: colour, material, height, massing, signage.',tr:''},
+{n:34,s:'p3',cn:'立面指引',en:'Facade guidance',k:['heights'],
+ does:'Gives three facade types by building role, with examples.',
+ tr:`<ul class="tight"><li><b>General buildings</b>: facades built mainly from vertical lines, cut by sky gardens and other shared spaces to enrich the form.</li><li><b>Buildings along main roads</b>: mainly horizontal lines, with locally shifted volumes to enrich the main city frontage.</li><li><b>Landmark buildings</b> (e.g. the Twin Towers): streamlined, flowing lines that bring out their landmark status.</li></ul>`},
+{n:35,s:'p3',cn:'建筑材质：轻盈内透、光影层次丰富的建筑材质',en:'Materials: light, transparent, rich in light and shadow',
+ does:'Recommends facade materials with precedent photos.',
+ tr:`<ul class="tight"><li><b>Glass panels</b>: low-reflectance, clear, colourless glass; folded glass can improve solar performance and save energy.</li><li><b>Stone</b>: lightweight stone or stone cladding in natural colours, or fair-faced concrete.</li><li><b>Metal panels</b>: aluminium panels, mirror-metal skins and other modern metals.</li></ul><p>Precedents: US Federal Courthouse, Los Angeles (folded opaque panels on east and west faces minimise solar gain); aluminium + curtain wall for layered light; Shenzhen MixC food market (clear glass + metal skin); Shenzhen Huigang commercial centre (natural-colour stone for solid/void contrast).</p>`},
+{n:36,s:'p3',cn:'建筑色彩：高雅冷灰色调为主，暖色点缀温馨氛围',en:'Colour: elegant cool greys, with warm accents',
+ does:'Sets the colour palette.',
+ tr:`<p><b>Main colours</b>: cool grey, silver-white, khaki; glass should be clear and colourless. <b>Secondary</b>: fresh cool grey, neutral grey, dark grey, champagne, green walls, and small coloured accents. Spaces near people should be mainly warm khaki. Swatch codes shown: 0471, 1701, 0112, 0555.</p>`},
+{n:37,s:'p3',cn:'楼宇标识及招牌管控',en:'Building signage & shop-sign control',
+ does:'Rules for podium shop signs and tower name signs.',
+ tr:`<p><b>Podium signs:</b> project no more than 0.5 m from the wall; bottom edge more than 3 m above ground; no billboards hung over windows; must not extend beyond the parapet or wall outline; none on external columns; one sign per shop, no repeats; place at the main entrance. Where a sign must attach to a curtain wall, integrate it with the facade design; use cut-out individual letters; keep signs simple and legible; artistic design encouraged.</p>
+<p><b>Tower signs:</b> naming rights only for the building’s major owner or major tenant; no pure red, green or blue or other highly saturated main colours; individual letters preferred; adjacent signs coordinated in size, position and form; sign zone within the top <b>10% of tower height</b> and inside the building outline; <b>at most 2 tower signs per building</b>, not visible together from one viewpoint.</p><p>Elevation: Shangcheng Ave to Liudu Creek street frontage.</p>`},
+{n:38,s:'p3',cn:'历史街区塑造指引',en:'Historic-quarter design guidance',k:['heritage'],
+ does:'Explains how three building types combine into the historic quarter.',
+ tr:`<ul class="tight"><li><b>Protected heritage buildings</b>: keep the original appearance through wall repair and door/window renewal.</li><li><b>Historic buildings</b>: light “micro-renovation” with modern materials for a new-and-old contrast.</li><li><b>New-traditional buildings</b>: new materials and methods that echo the historic character, a meeting of new and old.</li></ul><p>Together these make the <b>historic quarter</b>.</p>`},
+{n:39,s:'p3',cn:'历史街区景观示意',en:'Historic-quarter landscape (rendering)',k:['render','heritage'],
+ does:'Rendering of the paved historic plaza between restored houses and the towers.',tr:''},
+{n:40,s:'p4',cn:'绿地景观',en:'Green space & landscape',does:'Divider: “elegant, fashionable and lively, relaxed and natural”. Topics: public art, planting, lighting, paving.',tr:''},
+{n:41,s:'p4',cn:'公共开放空间体系总图',en:'Public open-space system',k:['landscape','ped'],
+ does:'Maps public green and internal courtyards and sets a green-ratio target for each.',
+ tr:`<table><tr><th></th><th>Public green</th><th>Internal courtyards</th></tr>
+<tr><td>Character</td><td>For shoppers, residents and office workers; all-age, friendly, themed on site culture</td><td>For finance-tech and business users; high-quality amenities lift the campus image</td></tr>
+<tr><td>Main functions</td><td>Image display, weekend markets, commemoration, outdoor exhibitions, children’s play, pop-up shows</td><td>Innovation exchange, image display, dining, outdoor working, quiet reflection</td></tr>
+<tr><td>Facilities</td><td>Fitness, drinking water, seating, playground, cultural venue</td><td>Fitness trail, exchange garden, outdoor dining, exchange decks, corporate culture wall</td></tr>
+<tr><td>Space types</td><td>Event lawn, terraced garden, play area, specialty planting garden</td><td>Ceremonial entrance axis, exchange plaza, rain garden, courtyard garden</td></tr>
+<tr><td>Green ratio</td><td><b>≥ 70%</b></td><td><b>≥ 40%</b></td></tr></table><p>Map legend: planning boundary · landscape display face · public green · landmark art · internal courtyard · key corridor · featured garden · lobby entrance · internal art.</p>`},
+{n:42,s:'p4',cn:'景观种植策略',en:'Planting strategy',k:['landscape'],
+ does:'Planting rules for office landscape and for sloped ground.',
+ tr:`<ul class="tight"><li><b>Office campus landscape</b>: strengthen planting rows at pedestrian entrances to create welcoming gateways; mostly open woodland and lawn; avoid enclosed, over-dense planting. Internal courtyards keep sight lines open.</li><li><b>Sloped landscape</b>: where level changes are large, use seeded grass with small trees in pits, shrubs, ground cover and climbers; small terraces mainly seeded grass to give more usable space. External terraces act as display faces.</li></ul>`},
+{n:43,s:'p4',cn:'高差景观处理示意',en:'Treating level changes in the landscape (1)',k:['render','landscape'],
+ does:'Rendering of a stepped landscape edge where the plaza meets the lower street.',tr:''},
+{n:44,s:'p4',cn:'高差景观处理示意',en:'Treating level changes in the landscape (2)',k:['render','landscape'],
+ does:'Rendering of the shopping street with planted terraces and the podium bridge overhead.',tr:''},
+{n:45,s:'p4',cn:'艺术小品系统：结合流线塑造核心打卡地',en:'Public art system: landmark spots along the routes',k:['landscape'],
+ does:'Locates public art and sets two themes.',
+ tr:`<ol class="tight"><li><b>Overseas Chinese culture theme, “Bonds across ten thousand li”</b> (万里情牵): mirror stainless steel, copper and other metals, or new plastics; colours coordinated with corner plazas and facades, international and lively; abstracted keywords “international, overseas Chinese, fusion, Silk Road, bridge of hearts”. Pieces: Brilliant Star Tree, Yiwu New Star, Dream of Technology.</li><li><b>Site-memory theme, “Sun and Moon”</b> (日月): mirror stainless steel, copper; fresh grey-white tones set against the historic buildings; keywords “time, sun and moon, years, traces”.</li></ol><p>Also: corporate lobby sculptures; temporary art-installation zones.</p>`},
+{n:46,s:'p4',cn:'艺术小品系统：艺术与空间相融，提升片区吸引力',en:'Public art system: art merged with space',
+ does:'Two art types with location and material guidance.',
+ tr:`<ul class="tight"><li><b>Corporate lobby pieces</b>: at main office entrances; show corporate image, simple and dignified; mirror stainless steel (some coloured), designed together with grass slopes, water and lighting.</li><li><b>Temporary art installations</b>: around historic buildings or other key display faces; more experimental; near heritage keep an elegant, plain style; temporary events may use varied materials, with emphasis on light and shadow. Examples: mirror steel with built-in light, coloured steel, fibre-net sculpture, light coloured metal with lighting, translucent lenses.</li></ul>`},
+{n:47,s:'p4',cn:'灯光照明规划：以近人尺度公共空间及裙楼照明为主',en:'Lighting plan: focus on human-scale public space and podiums',
+ does:'Sets two lighting tiers and luminance targets for tower tops, shafts, podiums and public spaces.',
+ tr:`<table><tr><th>Tier</th><th>Zone</th><th>Method</th><th>Luminance (cd/m²)</th></tr>
+<tr><td rowspan="4">1 · Landmark buildings</td><td>Tower top</td><td>Indirect: floodlight and lit-from-within</td><td>15–20</td></tr><tr><td>Shaft</td><td>Indirect; point and line sources allowed to suit the facade</td><td>10–15</td></tr><tr><td>Podium</td><td>Varied landscape lighting, not just outline tracing</td><td>20–25</td></tr><tr><td>Core public space</td><td>Rich landscape lighting over good functional light; fittings hidden in landscape; interactive light art encouraged</td><td>15–20</td></tr>
+<tr><td rowspan="4">2 · Other buildings</td><td>Tower top</td><td>Indirect</td><td>10–15</td></tr><tr><td>Shaft</td><td>Indirect; small, moderate accents on gables, piers and stair cores</td><td>5–10</td></tr><tr><td>Podium</td><td>Varied landscape lighting</td><td>15–20</td></tr><tr><td>Office courtyards</td><td>As core public space, art pieces with lighting encouraged</td><td>10–15</td></tr></table>`},
+{n:48,s:'p4',cn:'灯光照明规划：暖白色为主冷暖度，适度点缀彩色营造氛围',en:'Lighting plan: mainly warm white, with some colour',
+ does:'Sets colour temperature and dynamic-lighting rules by zone.',
+ tr:`<table><tr><th>Colour temperature</th><th>Zone</th><th>Dynamics</th></tr><tr><td>Weekdays 3500–4500 K; holidays RGBW colour</td><td>Landmark building group and major retail event spaces</td><td>Slow dynamic lighting on weekdays; dynamic for major festivals</td></tr><tr><td>Weekdays 3500–4500 K; holidays local RGBW</td><td>Other important buildings; lively spaces around heritage</td><td>Static on weekdays; slow dynamic for major festivals</td></tr><tr><td>Always 3000–4000 K</td><td>Office atria and other public spaces</td><td>Static, single warm white in all modes</td></tr></table><p>3000–4500 K is warm white, close to the light one or two hours after sunrise.</p>`},
+{n:49,s:'p4',cn:'灯光照明规划：特色灯光活动地图+整体灯光效果示意',en:'Lighting plan: events map + overall night view',
+ does:'Night rendering with six recurring lighting events located on the plan.',
+ tr:`<ol class="tight"><li>Building light show</li><li>Temporary art-light exhibition</li><li>Commercial themed light show</li><li>Road welcome lighting</li><li>Park light-and-shadow culture season</li><li>Historic-building light festival</li></ol>`},
+{n:50,s:'p4',cn:'铺装样式引导',en:'Paving guidance',k:['landscape'],
+ does:'Paving rules for continuity, key nodes and permeability.',
+ tr:`<ul class="tight"><li><b>Integrated paving</b>: same style inside and outside the red line; grey as the main colour; avoid busy decorative patterns; mark level changes with clearly different colours.</li><li><b>Key nodes</b>: natural, plain greys; some crazy-paved stone slabs and carved stone details recalling site history.</li><li><b>Permeable paving</b>: imitation-stone permeable pavers, permeable concrete, local gravel; <b>≥ 90% permeable</b> recommended; rainwater collection pipes under the surface.</li></ul>`},
+{n:51,s:'p4',cn:'其他街道家具意向',en:'Other street furniture',
+ does:'Precedent images and rules for seats, signs, water features and utility boxes.',
+ tr:`<ul class="tight"><li><b>Seats</b>: durable; under tree shade; some movable seats.</li><li><b>Wayfinding</b>: colours matched to other furniture; combined with other furniture; interactive functions encouraged.</li><li><b>Water</b>: dark-grey base; in busy public areas make water touchable.</li><li><b>Utilities</b>: screen and beautify; consolidate and minimise footprint; keep out of walkways; vents merged into paving.</li></ul>`},
+{n:52,s:'p5',cn:'车行系统',en:'Vehicle system',does:'Divider: “orderly and convenient”. Topics: vehicle entrances, pedestrian entrances, fire routes, bus links.',tr:''},
+{n:53,s:'p5',cn:'道路系统',en:'Road system',k:['vehicle'],
+ does:'Road hierarchy and three internal road sections, with signal-controlled junctions.',
+ tr:`<p>Perimeter roads: Yinhai Rd (north), Shangbo Rd (west), Chunfeng Ave (east), Chengbei Rd (south); Shangcheng Ave across the middle. Signalised junctions (信号灯控制) marked at the perimeter.</p><table><tr><th>Section</th><th>Width</th><th>Make-up</th></tr><tr><td>A-A</td><td>14 m</td><td>2 + 10 + 2</td></tr><tr><td>B-B</td><td>22 m</td><td>3 + 16 + 3</td></tr><tr><td>C-C</td><td>24 m</td><td>4 + 16 + 4</td></tr></table>`},
+{n:54,s:'p5',cn:'车行流线组织',en:'Vehicle circulation',k:['vehicle'],
+ does:'Locates every vehicle entrance (ground and basement), taxi stands and the underground loop, with road spot levels.',
+ tr:`<p><b>Principles:</b> (1) put drop-off points for retail and office traffic in open spaces, with only 1–2 on main roads and the rest on branch or internal roads, to reduce congestion; (2) vehicle traffic is mainly underground, separating people and cars.</p><p>Labels: 1F vehicle entrance / exit; B1 and B2 vehicle entrances / exits; road levels 74.00, 75.90, 72.00, 72.08, 74.27, 74.70, 71.60, 70.00, 67.27, 67.00, 74.80, 66.14, 68.23, 69.00. Legend: vehicle flow · underground loop · basement entrance · taxi drop-off.</p>`},
+{n:55,s:'p5',cn:'人车分流设计',en:'Separating people and vehicles',k:['vehicle','ped'],
+ does:'Shows where cars may go at ground level and how paved shared streets and smart signs keep them away from pedestrians.',
+ tr:`<p>Paved carriageway design (shared-surface look); smart guidance at car-park entrances (live space counts). Legend: entrance · smart sign · parking flow · paved carriageway · pedestrian/vehicle control boundary · underground loop.</p>`},
+{n:56,s:'p5',cn:'地面消防系统规划',en:'Ground-level fire access',k:['egress'],
+ does:'Maps fire-truck routes and climbing faces for every tower and sets how to design them.',
+ tr:`<p><b>Basic requirements:</b> (1) fire-truck climbing faces must be next to the building’s outer wall, with no obstacles that hinder fire engines such as tall trees or overhead lines; (2) cut unnecessary turning areas and hard surface to raise the green ratio.</p><p><b>Special requirements:</b> (1) <i>hidden design</i>: combine climbing faces with sport and social uses such as fitness trails or basketball courts so the fire area becomes a featured activity space; (2) <i>soft landscape</i>: with clear access kept, add planting and use folded or curved lines to make the space feel natural. Example dimensions: 4 m fire lane, 10 m climbing face.</p><p>Legend: fire climbing face (消防登高面) · fire route (消防流线).</p>`},
+{n:57,s:'p5',cn:'公共交通系统',en:'Public transport',k:['transit'],
+ does:'Bus, taxi and rail coverage. Target: every point within 300 m of a bus stop.',
+ tr:`<p><b>Goal: full 300 m bus-stop coverage.</b> Bus stop requirements: covered walkway, link to the slow-traffic system, wayfinding. Taxi stand requirements: marked bays, drop-and-go, clear signs.</p><p>Stops: International Trade City District 5 (south), ZJU 4th Hospital (Louxitang), Futian Chan Temple, Rail – Zhejiang 4th Hospital, Dongqianwang Village, Jiangbei Xiazhu (west), Jinmao Mansion; three new stops proposed. <b>Jin–Yi–Dong rail line, Zhejiang 4th Hospital Station (exits A–D) on Shangcheng Ave</b>: 15 min to Dongyang city centre, 30 min to Hengdian, within 1 hour to Jinhua city centre.</p>`},
+{n:58,s:'p6',cn:'慢行系统',en:'Slow-traffic system',does:'Divider: “comfortable and safe, continuous and borderless”. Topics: walking routes, crossing bridges, public passages, featured street sections.',tr:''},
+{n:59,s:'p6',cn:'片区商业慢行组织',en:'District retail walking network',k:['ped'],
+ does:'Sets three retail walking zones and what each must provide.',
+ tr:`<table><tr><th></th><th>Light-luxury retail street</th><th>Integrated retail plaza</th><th>Cultural retail street</th></tr><tr><td>Opening</td><td colspan="3"><b>Open 24 hours</b></td></tr><tr><td>Facilities</td><td>Shade and rain cover, signage, rest areas, landscape nodes, bins</td><td>Shade and rain cover, interactive light art, rest areas, signage, bins</td><td>Featured paving, lighting, Overseas Chinese culture boards, benches, bins</td></tr><tr><td>Experience</td><td>Varied shop windows, mall shopping at many scales</td><td>Integrated facades around the plaza; a lively, audio-visual shopping experience</td><td>Culture built into paths and furniture</td></tr></table>`},
+{n:60,s:'p6',cn:'地块慢行流线组织',en:'Parcel-level walking & cycling',k:['ped'],
+ does:'Walking routes, cycle lanes and bike parking inside the parcels.',
+ tr:`<ul class="tight"><li><b>Walking</b>: complete barrier-free facilities; mark key nodes with paving changes or linear lighting; seats at key retail and green nodes.</li><li><b>Cycle lanes</b>: separated by markings or material; regulated bike parking; smooth surfaces.</li><li><b>Bike parking</b>: enough spaces; simple racks that blend in; racks combined with street furniture encouraged.</li></ul><p>Legend includes: walking route · <b>public walking passage through buildings</b> · non-motorised route · time-shared street (分时段管控特色街道) · second-level link (二层连廊建议) · pedestrian entrance · bike parking. Images: “zero-kerb” edges.</p>`},
+{n:61,s:'p6',cn:'特色慢行断面塑造',en:'Featured street section (time-shared)',k:['ped','vehicle'],
+ does:'Shows one internal street (Shangcheng Ave to Zhenxing W Rd) run as an office street by day and a pedestrian retail street at night and on holidays.',
+ tr:`<table><tr><th>Mode</th><th>Time</th><th>Allowed</th><th>Not allowed</th></tr><tr><td>Office mode</td><td>Weekdays 8:00–18:00</td><td>Slow vehicle traffic, e-bikes, breakfast carts, lamp-post banners</td><td>Performances, commercial events, outdoor seating, other street trading</td></tr><tr><td>Commercial mode</td><td>Weekdays after 18:00; holidays all day</td><td>Performances, commercial events, exhibitions, movable planters, outdoor seating, temporary carpets, feature lights, public art</td><td>Cars; e-bikes (except weekday evenings)</td></tr></table><p>Section: 16 m road (3 m + 8 m carriageway + 3 m, plus edges).</p>`},
+{n:62,s:'p6',cn:'一二期慢行通道衔接',en:'Linking phases 1 and 2 for pedestrians (location)',k:['ped'],
+ does:'Picks the spot for a pedestrian crossing over Shangbo Ave into phase 1.',
+ tr:`<p>Shangbo Ave today: about 50 m wide, with 2.5 m separation strips on each side. Recommended location because: it is central, with pedestrian crossings at both ends to meet crossing demand; it leads to phase 1’s core cross-axis; it avoids the ramp of the Shangbo Bridge. Levels shown: 68, 75 (planned), 67.</p>`},
+{n:63,s:'p6',cn:'一二期慢行通道衔接',en:'Linking phases 1 and 2 for pedestrians (bridge)',k:['ped'],
+ does:'Recommends a footbridge over an underpass, and sets its minimum clearance.',
+ tr:`<p><b>A footbridge is recommended.</b> It lets phase 2 rise with less level change; it can act as the “first gateway” into the Financial Business District when arriving over the Shangbo Bridge; an underground link costs more; the bridge offers city views. <b>Minimum clear height 4.5 m.</b> Precedent: Shuiwei footbridge, Shenzhen (70.5 m long, 2.5 m and 30 m dimensions shown): slow-traffic link, city image, street views.</p>`},
+{n:64,s:'p7',cn:'地下空间',en:'Underground space',does:'Divider: “economical and practical, moderate development”. Topics: underground traffic &amp; zoning, loop &amp; entrances, fire, function.',tr:''},
+{n:65,s:'p7',cn:'地下交通及地下室分区',en:'Underground traffic & basement zoning',k:['parking'],
+ does:'Basement plan of the whole center with the parking-ratio table: above-ground GFA, parking ratio and total basement area for each parcel.',
+ tr:`<p>Labels: <b>B3 exit to the reserved tunnel</b>; 1F ramp entrance and exit; B1, B2 entrances; B1/B2/B3 public loop; “phase-1 implementation area”. Table in <a href="#" data-goto="tables">Parcel tables</a> (note: 01-03 is 0.60 here but 0.70 on page 22).</p>`},
+{n:66,s:'p7',cn:'地下交通及地下室分区：地下一层',en:'Basement B1: traffic & zoning',k:['parking','vehicle'],
+ does:'B1 parking layout for Unit 01 with the public loop, public ramps, entrances and internal ramps.',
+ tr:`<p><b>Unit 01 public loop, B1:</b> a public loop is provided; near where the loop meets each parcel’s main entrance, a public ramp links down to the three-level loop. The north-side entrance connects to an internal ground-level entrance; on the east, west and south sides the entrances meet the road level and act as internal B1 entrances. Legend: underground public passage · public ramp · entrance · internal ramp.</p>`},
+{n:67,s:'p7',cn:'地下交通及地下室分区：地下二层',en:'Basement B2: traffic & zoning',k:['parking','vehicle'],
+ does:'B2 parking layout with the public loop.',tr:`<p><b>Unit 01 public loop, B2:</b> public loop with public ramps near the parcel entrances. Entrances on the south-east and south meet the road level and act as internal B2 entrances.</p>`},
+{n:68,s:'p7',cn:'地下交通及地下室分区：地下三层',en:'Basement B3: traffic & zoning',k:['parking','vehicle'],
+ does:'B3 parking layout. The loop exits north into the Shangcheng Ave tunnel.',tr:`<p><b>Unit 01 public loop, B3:</b> public loop with public ramps. The entrance is on the north side, connecting to the Shangcheng Ave underground passage (tunnel).</p>`},
+{n:69,s:'p7',cn:'地下交通及地下室分区：地下四层',en:'Basement B4: layout',k:['parking'],
+ does:'B4 is partial: parking only along the southern parcels (01-07, 08, 09, 17, 18).',tr:`<p>Unit 01 B4 layout: a partial fourth level along the south edge; no public loop at this level.</p>`},
+{n:70,s:'p7',cn:'地下环路：地下一层',en:'Underground loop: B1',k:['parking'],does:'Geometry rules for the B1 public passage.',tr:UG_LOOP('B1','2.9')},
+{n:71,s:'p7',cn:'地下环路：地下二层',en:'Underground loop: B2',k:['parking'],does:'Geometry rules for the B2 public passage.',tr:UG_LOOP('B2','2.9')},
+{n:72,s:'p7',cn:'地下环路：地下三层',en:'Underground loop: B3',k:['parking'],does:'Geometry rules for the B3 public passage, including the tunnel connection.',tr:UG_LOOP('B3','2.4','; at civil-defence and other special areas at least 6 m')+'<p>Label: B3 entrance / tunnel connection.</p>'},
+{n:73,s:'p7',cn:'地下环路及出入口要求',en:'Underground loop & entrances: summary per parcel',k:['parking','vehicle'],does:'Repeats page 23’s table (entrance and shared-ramp duties per parcel) next to a key plan.',tr:UG_RULE},
+{n:74,s:'p7',cn:'地下消防系统规划：地下一层',en:'Basement fire planning: B1',k:['egress','parking'],does:'B1 parking divided into fire/parking zones 1–3 with fire-separation spaces.',tr:FIRE_TXT('B1')},
+{n:75,s:'p7',cn:'地下消防系统规划：地下二层',en:'Basement fire planning: B2',k:['egress','parking'],does:'B2 parking divided into parking zones 1–4.',tr:FIRE_TXT('B2')},
+{n:76,s:'p7',cn:'地下消防系统规划：地下三层',en:'Basement fire planning: B3',k:['egress','parking'],does:'B3 parking divided into parking zones 1–4, with the B3 tunnel entrance.',tr:FIRE_TXT('B3')},
+{n:77,s:'p7',cn:'地下消防系统规划：庭院及广场',en:'Basement fire planning: courtyards & plazas',k:['egress','parking','landscape'],
+ does:'Locates sunken plazas and sunken courtyards that bring light, air and escape routes down to the basement.',
+ tr:`<ul class="tight"><li><b>Sunken plaza</b>: in the core area, with a drop-off zone.</li><li><b>Sunken courtyards</b>: at B2, at loop corners and junctions and other key spots.</li></ul>`},
+{n:78,s:'p7',cn:'地下室顶板管沟图',en:'Basement roof-slab utility trenches',k:['parking'],
+ does:'Shows the top-of-slab levels of the basement and the trenches left in the slab for utilities and planting.',
+ tr:`<p>Slab-top levels shown with finished levels in brackets, e.g. 73.000 (slab) / 75.300, 73.800 / 75.300, 67.600 / 69.000, 64.800 / 67.000. Legend: 1F utility trench zones at several depths; −1F and −2F trench zones; road-bottom structural slab levels; heritage-area basement zone (文保底层无地下室: no basement under the heritage buildings).</p>`},
+{n:79,s:'p7',cn:'公共空间（地下）导控',en:'Underground public space controls',k:['parking','ped'],
+ does:'Sets three kinds of underground space and what each must contain.',
+ tr:`<table><tr><th>Type</th><th>Where</th><th>Requirements</th></tr><tr><td><b>Underground vibrant space</b></td><td>Mixed-use public space and local complexes in the shallow basement of parcels allowed to develop</td><td>1. Must include F&amp;B, retail and cultural/entertainment uses forming a continuous lively service street; 2. avoid planned rail lines, stations and utility tunnels.</td></tr><tr><td><b>General underground space</b></td><td>Shallow basement of office parcels</td><td>1. Lively uses encouraged, connected to vibrant space or with reserved openings; 2. avoid rail and utility tunnels.</td></tr><tr><td><b>Underground passages</b></td><td>Between the rail station and vibrant space, between vibrant and general space, and between vibrant areas, in the shallow basement</td><td>1. <b>3–6 m wide pedestrian passages</b>; 2. avoid rail and utility tunnels.</td></tr></table>`}
+];
+
+</script>
+<script>
+const $ = id => document.getElementById(id);
+const IMG = n => `00_ENGLISH_Urban_Design_Guide_pages/p${String(n).padStart(2,'0')}.jpg`;
+const PX = (x,y) => [(x-700)*GEO.scale, (y-800)*GEO.scale];   // traced plan pixels (p.18) -> metres, x east, z south
+const fmt = (v,d=0) => v.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const BYID = Object.fromEntries(GEO.parcels.map(p=>[p.id,p]));
+const COMP = ['02-03','02-04'];
+const PAGE = Object.fromEntries(PAGES.map(p=>[p.n,p]));
+
+/* flexible controls per parcel (pp.19-21), translated */
+const CTRL = {
+'01-01':['SE, N','E, S reserved','E links 01-02; S links 01-03','Corporate-image piece at the core entrance'],
+'01-02':['N, S','W reserved','W links 01-01; E reserved along city road',''],
+'01-03':['E, W','N','N links 01-01',''],
+'01-04':['N, E','N, E','S links 01-06 (reserved); E along city road; W reserved with heritage','Public art at NE corner with green; corporate piece at core entrance'],
+'01-05':['E, W','S, E, W reserved','S links 01-07, 01-08','Corporate piece at core entrance'],
+'01-06':['E, S','S, E','N links 01-04 (reserved); E along city road; W reserved with heritage',''],
+'01-07':['W, S','N, W reserved','N links 01-05, 01-08',''],
+'01-08':['N, S','N reserved','E links 01-09; N links 01-05, 01-07',''],
+'01-09':['N, S','N, E reserved','W links 01-08; E reserved along city road',''],
+'01-10':['N, W','N, S, W reserved','Between W setback and road red line; S links 01-12','Public art at NE corner; corporate piece at core entrance'],
+'01-11':['N, E','S reserved','S links 01-13','Corporate piece at core entrance'],
+'01-12':['E, W','W reserved','W setback zone; N links 01-10; S links 01-14',''],
+'01-13':['E, W','W, S reserved','W links 01-12; N links 01-11; S links 01-16',''],
+'01-14':['E, W','W, S, N reserved','W setback zone; N links 01-12; S links 01-15',''],
+'01-15':['E, W','S, W reserved','W setback zone; N links 01-14; S links 01-17',''],
+'01-16':['E, W','W, S reserved','W links 01-14, 01-15; S links 01-18; N links 01-13',''],
+'01-17':['S, W','W reserved','W setback zone; N links 01-15',''],
+'01-18':['S, E','N reserved','N links 01-16',''],
+'02-01':['N, S','E, S reserved','E links 02-02; S links 02-03','Corporate piece at core entrance; commercial landmark where the four parcels meet'],
+'02-02':['N, S','W, S reserved','W links 02-01; S links 02-04',''],
+'02-03':['N, S','E, N reserved','N links 02-01; E links 02-04',''],
+'02-04':['N, S','W, N reserved','N links 02-02; W links 02-03','Corporate piece at core entrance; landmark at SE corner with the rail station exit']};
+const VEH = {'02-01':'N','02-02':'N','02-03':'SE','02-04':'SW'};
+const FRN = {c:'Commercial active',i:'Internal active',m:'Image display'};
+const UGT = {g:'General',v:'Vibrant (retail)'};
+const UNIT_NAME = {'01W':'Unit 01 west · Qiaoyun Fang','01E':'Unit 01 east · Silk Road Panorama','02':'Unit 02 · Fanxing Fang'};
+const subunit = id => id.startsWith('02') ? '02' : (+id.slice(3) <= 9 ? '01W' : '01E');
+
+/* ===================== THEME ===================== */
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+let C = {};
+function readColors(){
+  C = {vp:css('--vp'),ground:css('--vpground'),road:css('--road'),parcel:css('--parcel'),mass:css('--mass'),ink:css('--ink'),muted:css('--muted'),
+       red:css('--red'),green:css('--green'),greenfill:css('--greenfill'),a:css('--a'),b:css('--b'),amber:css('--amber'),h0:css('--h0'),h1:css('--h1'),rule:css('--rule')};
+}
+readColors();
+const PROG = {retail:'#ff7fb0',office:'#1f63a8',hotel:'#a6512e',culture:'#b8a832',apart:'#255a24'};
+const FRC = {c:'#e0391f',i:'#b8a832',m:'#1f63a8'};
+
+/* ===================== THREE SETUP ===================== */
+const cv=$('cv'), vp=$('vp');
+const renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:false});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(35,1,1,20000);
+const controls=new THREE.OrbitControls(camera,cv);
+controls.enableDamping=true; controls.dampingFactor=.08; controls.maxPolarAngle=Math.PI*0.495;
+scene.add(new THREE.HemisphereLight(0xffffff,0xa8a8a4,.85));
+const sun=new THREE.DirectionalLight(0xffffff,.55); sun.position.set(-300,700,450); scene.add(sun);
+
+const mat = (color,opts={}) => new THREE.MeshLambertMaterial({color,...opts});
+const lmat = (color,opts={}) => new THREE.LineBasicMaterial({color,...opts});
+function shapeFrom(pts){const s=new THREE.Shape(); pts.forEach((p,i)=>i?s.lineTo(p[0],-p[1]):s.moveTo(p[0],-p[1])); s.closePath(); return s;}
+function prism(pts,y0,y1,m){
+  const g=new THREE.ExtrudeGeometry(shapeFrom(pts),{depth:Math.max(.05,y1-y0),bevelEnabled:false});
+  const mesh=new THREE.Mesh(g,m); mesh.rotation.x=-Math.PI/2; mesh.position.y=y0; return mesh;
+}
+function flat(pts,y,m){const mesh=new THREE.Mesh(new THREE.ShapeGeometry(shapeFrom(pts)),m); mesh.rotation.x=-Math.PI/2; mesh.position.y=y; return mesh;}
+function line(pts,y,m,closed=false){
+  const v=pts.map(p=>new THREE.Vector3(p[0],y,p[1])); if(closed) v.push(v[0].clone());
+  const l=new THREE.Line(new THREE.BufferGeometry().setFromPoints(v),m); if(m.isLineDashedMaterial) l.computeLineDistances(); return l;
+}
+function ribbon(pts,w,y,m,h=0){ // flat strip (h=0) or thin wall (h>0) along a polyline
+  const g=new THREE.Group();
+  for(let i=0;i<pts.length-1;i++){
+    const a=pts[i],b=pts[i+1],dx=b[0]-a[0],dz=b[1]-a[1],L=Math.hypot(dx,dz); if(L<.01) continue;
+    const box=new THREE.Mesh(new THREE.BoxGeometry(L+ (h?0:w*0.98), h||0.12, w),m);
+    box.position.set((a[0]+b[0])/2,y+(h?h/2:0),(a[1]+b[1])/2); box.rotation.y=-Math.atan2(dz,dx); g.add(box);
+  }
+  return g;
+}
+function cen(poly){let x=0,z=0;poly.forEach(p=>{x+=p[0];z+=p[1]});return [x/poly.length,z/poly.length];}
+function towerPts(c,w,d,ang){const ca=Math.cos(ang),sa=Math.sin(ang);return [[-1,-1],[1,-1],[1,1],[-1,1]].map(([u,v])=>[c[0]+ca*u*w/2-sa*v*d/2, c[1]+sa*u*w/2+ca*v*d/2]);}
+
+/* ===================== LABELS ===================== */
+const labelsEl=$('labels'); const LBL=[];
+function label(text,pos,cls,layer,style){
+  const el=document.createElement('div'); el.className='lbl '+(cls||''); el.innerHTML=text; if(style) el.setAttribute('style',style);
+  labelsEl.appendChild(el); const L={el,p:new THREE.Vector3(pos[0],pos[1],pos[2]),layer}; LBL.push(L); return L;
+}
+
+/* ===================== BUILD ===================== */
+const G = {}; // layer groups
+const mkLayer=k=>{G[k]=new THREE.Group();scene.add(G[k]);return G[k];};
+['base','mass','heights','setbacks','parking','vehicle','egress','ped','frontage','landscape','transit','heritage','comp'].forEach(mkLayer);
+const dashed=(c,ds=6,gs=4)=>new THREE.LineDashedMaterial({color:c,dashSize:ds,gapSize:gs});
+
+/* ground, roads, parcels */
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(4000,4000),mat(C.ground,{transparent:true,opacity:1}));
+ground.rotation.x=-Math.PI/2; ground.position.y=-0.02; G.base.add(ground);
+const roadM=mat(C.road);
+Object.values(GEO.ctx.roads).forEach(r=>G.base.add(flat(r,0.02,roadM)));
+const roadMeta=[['Shangcheng Ave · 商城大道',PX(380,575)],['Shangbo Rd · 商博路',PX(148,1180)],['Chunfeng Ave · 春风大道',PX(1330,1050)],['Yinhai Rd · 银海路',PX(560,70)],['Zhenxing W Rd · 振兴西路',PX(600,1530)]];
+roadMeta.forEach(([t,p])=>label(t,[p[0],1,p[1]],'road','base'));
+const parcelM=mat(C.parcel); const parcelL=lmat(C.muted);
+GEO.parcels.forEach(p=>{G.base.add(flat(p.poly,0.06,parcelM)); G.base.add(line(p.poly,0.2,parcelL,true));});
+G.base.add(flat(GEO.her,0.06,mat(C.greenfill)));
+
+/* massing */
+const PICK=[];
+const massMeshes=[]; // {mesh, parcel, use, h}
+function addMass(pts,y0,y1,p,use){
+  const m=mat(C.mass); const mesh=prism(pts,y0,y1,m); mesh.userData={pid:p.id}; G.mass.add(mesh); PICK.push(mesh);
+  massMeshes.push({mesh,p,use,y1});
+  const e=new THREE.LineSegments(new THREE.EdgesGeometry(mesh.geometry,30),lmat(C.ink,{transparent:true,opacity:.35}));
+  e.rotation.x=-Math.PI/2; e.position.y=y0; G.mass.add(e);
+  return mesh;
+}
+const PODFH=5;
+// program reading of p.28 (approximate tower assignments)
+const TOWERUSE={'02-03':[{from:.68,use:'hotel'}],'01-05':[{from:0,use:'hotel'}],'01-03':[{from:.8,use:'culture'}]};
+const TOWERS=[];
+GEO.parcels.forEach(p=>{
+  const podH=p.podF*PODFH;
+  addMass(p.pod,0,podH,p,'retail');
+  const ang = p.unit==='02' ? -0.21 : -0.17;
+  if(p.id==='01-16'){
+    const slabAng=Math.atan2(327*1,141*1); // aligned with the east edge
+    [PX(1085,1050),PX(1185,1180)].forEach((c,i)=>{
+      const pts=towerPts(c,72.5,20,slabAng); addMass(pts,podH,p.H,p,'apart'); TOWERS.push({p,c,pts,top:p.H,ang:slabAng,w:72.5,d:20,i});
+    });
+  } else if(p.tc){
+    const side=Math.sqrt(p.std), pts=towerPts(p.tc,side,side,ang);
+    const segs=TOWERUSE[p.id]||[]; let cuts=[0,...segs.map(s=>s.from),1]; let uses=['office',...segs.map(s=>s.use)];
+    if(segs.length && segs[0].from===0){cuts=[0,1];uses=[segs[0].use];}
+    for(let i=0;i<cuts.length-1;i++){
+      const y0=podH+(p.H-podH)*cuts[i], y1=podH+(p.H-podH)*cuts[i+1];
+      addMass(pts,y0,y1,p,uses[i]);
+    }
+    TOWERS.push({p,c:p.tc,pts,top:p.H,ang,w:side,d:side});
+  }
+});
+// parcel id labels at tower tops
+const PIDL={};
+GEO.parcels.forEach(p=>{
+  const t=TOWERS.find(t=>t.p===p); const c=t?t.c:cen(p.poly);
+  PIDL[p.id]=label(`${p.id} · ${p.H} m`,[c[0],p.H+4,c[1]],'pid'+(COMP.includes(p.id)?' comp':''),'mass');
+});
+
+let MODE='program';
+function recolor(){
+  massMeshes.forEach(({mesh,p,use})=>{
+    let col;
+    col = new THREE.Color(PROG[use]||C.mass);
+    if(SEL===p.id) col.lerp(new THREE.Color(C.red),.35);
+    mesh.material.color.copy(col);
+  });
+  drawLegend();
+}
+
+/* HEIGHTS: limits over the competition site */
+(function(){
+  const site=GEO.ctx.compSite;
+  const plane=(h,c,op)=>{const m=flat(site,h,new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:op,side:THREE.DoubleSide,depthWrite:false}));G.heights.add(m);G.heights.add(line(site,h,lmat(c),true));};
+  plane(200,C.red,.03); plane(190,C.amber,.035);
+  const c=cen(site);
+  label('200 m planning limit (2025 conditions)',[c[0]-60,200,c[1]],'note','heights',`--c:${C.red}`);
+  label('≈190 m · airport ceiling 264 m elev.',[c[0]+70,190,c[1]+10],'note','heights',`--c:${C.amber}`);
+  // floor-line ticks on twin towers every 10 floors
+  TOWERS.filter(t=>COMP.includes(t.p.id)).forEach(t=>{
+    const p=t.p, podH=p.podF*PODFH, fh=(p.H-podH)/p.towF;
+    for(let f=10; f<p.towF; f+=10){G.heights.add(line(t.pts,podH+f*fh,lmat(C.ink,{transparent:true,opacity:.5}),true));}
+    label(`${p.totF} F · ${(fh).toFixed(2)} m avg floor`,[t.c[0],p.H+16,t.c[1]],'note','heights',`--c:${C.h1}`);
+  });
+})();
+
+/* SETBACKS */
+GEO.parcels.forEach(p=>{
+  G.setbacks.add(line(p.msb,0.5,dashed(C.a,4,3),true));
+  G.setbacks.add(line(p.tsb,0.7,lmat(C.red),true));
+});
+COMP.forEach(id=>{const p=BYID[id],c=cen(p.tsb);
+  label(`${id} tower line · N${p.ts.N} S${p.ts.S} E${p.ts.E} W${p.ts.W}`,[c[0],3,c[1]+18],'note','setbacks',`--c:${C.red}`);});
+
+/* PARKING & UNDERGROUND */
+const LV=[5.5,4.0,3.8,3.8];
+GEO.parcels.forEach(p=>{
+  const [type,side,ratio,area]=p.ug; const n=Math.min(4,Math.ceil(area/p.site-0.05)); let y=0;
+  const col= type==='v' ? '#ff7fb0' : '#6e8fa0';
+  for(let i=0;i<n;i++){
+    const m=new THREE.MeshLambertMaterial({color:col,transparent:true,opacity:.22-i*.03,depthWrite:false});
+    const box=prism(p.poly,y-LV[i],y-0.15,m); G.parking.add(box); G.parking.add(line(p.poly,y-LV[i],lmat(col,{transparent:true,opacity:.6}),true)); y-=LV[i];
+  }
+  const c=cen(p.poly);
+  label(`${p.id} · ${ratio.toFixed(2)} · ${fmt(area)} m² · B${n}`,[c[0],y-1,c[1]],'note','parking',`--c:${col}`);
+});
+[[-2.8,'#1f63a8'],[-7.5,'#1f63a8'],[-11.4,'#1f63a8']].forEach(([y,c],i)=>{
+  G.parking.add(ribbon(GEO.ctx.loop,8,y,mat(c)));
+  G.parking.add(ribbon(GEO.ctx.spine,8,y,mat(c)));
+});
+G.parking.add(ribbon(GEO.ctx.b3tunnel,8,-11.4,mat('#1f63a8')));
+{const t=GEO.ctx.b3tunnel; label('B3 link to Shangcheng Ave tunnel',[t[2][0],-11,t[2][1]],'note','parking','--c:#1f63a8');
+ const l=GEO.ctx.loop; label('Unit 01 public loop · B1 · B2 · B3 · 8 m wide',[l[3][0],-2,l[3][1]],'note','parking','--c:#1f63a8');}
+
+/* VEHICLE ACCESS */
+const ENT=[['1F in',650,712,'N'],['1F out',705,700,'N'],['B1 in/out',205,1062,'W'],['B1 in/out',1155,905,'E'],['B2 in/out',1335,1330,'E'],
+  ['B2 in/out',330,1470,'S'],['B1 in/out',790,1495,'S'],['B2 in/out',1100,1508,'S'],
+  ['02-01 main access',300,120,'N'],['02-02 main access',640,120,'N'],['02-03 main access (SE)',505,470,'S'],['02-04 main access (SW)',590,462,'S']];
+const coneM=mat('#b8a832');
+ENT.forEach(([t,x,y,dir])=>{
+  const p=PX(x,y); const cone=new THREE.Mesh(new THREE.ConeGeometry(4,12,12),coneM); cone.position.set(p[0],6,p[1]); G.vehicle.add(cone);
+  label(t,[p[0],14,p[1]],'note','vehicle','--c:#b8a832');
+});
+[['A · 14 m',GEO.ctx.roadA,14],['B · 22 m',GEO.ctx.roadB,22],['C · 24 m',GEO.ctx.roadC,24]].forEach(([t,pts,w])=>{
+  G.vehicle.add(ribbon(pts,w,0.1,mat('#a88aa0',{transparent:true,opacity:.55})));
+  const m=pts[Math.floor(pts.length/2)]; label('Internal road '+t,[m[0],2,m[1]],'note','vehicle','--c:#a88aa0');
+});
+
+/* EGRESS & FIRE */
+const fireM=mat('#e0391f',{transparent:true,opacity:.75});
+TOWERS.forEach(t=>{
+  // schematic climbing face: 10 m hardstand along the tower's south side (north side for Unit 02), per p.56
+  const pts=t.pts, sideIdx = t.p.unit==='02' ? 0 : 2; const a=pts[sideIdx], b=pts[(sideIdx+1)%4];
+  const c=t.c, mx=(a[0]+b[0])/2-c[0], mz=(a[1]+b[1])/2-c[1], L=Math.hypot(mx,mz), nx=mx/L, nz=mz/L;
+  const pad=[[a[0]+nx*2,a[1]+nz*2],[b[0]+nx*2,b[1]+nz*2],[b[0]+nx*12,b[1]+nz*12],[a[0]+nx*12,a[1]+nz*12]];
+  G.egress.add(flat(pad,0.3,fireM));
+  // refuge floors every <= 50 m above 100 m towers (GB 50016)
+  if(t.top>100) for(let h=50; h<t.top-5; h+=50){ G.egress.add(prism(t.pts,h-0.8,h+0.8,mat('#b8a832'))); }
+});
+[GEO.ctx.roadA,GEO.ctx.roadB,GEO.ctx.roadC].forEach(r=>G.egress.add(line(r,0.4,dashed('#e0391f',8,5))));
+const FZC={1:'#5a8a8a',2:'#b8a832',3:'#4f6b4b',4:'#b090c0'};
+GEO.parcels.filter(p=>p.fz).forEach(p=>G.egress.add(flat(p.poly,-5.6,new THREE.MeshBasicMaterial({color:FZC[p.fz],transparent:true,opacity:.35,side:THREE.DoubleSide,depthWrite:false}))));
+[1,2,3,4].forEach(z=>{const ps=GEO.parcels.filter(p=>p.fz===z); const c=cen(ps.map(p=>cen(p.poly)));
+  label(`Basement parking zone ${z}`,[c[0],-5,c[1]],'note','egress',`--c:${FZC[z]}`);});
+{const t=TOWERS.find(t=>t.p.id==='02-03'); label('Refuge floors every ≤ 50 m',[t.c[0]+30,100,t.c[1]],'note','egress','--c:#b8a832');
+ label('Fire climbing face (schematic)',[t.c[0],2,t.c[1]-38],'note','egress','--c:#e0391f');}
+
+/* PEDESTRIAN */
+const pedM=mat('#a6512e',{transparent:true,opacity:.85});
+G.ped.add(ribbon(GEO.ctx.loop18,4,0.35,pedM));
+label('1.8 km retail loop · ≈ 20 min walk',[PX(470,1000)[0],3,PX(470,1000)[1]],'note','ped','--c:#a6512e');
+const passM=mat('#b8a832');
+[[[495,118],[510,250],[548,479]],[[205,315],[510,250],[800,190]]].forEach(pp=>G.ped.add(ribbon(pp.map(q=>PX(q[0],q[1])),6,0.3,passM)));
+label('24 h public passages (Unit 02)',[PX(510,250)[0],3,PX(510,250)[1]],'note','ped','--c:#b8a832');
+{const r=GEO.ctx.roadB; G.ped.add(line(r,0.6,dashed('#b090c0',10,5))); label('Time-shared street (p.61)',[r[3][0],3,r[3][1]],'note','ped','--c:#b090c0');}
+{const b=GEO.ctx.bridge; const br=ribbon(b,6,6,mat('#b090c0'),1.4); G.ped.add(br);
+ label('Footbridge to phase 1 · ≥ 4.5 m clear',[b[0][0],10,b[0][1]],'note','ped','--c:#b090c0');}
+const PEDS={'01-01':'S E N','01-02':'N S','01-03':'E W','01-04':'N E','01-05':'E W','01-06':'E S','01-07':'W S','01-08':'N S','01-09':'N S',
+ '01-10':'N W','01-11':'N E','01-12':'E W','01-13':'E W','01-14':'E W','01-15':'E W','01-16':'E W','01-17':'S W','01-18':'S E',
+ '02-01':'N S','02-02':'N S','02-03':'N S','02-04':'N S'};
+const pedDot=mat('#a6512e');
+GEO.parcels.forEach(p=>{
+  PEDS[p.id].split(' ').forEach(sd=>{
+    const es=p.edges.filter(e=>e.side===sd); if(!es.length) return;
+    const e=es.reduce((a,b)=>Math.hypot(b.a[0]-b.b[0],b.a[1]-b.b[1])>Math.hypot(a.a[0]-a.b[0],a.a[1]-a.b[1])?b:a);
+    const m=[(e.a[0]+e.b[0])/2,(e.a[1]+e.b[1])/2];
+    const s=new THREE.Mesh(new THREE.CylinderGeometry(2.6,2.6,1.2,14),pedDot); s.position.set(m[0],0.6,m[1]); G.ped.add(s);
+  });
+});
+
+/* FRONTAGE */
+GEO.parcels.forEach(p=>{
+  const c=cen(p.poly);
+  p.edges.forEach(e=>{
+    const ins=(q)=>{const dx=c[0]-q[0],dz=c[1]-q[1],L=Math.hypot(dx,dz);return [q[0]+dx/L*1.5,q[1]+dz/L*1.5];};
+    G.frontage.add(ribbon([ins(e.a),ins(e.b)],0.8,0,mat(FRC[e.fr]),6));
+  });
+});
+
+/* LANDSCAPE */
+const gM=mat(C.green,{transparent:true,opacity:.55});
+G.landscape.add(flat(GEO.ctx.greenBand,0.15,gM));
+G.landscape.add(flat(GEO.ctx.compGreen,0.25,mat(C.green,{transparent:true,opacity:.8})));
+G.landscape.add(flat(GEO.her,0.15,gM));
+GEO.parcels.forEach(p=>{const podH=p.podF*PODFH; G.landscape.add(flat(p.pod,podH+0.3,mat('#4f6b4b',{transparent:true,opacity:.6})));});
+{const g=cen(GEO.ctx.greenBand); label('Green-corridor park · public green ≥ 70%',[g[0],2,g[1]],'note','landscape',`--c:${C.green}`);
+ const cg=cen(GEO.ctx.compGreen); label('17 m planned green, handed to city (competition site)',[cg[0],2,cg[1]],'note','landscape',`--c:${C.green}`);
+ label('Podium roof gardens encouraged · courtyards ≥ 40% green',[PX(860,895)[0],30,PX(860,895)[1]],'note','landscape','--c:#4f6b4b');}
+
+/* TRANSIT */
+G.transit.add(line(GEO.ctx.rail,0.5,dashed('#a6512e',14,6)));
+{const st=GEO.ctx.station; G.transit.add(prism(st,-14,-1,new THREE.MeshLambertMaterial({color:'#a6512e',transparent:true,opacity:.45})));
+ G.transit.add(flat(st,0.3,mat('#a6512e',{transparent:true,opacity:.6})));
+ Object.entries(GEO.ctx.stationExits).forEach(([k,p])=>{const b=new THREE.Mesh(new THREE.BoxGeometry(6,4,6),mat('#a6512e'));b.position.set(p[0],2,p[1]);G.transit.add(b);label(k,[p[0],6,p[1]],'pid','transit');});
+ const c=cen(st); const ring=[]; for(let i=0;i<=72;i++){const a=i/72*Math.PI*2;ring.push([c[0]+300*Math.cos(a),c[1]+300*Math.sin(a)]);}
+ G.transit.add(line(ring,0.5,dashed('#b090c0',10,6)));
+ label('Zhejiang 4th Hospital Station · Jin–Yi–Dong line',[c[0],16,c[1]],'note','transit','--c:#a6512e');
+ label('300 m walking radius',[c[0]+300,2,c[1]],'note','transit','--c:#b090c0');}
+
+/* HERITAGE */
+const HB=[['Shisanjian · 726 m² · experience hall',480,1005,30,24],['Liuruitang · 492 m² · bookstore',497,1052,22,22],['Shunshoutang · 661 m² · gift shop',535,1097,26,25],['Wujiantou · 268 m² · café',548,1168,16,16],['Gong Ancestral Hall · 113 m² · culture station',565,1236,11,10]];
+HB.forEach(([t,x,y,w,d],i)=>{const c=PX(x,y);const pts=towerPts(c,w,d,-0.35);G.heritage.add(prism(pts,0,7,mat(PROG.culture)));label(t,[c[0],10,c[1]],'note','heritage',`--c:${PROG.culture}`);});
+G.heritage.add(line(GEO.her,0.5,dashed(PROG.culture,5,3),true));
+
+/* COMPETITION SITE */
+G.comp.add(line(GEO.ctx.compSite,0.9,lmat(C.red),true));
+G.comp.add(ribbon([...GEO.ctx.compSite,GEO.ctx.compSite[0]],1.6,0.8,mat(C.red)));
+{const c=cen(GEO.ctx.compSite); label('Competition Plot 2 ≈ 02-03 + 02-04',[c[0],2,c[1]+30],'note','comp',`--c:${C.red}`);}
+
+/* ===================== LAYER UI ===================== */
+const LAYERS=[
+ {k:'comp',t:'Competition site',src:'pp.15–16, 21',on:true,lg:[[C.red,'Plot 2 outline (02-03 + 02-04)']],keys:[21,15,16]},
+ {k:'heights',t:'Height limits',src:'pp.11–21',on:true,lg:[[C.red,'200 m planning limit'],[C.amber,'≈190 m airport ceiling'],[C.h1,'floor lines every 10 F']],keys:[21,19,20,8,34]},
+ {k:'setbacks',t:'Setback lines',src:'pp.19–21',lg:[[C.a,'Podium (multi-storey), dashed'],[C.red,'Tower (high-rise)']],keys:[19,20,21]},
+ {k:'parking',t:'Parking & basements',src:'pp.22, 65–79',lg:[['#6e8fa0','General basement'],['#ff7fb0','Vibrant (retail) basement'],['#1f63a8','Public loop B1–B3']],keys:[22,65,66,67,68,70,79],under:true},
+ {k:'vehicle',t:'Vehicle access',src:'pp.19–22, 53–55',lg:[['#b8a832','Entrances'],['#a88aa0','Internal roads A/B/C']],keys:[54,53,55,22]},
+ {k:'egress',t:'Egress & fire',src:'pp.56, 74–77',lg:[['#e0391f','Climbing faces · fire routes'],['#b8a832','Refuge floors (≤ 50 m)'],['#5a8a8a','Basement parking zones 1–4']],keys:[56,74,75,76,77],under:true},
+ {k:'ped',t:'Pedestrian & slow traffic',src:'pp.30, 59–63',lg:[['#a6512e','1.8 km loop · ped entrances'],['#b8a832','24 h passages'],['#b090c0','Time-shared street · footbridge']],keys:[30,59,60,61,62,63]},
+ {k:'frontage',t:'Ground-floor frontage',src:'pp.19–21, 31',lg:[[FRC.c,'Commercial active (≥ 80%)'],[FRC.i,'Internal active (≥ 50%)'],[FRC.m,'Image display']],keys:[31,19,20,21]},
+ {k:'landscape',t:'Landscape & green',src:'pp.41–50',lg:[[C.green,'Public green'],['#4f6b4b','Podium roof gardens']],keys:[41,42,43,44,45,50]},
+ {k:'transit',t:'Transit',src:'pp.3, 57',lg:[['#a6512e','Rail line · station · exits A–D'],['#b090c0','300 m radius']],keys:[57,3]},
+ {k:'heritage',t:'Heritage',src:'pp.32, 38–39',lg:[[PROG.culture,'Five historic buildings · protection zone']],keys:[32,38,39,7]},
+];
+const layersBox=$('layers');
+LAYERS.forEach(L=>{
+  const d=document.createElement('div'); d.className='layer';
+  d.innerHTML=`<label class="row"><input type="checkbox" data-k="${L.k}" ${L.on?'checked':''}>${L.t}<span class="src">${L.src}</span></label>
+   <div class="lg2">${L.lg.map(([c,t])=>`<span><span class="sw" style="background:${c}"></span> ${t}</span>`).join('')}</div>
+   <div class="keys">${L.keys.map(n=>`<button data-lb="${n}" title="p.${n} · ${PAGE[n].en}"><img loading="lazy" src="${IMG(n)}" alt="Page ${n}"><span>${n}</span></button>`).join('')}</div>`;
+  layersBox.appendChild(d);
+});
+function applyLayers(){
+  let under=false;
+  LAYERS.forEach(L=>{const on=layersBox.querySelector(`input[data-k="${L.k}"]`).checked; G[L.k].visible=on; if(on&&L.under) under=true;});
+  ground.material.opacity = under ? .35 : 1; ground.material.depthWrite=!under;
+  G.base.children.forEach(o=>{if(o!==ground&&o.material&&o.material.isMeshLambertMaterial&&o.geometry.type==='ShapeGeometry'){o.material.transparent=under;o.material.opacity=under?.4:1;}});
+  controls.maxPolarAngle = under ? Math.PI*0.75 : Math.PI*0.495;
+  massMeshes.forEach(({mesh})=>{mesh.material.transparent=under;mesh.material.opacity=under?.28:1;mesh.material.depthWrite=!under;});
+}
+layersBox.addEventListener('change',applyLayers);
+
+/* legend for colour mode */
+function drawLegend(){
+  const el=$('legend');
+  if(!el) return;
+  el.innerHTML=Object.entries({retail:'Retail podium',office:'Office',hotel:'Hotel',culture:'Culture',apart:'Youth apartments'}).map(([k,t])=>`<span class="sw" style="background:${PROG[k]}"></span><span>${t}</span>`).join('');
+}
+
+
+/* ===================== PICKING ===================== */
+let SEL=null;
+const ray=new THREE.Raycaster(), mouse=new THREE.Vector2(); let down=null;
+cv.addEventListener('pointerdown',e=>{down=[e.clientX,e.clientY];});
+cv.addEventListener('pointerup',e=>{
+  if(!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>4) return;
+  const r=cv.getBoundingClientRect(); mouse.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);
+  ray.setFromCamera(mouse,camera); const hit=ray.intersectObjects(PICK,false)[0];
+  select(hit?hit.object.userData.pid:null);
+});
+function select(id){
+  SEL=id; recolor(); const box=$('info');
+  if(!id){box.innerHTML='<h2>Selected parcel</h2><p class="empty">Click a tower or podium in the model.</p>';return;}
+  const p=BYID[id], c=CTRL[id], ug=p.ug, ctrlPage = id.startsWith('02')?21:(subunit(id)==='01W'?19:20), tabPage = id.startsWith('02')?15:(subunit(id)==='01W'?11:13);
+  const frs=Object.entries({N:0,E:0,S:0,W:0}).map(([s])=>{const e=p.edges.find(e=>e.side===s);return e?`${s} <span class="ftag ${e.fr}">${FRN[e.fr]}</span>`:'';}).filter(Boolean).join('<br>');
+  box.innerHTML=`<h2>Parcel ${id}${COMP.includes(id)?' · competition site':''}</h2>
+  <table>
+  <tr><td>Unit</td><td>${UNIT_NAME[subunit(id)]}</td></tr>
+  <tr><td>Site area</td><td class="mono">${fmt(p.site,2)} m²</td></tr>
+  <tr><td>Height limit · floors</td><td class="mono">${p.H} m · ${p.totF} F (${p.towF} tower + ${p.podF} podium)</td></tr>
+  <tr><td>FAR · coverage</td><td class="mono">${p.far.toFixed(2)} · ${p.dens}%</td></tr>
+  <tr><td>Above-ground GFA</td><td class="mono">${fmt(p.gfa,2)} m²</td></tr>
+  <tr><td>Retail · tower GFA</td><td class="mono">${fmt(p.comm)} · ${fmt(p.tgfa)} m²</td></tr>
+  <tr><td>Typical tower floor</td><td class="mono">${fmt(p.std,2)} m²${id==='01-16'?' × 2 slabs':''}</td></tr>
+  <tr><td>Setbacks, podium</td><td class="mono">N${p.ms.N} S${p.ms.S} E${p.ms.E} W${p.ms.W}</td></tr>
+  <tr><td>Setbacks, tower</td><td class="mono">N${p.ts.N} S${p.ts.S} E${p.ts.E} W${p.ts.W}</td></tr>
+  <tr><td>Main vehicle access</td><td>${VEH[id]||'Shared unit entrances (see Vehicle access layer)'}</td></tr>
+  <tr><td>Pedestrian entrances</td><td>${c[0]}</td></tr>
+  <tr><td>Public passages</td><td>${c[1]}</td></tr>
+  <tr><td>Open space</td><td>${c[2]}</td></tr>
+  ${c[3]?`<tr><td>Public art</td><td>${c[3]}</td></tr>`:''}
+  <tr><td>Frontage</td><td>${frs}</td></tr>
+  <tr><td>Basement</td><td>${UGT[ug[0]]} · ${fmt(ug[3])} m² · parking ratio ${ug[2].toFixed(2)} · loop side ${ug[1]}</td></tr>
+  </table>
+  <div class="chips"><button class="chip" data-lb="${ctrlPage}">Control sheet p.${ctrlPage}</button><button class="chip" data-lb="${tabPage}">Unit table p.${tabPage}</button><button class="chip" data-lb="22">Underground p.22</button></div>`;
+}
+
+/* ===================== VIEWS ===================== */
+const target=new THREE.Vector3();
+let fly=null;
+function setView(pos,tgt,instant,fov=35){
+  camera.fov=fov; camera.updateProjectionMatrix();
+  const p=new THREE.Vector3(...pos), t=new THREE.Vector3(...tgt);
+  if(instant||matchMedia('(prefers-reduced-motion: reduce)').matches){camera.position.copy(p);controls.target.copy(t);controls.update();return;}
+  fly={p0:camera.position.clone(),t0:controls.target.clone(),p,t,s:performance.now()};
+}
+const V=(x,y,h)=>{const p=PX(x,y);return [p[0],h,p[1]];};
+const VIEWS={
+  axo:()=>setView([780,650,-370],[30,20,40]),
+  plan:()=>setView([60,1500,40.01],[60,0,40]),
+  comp:()=>setView(V(1350,-250,330),V(470,380,70)),
+  south:()=>setView(V(760,2350,140),V(740,700,80)),
+  under:()=>{['parking'].forEach(k=>layersBox.querySelector(`input[data-k="${k}"]`).checked=true);applyLayers();setView([560,330,700],[60,-25,60]);},
+};
+document.querySelector('.vp-bar').addEventListener('click',e=>{const b=e.target.closest('button');if(b)VIEWS[b.dataset.view]();});
+
+const RENDERS=[
+ {n:16,t:'Fanxing Fang',d:'Unit 02 retail podium and the Twin Towers, from over Shangcheng Ave',cam:V(1500,560,230),tg:V(480,320,60)},
+ {n:21,t:'Unit 02 control sheet',d:'Inset renderings of the Twin Towers on the control sheet',cam:V(330,700,120),tg:V(420,360,110)},
+ {n:10,t:'Overseas Chinese Business Center',d:'Whole-centre aerial from the south-west',cam:V(150,2250,520),tg:V(820,900,40)},
+ {n:9,t:'FBD Phase II aerial',d:'District aerial at dusk from the south-east',cam:V(2400,2300,900),tg:V(700,800,0)},
+ {n:14,t:'Silk Road Panorama',d:'Commercial landscape plaza, eye level',cam:V(600,665,4),tg:V(760,800,45)},
+ {n:12,t:'Qiaoyun Fang',d:'Heritage quarter at night, eye level',cam:V(600,1290,4),tg:V(470,1020,60)},
+ {n:39,t:'Historic-quarter landscape',d:'Paved plaza among the historic houses',cam:V(530,1300,2),tg:V(500,1050,35)},
+ {n:43,t:'Level-change landscape (1)',d:'Stepped edge to the lower street',cam:V(640,1550,2),tg:V(700,1300,40)},
+ {n:44,t:'Level-change landscape (2)',d:'Shopping street under the podium bridge',cam:V(760,1330,2),tg:V(690,1060,30)},
+ {n:28,t:'Program axonometric',d:'Uses by building',cam:V(1500,1700,900),tg:V(650,700,40),mode:'program'},
+ {n:8,t:'Site sections',d:'Towers on podiums over one continuous basement',cam:V(700,2000,10),tg:V(700,800,10),layer:'parking'},
+];
+$('renders').innerHTML=RENDERS.map((r,i)=>`<button class="rk" data-i="${i}"><img loading="lazy" src="${IMG(r.n)}" alt="Rendering, page ${r.n}"><span><b>p.${r.n} · ${r.t}</b>${r.d}</span></button>`).join('');
+$('renders').addEventListener('click',e=>{const b=e.target.closest('.rk');if(!b)return;const r=RENDERS[+b.dataset.i];
+  
+  if(r.layer){layersBox.querySelector(`input[data-k="${r.layer}"]`).checked=true;applyLayers();}
+  controls.maxPolarAngle=Math.max(controls.maxPolarAngle,Math.PI*0.499);
+  setView(r.cam,r.tg,false,r.cam[1]<20?62:45); showPip(r.n,r.t,r.d); vp.scrollIntoView({behavior:'smooth',block:'center'});});
+function showPip(n,t,d){$('pip').hidden=false;$('pip-t').textContent=t;$('pip-p').textContent=' p.'+n;$('pip-img').src=IMG(n);$('pip-img').alt=PAGE[n].en;$('pip-img').dataset.lb=n;$('pip-d').textContent='Approximate viewpoint. '+d;}
+$('pip-x').onclick=()=>{$('pip').hidden=true;};
+
+/* ===================== RENDER LOOP ===================== */
+const tmp=new THREE.Vector3();
+function resize(){const r=vp.getBoundingClientRect();renderer.setSize(r.width,r.height,false);camera.aspect=r.width/r.height;camera.updateProjectionMatrix();}
+new ResizeObserver(resize).observe(vp);
+function frame(t){
+  if(fly){const k=Math.min(1,(t-fly.s)/900), e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+    camera.position.lerpVectors(fly.p0,fly.p,e); controls.target.lerpVectors(fly.t0,fly.t,e); if(k>=1) fly=null;}
+  controls.update(); renderer.setClearColor(C.vp); renderer.render(scene,camera);
+  const w=cv.clientWidth,h=cv.clientHeight;
+  // project, then place greedily (notes before parcel ids, near before far) and hide anything that would overlap
+  const cand=[];
+  for(const L of LBL){
+    const vis=G[L.layer]&&G[L.layer].visible;
+    if(!vis){L.el.style.display='none';continue;}
+    tmp.copy(L.p).project(camera);
+    if(tmp.z>1||tmp.z<-1||Math.abs(tmp.x)>1.05||Math.abs(tmp.y)>1.05){L.el.style.display='none';continue;}
+    if(!L.w){L.el.style.display='';L.w=L.el.offsetWidth;L.h=L.el.offsetHeight;}
+    const sel = SEL && L===PIDL[SEL];
+    cand.push({L,x:(tmp.x*.5+.5)*w,y:(-tmp.y*.5+.5)*h,z:tmp.z,pr:(sel?0:L.el.classList.contains('note')?1:L.el.classList.contains('pid')?2:3)});
+  }
+  cand.sort((a,b)=>a.pr-b.pr||a.z-b.z);
+  const placed=[];
+  for(const c of cand){
+    const r={l:c.x-c.L.w/2-2,r:c.x+c.L.w/2+2,t:c.y-c.L.h-1,b:c.y+1};
+    if(placed.some(q=>r.l<q.r&&r.r>q.l&&r.t<q.b&&r.b>q.t)){c.L.el.style.display='none';continue;}
+    placed.push(r); c.L.el.style.display=''; c.L.el.style.transform=`translate(${c.x}px,${c.y}px) translate(-50%,-100%)`;
+  }
+  const az=controls.getAzimuthalAngle(); $('northg').setAttribute('transform',`rotate(${az*180/Math.PI})`);
+  requestAnimationFrame(frame);
+}
+resize(); applyLayers(); recolor(); VIEWS.axo(); setView([980,820,-460],[30,20,40],true); requestAnimationFrame(frame);
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{readColors();location.reload();});
+
+/* ===================== PAGES TAB ===================== */
+const KEYNAME={heights:'Height limits',program:'Program',setbacks:'Setbacks',parking:'Parking & basements',vehicle:'Vehicle access',egress:'Egress & fire',ped:'Pedestrian',frontage:'Frontage',landscape:'Landscape',transit:'Transit',heritage:'Heritage',comp:'Competition site',render:'Rendering key'};
+function pagesHTML(){
+  let out='',toc='',last='';
+  PAGES.forEach(p=>{
+    if(p.s!==last){out+=`<h2 class="sechead" data-sec="${p.s}">${SECTIONS[p.s]}</h2>`;toc+=`<a class="th" href="#pg-${p.n}">${SECTIONS[p.s]}</a>`;last=p.s;}
+    toc+=`<a href="#pg-${p.n}">${p.n} · ${p.en.length>38?p.en.slice(0,36)+'…':p.en}</a>`;
+    const chips=(p.k||[]).map(k=>k==='render'?`<button class="chip" data-render="${p.n}">Show in 3D model</button>`:`<button class="chip" data-layer="${k}">${k==='program'?'Program colours':'Layer: '+KEYNAME[k]}</button>`).join('');
+    out+=`<article class="pg" id="pg-${p.n}" data-q="${(p.en+' '+p.cn+' '+p.does+' '+(p.tr||'')).replace(/<[^>]+>/g,' ').replace(/"/g,'').toLowerCase()}">
+      <button class="thumb" data-lb="${p.n}" aria-label="Enlarge page ${p.n}"><img loading="lazy" src="${IMG(p.n)}" alt="Page ${p.n}: ${p.en}"></button>
+      <div><span class="no">Page ${p.n}</span><h3>${p.en}</h3><div class="cn">${p.cn}</div>
+      <div class="does"><b>What this page does</b>${p.does}</div>
+      ${p.tr?`<div class="tr">${p.tr}</div>`:'<div class="tr lg">Image only; no text to translate beyond the title.</div>'}
+      ${chips?`<div class="chips">${chips}</div>`:''}</div></article>`;
+  });
+  $('pagelist').innerHTML=out; $('toc').innerHTML=toc;
+}
+pagesHTML();
+$('q').addEventListener('input',e=>{const q=e.target.value.trim().toLowerCase();let n=0;
+  document.querySelectorAll('.pg').forEach(a=>{const show=!q||a.dataset.q.includes(q);a.hidden=!show;if(show)n++;});
+  document.querySelectorAll('.sechead').forEach(h=>{let s=h.nextElementSibling,any=false;while(s&&!s.classList.contains('sechead')){if(!s.hidden)any=true;s=s.nextElementSibling;}h.hidden=!any;});
+  $('qn').textContent=q?`${n} of ${PAGES.length} pages`:'';});
+$('pagelist').addEventListener('click',e=>{
+  const b=e.target.closest('[data-layer],[data-render]'); if(!b) return;
+  showTab('model');
+  if(b.dataset.layer){const k=b.dataset.layer;
+    if(k==='program'){MODE='program';recolor();}
+    else {layersBox.querySelector(`input[data-k="${k}"]`).checked=true;applyLayers();if(LAYERS.find(L=>L.k===k).under)VIEWS.under();}}
+  if(b.dataset.render){const i=RENDERS.findIndex(r=>r.n===+b.dataset.render); if(i>=0) document.querySelector(`.rk[data-i="${i}"]`).click();}
+  setTimeout(()=>vp.scrollIntoView({behavior:'smooth',block:'center'}),50);
+});
+
+/* ===================== TABLES TAB ===================== */
+function unitTable(ids,title,sub,page,tot){
+  const rows=ids.map(id=>{const p=BYID[id];return `<tr class="${COMP.includes(id)?'comp':''}"><td class="mono">${id}</td><td class="r">${fmt(p.site,2)}</td><td class="r">${fmt(p.cover)}</td><td class="r">${fmt(p.comm)}</td><td class="r">${fmt(p.std,2)}${id==='01-16'?' ×2':''}</td><td class="r">${fmt(p.tgfa)}</td><td class="r">${p.totF}</td><td class="r">${p.towF}</td><td class="r">${p.H}</td><td class="r">${p.dens}%</td><td class="r">${p.far.toFixed(2)}</td><td class="r">${fmt(p.gfa,2)}</td></tr>`;}).join('');
+  return `<div class="card"><h3>${title}</h3><p class="sub">${sub} · from p.${page}</p><table><tr><th>Parcel</th><th class="r">Site m²</th><th class="r">Footprint m²</th><th class="r">Retail m²</th><th class="r">Typ. tower floor m²</th><th class="r">Tower GFA m²</th><th class="r">Total floors</th><th class="r">Tower floors (excl. podium)</th><th class="r">Height m</th><th class="r">Coverage</th><th class="r">FAR</th><th class="r">Above-ground GFA m²</th></tr>${rows}
+  <tr class="tot"><td colspan="11">Total site ${tot[0]} m² · total above-ground GFA ${tot[1]} m² · FAR ${tot[2]}</td><td></td></tr></table></div>`;
+}
+const U1W=GEO.parcels.filter(p=>subunit(p.id)==='01W').map(p=>p.id).sort(), U1E=GEO.parcels.filter(p=>subunit(p.id)==='01E').map(p=>p.id).sort(), U2=['02-01','02-02','02-03','02-04'];
+const ctrlRows=ids=>ids.map(id=>{const p=BYID[id],c=CTRL[id];const fr=['N','E','S','W'].map(s=>{const e=p.edges.find(e=>e.side===s);return e?`${s}<span class="ftag ${e.fr}" title="${FRN[e.fr]}">${e.fr==='c'?'COM':e.fr==='i'?'INT':'IMG'}</span>`:''}).join(' ');
+  return `<tr class="${COMP.includes(id)?'comp':''}"><td class="mono">${id}</td><td>Commercial/business mixed</td><td class="r">${p.H}</td><td class="r">${p.far.toFixed(1)}</td><td class="mono">N${p.ms.N} S${p.ms.S} E${p.ms.E} W${p.ms.W}</td><td class="mono">N${p.ts.N} S${p.ts.S} E${p.ts.E} W${p.ts.W}</td><td>${VEH[id]||'unit-wide'}</td><td>${c[0]}</td><td>${c[1]}</td><td>${c[2]}</td><td>${c[3]||'—'}</td><td>${fr}</td></tr>`;}).join('');
+const ugRows=GEO.parcels.map(p=>p.id).sort().map(id=>{const p=BYID[id],u=p.ug;return `<tr class="${COMP.includes(id)?'comp':''}"><td class="mono">${id}</td><td>${UGT[u[0]]}</td><td>${u[1]}</td><td class="r">${fmt(p.gfa)}</td><td class="r">${u[2].toFixed(2)}${id==='01-03'?' / 0.60*':''}</td><td class="r">${fmt(u[3])}</td><td class="r">${fmt(u[3]/p.site,1)}</td></tr>`;}).join('');
+$('tables').innerHTML=
+ unitTable(U1W,'Unit 01 west','Overseas Chinese history & culture shopping street',11,['82,404.27','515,196.55','6.25'])+
+ unitTable(U1E,'Unit 01 east','High-quality, trend-driving commercial complex',13,['76,491.18','522,291.03','6.83'])+
+ unitTable(U2,'Unit 02','Light-luxury shopping district with the Twin Towers (highlighted: competition site)',15,['47,049.84','299,639.96','6.37'])+
+ `<div class="card"><h3>Control table (one map + one table)</h3><p class="sub">Rigid: height, FAR, setbacks · flexible: entrances, passages, open space, art, frontage · from pp.19–21. Setbacks in metres; “W15 (road)” style notes mean measured from the road red line where the original says 退道路.</p>
+ <table><tr><th>Parcel</th><th>Land use</th><th class="r">Height limit m</th><th class="r">FAR</th><th>Multi-storey setback</th><th>High-rise setback</th><th>Main vehicle access</th><th>Pedestrian entrances</th><th>Ground public passages</th><th>Ancillary plaza / green</th><th>Public art</th><th>Frontage</th></tr>
+ ${ctrlRows([...U1W,...U1E,...U2])}</table>
+ <p class="lg">Frontage tags: <span class="ftag c">COM</span> commercial active · <span class="ftag i">INT</span> internal active · <span class="ftag m">IMG</span> image display. Unit 01 vehicle access is shared per sub-area (see pp.19–20 translation). The heritage plot (01-文保) is cultural-relic land with public art in the green around the historic buildings.</p></div>`+
+ `<div class="card"><h3>Underground table</h3><p class="sub">Basement type, loop-road interface, parking ratio and basement area · from pp.22 and 65. *01-03 is 0.70 on p.22 and 0.60 on p.65.</p>
+ <table><tr><th>Parcel</th><th>Type</th><th>Loop interface</th><th class="r">Above-ground GFA m²</th><th class="r">Parking ratio</th><th class="r">Basement area m²</th><th class="r">Basement ÷ site</th></tr>${ugRows}</table>
+ <p class="lg">Remarks (p.22): the Unit 01 west loop is built in phase 1. 01-10/01-11 and 02-01/02-02 are encouraged to connect to the intercity-rail underground space and open basement retail; 01-11’s B3 connects to the Shangcheng Ave tunnel.</p></div>`+
+ `<div class="card"><h3>Basement entrance duties, Unit 01</h3><p class="sub">From pp.23 and 73</p><div class="tr">${UG_RULE}</div></div>`;
+
+/* ===================== TABS, LIGHTBOX ===================== */
+function showTab(k){['model','pages','tables','notes'].forEach(t=>{$('t-'+t).setAttribute('aria-selected',t===k);$('p-'+t).hidden=t!==k;});
+  if(k==='model'){$('p-model').style.display='flex';resize();} else $('p-model').style.display='none';}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showTab(b.id.slice(2))));
+document.addEventListener('click',e=>{const g=e.target.closest('[data-goto]');if(g){e.preventDefault();showTab(g.dataset.goto);window.scrollTo({top:0});}});
+let LBN=1;
+function openLB(n){LBN=+n;$('lb').hidden=false;$('lb-img').src=IMG(LBN);$('lb-img').alt=PAGE[LBN].en;$('lb-t').textContent=`p.${LBN} · ${PAGE[LBN].en}`;$('lb-x').focus();}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-lb]');if(b&&!e.target.closest('#lb')) openLB(b.dataset.lb);});
+$('lb-x').onclick=()=>{$('lb').hidden=true;};
+$('lb-prev').onclick=()=>openLB(Math.max(1,LBN-1)); $('lb-next').onclick=()=>openLB(Math.min(PAGES.length,LBN+1));
+$('lb-go').onclick=()=>{$('lb').hidden=true;showTab('pages');$('q').value='';$('q').dispatchEvent(new Event('input'));document.getElementById('pg-'+LBN).scrollIntoView({block:'start'});};
+$('lb').addEventListener('click',e=>{if(e.target.id==='lb')$('lb').hidden=true;});
+document.addEventListener('keydown',e=>{if($('lb').hidden)return;if(e.key==='Escape')$('lb').hidden=true;if(e.key==='ArrowRight')$('lb-next').click();if(e.key==='ArrowLeft')$('lb-prev').click();});
+
+</script>
+</body></html>

@@ -1,0 +1,47 @@
+/* YIWU — shared style for every page of the app.
+   Light, mostly black & white; accents only where they improve legibility. */
+@font-face{
+  font-family:'Yiwu';
+  src:local('Microsoft Yi Baiti'),local('MicrosoftYiBaiti'),url('../fonts/MicrosoftYiBaiti.ttf') format('truetype');
+  font-display:swap;
+}
+:root{
+  /* type */
+  --y-font:'Yiwu','Microsoft Yi Baiti',Helvetica,Arial,sans-serif;
+  --y-mono:'Yiwu','Microsoft Yi Baiti',Consolas,'Courier New',monospace;
+  /* surfaces */
+  --y-bg:#f3f3f1;        /* page ground — very light */
+  --y-dot:#d6d6d2;       /* dot grid */
+  --y-card:#ffffff;      /* cards / panels */
+  --y-row:#f4f4f2;       /* inset rows inside cards */
+  --y-hair:#e3e3df;      /* hairlines */
+  --y-line:#bdbdb8;      /* secondary lines */
+  /* ink */
+  --y-ink:#111111;
+  --y-ink-2:#4a4a48;
+  --y-quiet:#8a8a86;
+  /* accents — palette from the reference (pink field + muted categorical bars).
+     Pink is the primary accent; the rest are categorical, for data legibility only. */
+  --y-pink:#ff7fb0;
+  --y-blue:#1f63a8;
+  --y-green:#4f6b4b;
+  --y-red:#e0391f;
+  --y-amber:#b8a832;
+  --y-violet:#a88aa0;
+  --y-c1:#ff7fb0; --y-c2:#255a24; --y-c3:#1f63a8; --y-c4:#a6512e; --y-c5:#5a8a8a;
+  --y-c6:#3f4b63; --y-c7:#b8a832; --y-c8:#e08a50; --y-c9:#6e8fa0; --y-c10:#5a3a40;
+  --y-c11:#b090c0; --y-c12:#1a4a40; --y-c13:#e0391f; --y-c14:#7a3020;
+  /* geometry */
+  --y-radius:14px;
+  --y-radius-s:9px;
+  --y-shadow:0 1px 2px rgba(0,0,0,.04),0 4px 14px rgba(0,0,0,.04);
+}
+html,body{background:var(--y-bg);color:var(--y-ink);font-family:var(--y-font)}
+.y-dotgrid{background-color:var(--y-bg);background-image:radial-gradient(var(--y-dot) 1px,transparent 1.2px);background-size:22px 22px}
+.y-card{background:var(--y-card);border-radius:var(--y-radius);box-shadow:var(--y-shadow)}
+.y-row{background:var(--y-row);border-radius:var(--y-radius-s)}
+.y-label{color:var(--y-quiet)}
+.y-pill{display:inline-block;background:var(--y-card);border-radius:8px;padding:3px 9px;box-shadow:var(--y-shadow)}
+/* standard back-to-atlas link injected on sub-pages */
+.y-home{position:fixed;left:16px;bottom:16px;z-index:9999;font:13px var(--y-font);color:var(--y-ink);background:var(--y-card);border-radius:10px;padding:8px 13px;text-decoration:none;box-shadow:var(--y-shadow)}
+.y-home:hover{background:var(--y-ink);color:#fff}

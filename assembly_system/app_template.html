@@ -1,0 +1,1625 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Yiwu Elevation Growth Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+/* Same drawing-sheet language as the Podium Lab: black on white, one light theme by choice. Elevation sheet + axo centre, control panels right. */
+:root{
+  --paper:#ffffff; --sheet:#ffffff; --ink:#000000; --quiet:#6b6b6b; --hair:#d2d2d2; --panel:#f5f5f5; --mid:#8a8a8a;
+  --f-d:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --f-m:"IBM Plex Mono",ui-monospace,"Courier New",monospace;
+  color-scheme:light;
+}
+html,body{height:100%;margin:0}
+body{background:var(--paper);color:var(--ink);font:12px/1.45 var(--f-m);overflow:hidden}
+*{box-sizing:border-box}
+button,select,input{font:inherit;color:inherit}
+#app{display:grid;grid-template-columns:minmax(0,1fr) 330px;grid-template-rows:auto minmax(0,1fr);height:100%}
+header{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:8px 12px;border-bottom:1.5px solid var(--ink);background:var(--paper)}
+.brand{display:flex;align-items:baseline;gap:10px;margin-right:6px}
+.brand h1{margin:0;font:700 17px/1 var(--f-d);letter-spacing:-.01em}
+.brand span{color:var(--quiet);font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+.grp{display:flex;align-items:center}
+.grp .btn+.btn{border-left:0}
+.btn{border:1px solid var(--ink);background:var(--paper);padding:4px 8px;cursor:pointer;border-radius:0;white-space:nowrap}
+.btn:hover{background:var(--panel)}
+.btn.on{background:var(--ink);color:var(--paper)}
+.btn.solid{background:var(--ink);color:var(--paper)}
+.btn.solid:hover{background:#333}
+.btn:disabled{opacity:.4;cursor:default}
+.btn kbd{font-size:9.5px;opacity:.55;margin-left:4px;font-family:inherit}
+.btn:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible,canvas:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+#stage{grid-column:1;grid-row:2;position:relative;min-width:0;min-height:0;display:grid;grid-template-columns:1fr;grid-template-rows:1fr}
+#stage > div{display:none;position:relative;min-width:0;min-height:0;background:var(--sheet)}
+#stage.elev #elevWrap,#stage.split #elevWrap,#stage.split #axoWrap,#stage.axo #axoWrap,#stage.plans #plansWrap{display:block}
+#plansList{position:absolute;inset:0;overflow:auto;padding:12px 16px 72px}
+#plansList h3{margin:18px 0 8px}#plansList h3:first-child{margin-top:4px}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px 10px}
+.pgrid.wide{grid-template-columns:repeat(auto-fill,minmax(min(100%,460px),1fr))}
+.pcard{margin:0;min-width:0}.pcard canvas{display:block;width:100%;background:#fff;border:1px solid var(--hair)}
+.pcard figcaption{font-size:10px;line-height:1.35;margin-top:3px;color:var(--quiet);font-variant-numeric:tabular-nums}.pcard figcaption b{color:var(--ink)}.pcard .acc{color:#e0412b}
+.lg{display:inline-flex;align-items:center;gap:5px;font-size:10.5px}.lg i{display:inline-block;width:12px;height:9px;box-sizing:border-box}
+#stage.split{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
+#stage.split #axoWrap{border-left:1.5px solid var(--ink)}
+#sheet{display:block;width:100%;height:100%;cursor:grab;touch-action:none}
+#axo{position:absolute;inset:0}
+#axo canvas{display:block;width:100%;height:100%;cursor:grab}
+.hud{position:absolute;left:10px;bottom:10px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;background:var(--paper);border:1px solid var(--ink);padding:5px 8px;max-width:calc(100% - 20px);z-index:2}
+.hud label{display:flex;gap:5px;align-items:center}
+.readout{position:absolute;right:10px;top:10px;background:var(--paper);border:1px solid var(--hair);padding:3px 7px;color:var(--quiet);font-variant-numeric:tabular-nums;pointer-events:none;z-index:2;max-width:calc(100% - 20px)}
+.hint{position:absolute;left:10px;top:10px;background:var(--paper);border:1px solid var(--hair);padding:4px 8px;color:var(--quiet);max-width:min(460px,calc(100% - 240px));pointer-events:none;z-index:2}
+aside{grid-column:2;grid-row:2;overflow:auto;min-height:0;background:var(--panel);border-left:1.5px solid var(--ink)}
+.big{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:12px 14px;border-bottom:1.5px solid var(--ink);background:var(--paper)}
+.big div{display:grid;min-width:0}
+.big b{font:700 20px/1 var(--f-d);font-variant-numeric:tabular-nums;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.big span{color:var(--quiet);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;margin-top:3px}
+.prog{grid-column:1/-1;height:3px;background:var(--hair)}
+.prog i{display:block;height:100%;width:0;background:var(--ink)}
+details{border-bottom:1px solid var(--hair)}
+aside > details > summary{cursor:pointer;padding:9px 14px;font:600 11px var(--f-m);letter-spacing:.1em;text-transform:uppercase;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--paper)}
+summary::-webkit-details-marker{display:none}
+aside > details > summary::after{content:"+";color:var(--quiet)}
+aside > details[open] > summary::after{content:"–"}
+aside > details > summary b{font-weight:500;letter-spacing:0;text-transform:none;margin-left:auto;color:var(--quiet)}
+.pad{padding:4px 14px 12px}
+.form{display:grid;grid-template-columns:118px minmax(0,1fr);gap:5px 8px;align-items:center}
+.form > label{color:#222}
+.form input[type=number],.form select{width:100%;min-width:0;border:1px solid var(--hair);background:var(--sheet);padding:3px 5px;font-variant-numeric:tabular-nums;border-radius:0}
+.sl{display:grid;grid-template-columns:minmax(0,1fr) 58px;gap:6px;align-items:center}
+.sl input[type=range]{width:100%;accent-color:var(--ink);min-width:0}
+.sl output{text-align:right;font-variant-numeric:tabular-nums}
+.row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center}
+.muted{color:var(--quiet)}
+.note{color:var(--quiet);font-size:10.5px;margin:6px 0 2px;line-height:1.4}
+.k{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--quiet);margin:12px 0 6px}
+.chips{display:flex;flex-wrap:wrap;gap:3px;grid-column:1/-1}
+.chips label{border:1px solid var(--hair);padding:1px 5px;cursor:pointer;background:var(--sheet)}
+.chips input{position:absolute;opacity:0;pointer-events:none}
+.chips label:has(input:checked){border-color:var(--ink);background:var(--ink);color:var(--paper)}
+.chips label:has(input:focus-visible){outline:2px solid var(--ink);outline-offset:1px}
+.seg{display:grid;grid-template-columns:1fr 1fr;margin:10px 14px 0}
+.seg .btn{text-align:center}
+.seg .btn+.btn{border-left:0}
+#gradPrev{display:block;width:100%;height:34px;border:1px solid var(--hair);margin-top:8px;background:#fff}
+#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:6px 12px;z-index:11;pointer-events:none;opacity:0;transition:opacity .2s}
+#toast.show{opacity:1}
+@media (prefers-reduced-motion:reduce){#toast{transition:none}}
+@media (max-width:900px){
+  body{overflow:auto}
+  #app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 72vh auto;height:auto}
+  #stage,aside{grid-column:1!important;grid-row:auto!important}
+  aside{border-left:0;border-top:1.5px solid var(--ink)}
+  #stage.split{grid-template-columns:1fr;grid-template-rows:1fr 1fr}
+  #stage.split #axoWrap{border-left:0;border-top:1.5px solid var(--ink)}
+  .hint{display:none}
+}
+</style></head><body>
+<div id="app">
+<header>
+  <div class="brand"><h1>Yiwu Elevation Growth Lab</h1><span>Plot 2 · towers + plinth</span></div>
+  <div class="grp" role="tablist" aria-label="View">
+    <button class="btn" data-view="elev">Elevations</button><button class="btn on" data-view="split">Elev + Axo</button><button class="btn" data-view="axo">Axo</button><button class="btn" data-view="plans" title="Every floor plan, with its core and egress">Plans</button>
+  </div>
+  <div class="grp">
+    <button class="btn solid" id="bGrow" title="Grow / pause (Space)">Grow<kbd>␣</kbd></button>
+    <button class="btn" id="bReset" title="Re-seed every face and grow from the start (R)">Re-seed<kbd>R</kbd></button>
+  </div>
+  <div class="grp">
+    <button class="btn" id="bNew" title="New genome for the group being edited (N)">New genome<kbd>N</kbd></button>
+    <button class="btn" id="bMut" title="Mutate the genome of the group being edited (M)">Mutate<kbd>M</kbd></button>
+  </div>
+  <div class="grp">
+    <button class="btn" id="bInv" title="Invert mass and void on the towers (I)">Invert towers<kbd>I</kbd></button><button class="btn" id="bInvP" title="Invert mass and void on the plinth only (P)">Invert plinth<kbd>P</kbd></button>
+    <button class="btn solid" id="bBuild" title="Build the overlap massing now (B)">Build massing<kbd>B</kbd></button>
+    <button class="btn" id="bObj" title="Massing + grown curves, metres, Z up">Download OBJ</button>
+  </div>
+</header>
+
+<main id="stage" class="split">
+  <div id="elevWrap">
+    <canvas id="sheet" tabindex="0" aria-label="Elevation sheet: every tower and plinth face, growing"></canvas>
+    <div class="hint" id="hint">Figures pack on each face, more where the density (grey tone) is high; the overlap rule (one piece mass, one overlap void, two mass, three void) acts where their extrusions intersect in 3D. Click a face to zoom, double-click to fit.</div>
+    <div class="readout" id="sheetMsg">–</div>
+    <div class="hud">
+      <label><input type="checkbox" id="vTone" checked> Density tone</label>
+      <label><input type="checkbox" id="vCurves" checked> Curves</label>
+      <label><input type="checkbox" id="vFloors" checked> Floors</label>
+      <label title="Drag over any face (tower elevations and plinth plans) to raise its density; Shift-drag lowers it. Brush size and strength: Density panel"><input type="checkbox" id="vPaint"> Paint density</label>
+      <button class="btn" id="bFit" title="Fit (F)">Fit</button>
+      <button class="btn" id="bPng" title="Save the elevation sheet">PNG</button>
+    </div>
+  </div>
+  <div id="axoWrap">
+    <div id="axo" aria-label="Axonometric of the overlap massing"></div>
+    <div class="hud"><span class="muted">Drag orbit · right-drag pan · wheel zoom</span>
+      <span class="grp"><button class="btn" data-axo="sw">SW</button><button class="btn" data-axo="se">SE</button><button class="btn" data-axo="ne">NE</button><button class="btn" data-axo="nw">NW</button><button class="btn" data-axo="top">Top</button></span>
+      <label><input type="checkbox" id="axCurves"> Face curves</label><label><input type="checkbox" id="axGhost" checked> Envelope</label></div>
+    <div class="readout" id="axoMsg">not built yet</div>
+  </div>
+  <div id="plansWrap">
+    <div id="plansList" aria-label="Every floor plan, top floor first"></div>
+    <div class="hud"><span class="lg"><i style="background:#1a1a1a"></i>Floor</span><span class="lg"><i style="background:#fff;border:1px solid #e0412b"></i>Core</span><span class="lg"><i style="background:#e0412b"></i>Bridge (added)</span><span class="lg"><i style="background:#2f8fff;height:2px;border:0"></i>Egress path (dot = farthest point)</span><span class="lg"><i style="background:#9a9a9a"></i>No route</span><span class="lg"><i style="background:#eeeeee;border:1px solid #cfcfcf"></i>Original geometry</span></div>
+  </div>
+</main>
+
+<aside id="right" aria-label="Controls">
+  <div class="big">
+    <div><b id="bStep">0</b><span>step</span></div>
+    <div><b id="bNodes">0</b><span>nodes</span></div>
+    <div><b id="bVol">–</b><span>massing m³</span></div>
+    <div class="prog"><i id="prog"></i></div>
+  </div>
+  <div class="seg" role="tablist" aria-label="Group being edited"><button class="btn on" data-grp="T">Edit · Towers</button><button class="btn" data-grp="P">Edit · Plinth</button></div>
+  <details open><summary>Seeds · genome <b id="seedSum"></b></summary><div class="pad" id="pSeeds"></div></details>
+  <details open><summary>Density · figures</summary><div class="pad" id="pGrad"></div></details>
+  <details open><summary>Agents · diffusion <b id="agSum"></b></summary><div class="pad" id="pAg"></div></details>
+  <details><summary>Differential growth</summary><div class="pad" id="pDG"></div></details>
+  <details open><summary>Massing <b id="msSum"></b></summary><div class="pad" id="pMass"></div></details>
+  <details><summary>Towers + plinth <b id="plSum"></b></summary><div class="pad" id="pGeo"></div></details>
+  <details open><summary>Area · egress</summary><div class="pad"><div class="note" id="areaSum" style="color:var(--ink);font-size:11px;line-height:1.5">Build the massing to measure it.</div><div id="pArea"></div>
+    <div class="row"><button class="btn" id="bMeet" title="Raise the figure cover step by step until the GFA reaches the target">Meet GFA target</button></div></div></details>
+  <details open><summary>Saved settings <b id="svSum"></b></summary><div class="pad">
+    <div class="row" style="margin-top:2px"><input type="text" id="svName" maxlength="80" placeholder="Name, e.g. Plinth courtyards v2" aria-label="Name for these settings" style="flex:1;min-width:0;border:1px solid var(--hair);background:var(--sheet);padding:4px 6px;font:inherit"><button class="btn" id="bSave">Save</button></div>
+    <div id="svList"></div>
+    <div class="row"><button class="btn" id="bLoad">Load from file…</button><button class="btn" id="bBase" title="Every setting, genome and painted density back to the base settings this page starts from">Reset to base settings</button></div>
+    <div class="note" id="svNote">Each save keeps every setting, every face’s genome and the painted density. Saves are kept in this browser; <i>Download</i> writes one as a .json file with its name, and <i>Load from file…</i> reads it back (and adds it to the list).</div>
+  </div></details>
+  <details><summary>Files</summary><div class="pad">
+    <div class="row" style="margin-top:2px"><button class="btn" id="bObj2">Download OBJ</button></div>
+    <div class="note">OBJ: one closed mesh per mass (towers, plinth) and every grown face curve as a closed polyline, grouped by layer. Metres, Z up, Podium Lab model coordinates (E = x + 511000, N = y + 3246000, ±0.00 = 74.00). Rhino: File › Import, tick “Import OBJ groups as layers”.</div>
+    <input type="file" id="fSettings" accept=".json,application/json" hidden>
+    <input type="file" id="fPodium" accept=".json,application/json" hidden>
+  </div></details>
+</aside>
+</div>
+<div id="toast" role="status"></div>
+<script type="application/json" id="data">/*__DATA__*/{}</script>
+<script type="application/json" id="base">/*__BASE__*/null</script>
+<script>
+(()=>{
+'use strict';
+const DATA=JSON.parse(document.getElementById('data').textContent);
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const deg=Math.PI/180;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const f0=v=>Math.round(v).toLocaleString('en-US'), f1=v=>(Math.round(v*10)/10).toFixed(1), f2=v=>(+v).toFixed(2);
+function rng(seed){let a=seed>>>0;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const gaussR=r=>{let u=0,v=0;while(!u)u=r();while(!v)v=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);};
+let toastT=0;function toast(t){const x=$('#toast');x.textContent=t;x.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>x.classList.remove('show'),2200);}
+function download(name,data,type){const b=data instanceof Blob?data:new Blob([data],{type:type||'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);}
+
+/* ---------- plan geometry (Podium Lab conventions: metres, x east, y north) ---------- */
+function pip(x,y,r){let c=false;for(let i=0,j=r.length-1;i<r.length;j=i++){const a=r[i],b=r[j];if((a[1]>y)!==(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])c=!c;}return c;}
+function pipR(x,y,rs){let c=false;for(const r of rs)if(pip(x,y,r))c=!c;return c;}
+function bb(rs){let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;for(const r of rs)for(const p of r){if(p[0]<x0)x0=p[0];if(p[0]>x1)x1=p[0];if(p[1]<y0)y0=p[1];if(p[1]>y1)y1=p[1];}return{x0,y0,x1,y1};}
+function sarea(r){let s=0;for(let i=0,j=r.length-1;i<r.length;j=i++)s+=(r[j][0]-r[i][0])*(r[j][1]+r[i][1]);return s/2;}
+const area=r=>Math.abs(sarea(r));
+const rot=(p,a)=>{const c=Math.cos(a*deg),s=Math.sin(a*deg);return[p[0]*c-p[1]*s,p[0]*s+p[1]*c];};
+const rectR=(w,d)=>[[-w/2,-d/2],[w/2,-d/2],[w/2,d/2],[-w/2,d/2]];
+function wr(s){const c=Math.cos(s.rot*deg),si=Math.sin(s.rot*deg);return s.rings.map(r=>r.map(p=>{const X=p[0]*(s.sx||1),Y=p[1]*(s.sy||1);return[s.x+X*c-Y*si,s.y+X*si+Y*c];}));}
+const SITE=DATA.site.redline, POD=DATA.site.ctrlPodium, HIGH=DATA.site.ctrlHigh, GREEN=DATA.site.green;
+const SITE_ANG=Math.atan2(POD[0][1]-POD[3][1],POD[0][0]-POD[3][0])/deg;
+const SBB=bb([SITE]);
+
+/* ---------- atlas library: every figure normalised to a unit box ---------- */
+const EXCLUDE=new Set(['Running track']);   // families never offered as seeds
+const LIB=DATA.lib.filter(o=>!EXCLUDE.has(o.t)).map(o=>{const b=bb(o.r),cx=(b.x0+b.x1)/2,cy=(b.y0+b.y1)/2,m=Math.max(b.x1-b.x0,b.y1-b.y0)||1;
+  const rn=o.r.map(r=>r.map(p=>[(p[0]-cx)/m,(p[1]-cy)/m]));let oi=0;rn.forEach((r,i)=>{if(area(r)>area(rn[oi]))oi=i;});const au=Math.max(0.02,rn.reduce((t,q,i)=>t+(i===oi?1:-1)*area(q),0));return{t:o.t,u:o.u,A:o.A,lm:!!o.lm,rn,oi,au};});
+const FAMS=[...new Set(LIB.map(o=>o.t))];
+const PLATES=DATA.fabric;
+
+/* ---------- settings ---------- */
+const grpDefaults=k=>({
+  src:'boardB',
+  fam:k==='T'?['Si Ceng Ban','Courtyard block','Hybrid figure','Village house','Accreted house','Bent slab','Walk-up block']:['Shop strip','Si Ceng Ban','Courtyard block','Hybrid figure','Workshop','Bent slab','Factory compound'],
+  plate:k==='T'?'village':'siceng',plateScale:k==='T'?1.2:0.8,
+  maxN:k==='T'?28:28,count:k==='T'?14:16,sizeMul:1,over:k==='T'?10:5,cover:k==='T'?0.72:0.62,size:k==='T'?0.52:0.45,sizeK:0.35,s0:0.7,s1:1.3,jit:10,seed:k==='T'?7:11,
+  seedK:1,growK:0.65,
+  grad:k==='T'?{type:'vertical',from:0.95,to:0.2,angle:60,cx:0.5,cy:0.3,rad:0.55,mid:0.5,sharp:0.3,noise:0.06,nsize:24}
+              :{type:'horizontal',from:0.25,to:0.95,angle:0,cx:0.5,cy:0.5,rad:0.6,mid:0.5,sharp:0.3,noise:0.06,nsize:12}});
+const cfg={
+  dg:{steps:240,L0:1.2,R:2.0,Rs:1.8,ks:0.5,kr:0.6,ksm:0.15,kb:0.05,rate:4,room:0.6,pcap:0.05,sf:1.8,jit:0.05,ae:1.5,ms:0.35,contact:true,cf:1.05,maxNodes:4000,overlap:false},
+  mass:{mode:'carve',rule:[0,1,0,1,0,1,0,1],base:false,invert:false,invertP:false,pair:'union',cross:'overlap',res:1.0,floating:false,auto:true,merge:true,wallFill:true},
+  tower:{h:180,plus1:true,ff1:6,ff:4.2,sw:1,sd:1},
+  plinth:{src:'auto',down:2,ff1:5.5,ff:4.5,podH:24,bdepth:4.5},
+  edge:{mode:'ortho',eps:1.5,min:2.5,snap:'bottom'},
+  paint:{on:false,r:12,k:0.3,shared:false},
+  core:{on:true,w:10,d:10,pn:0,pw:10,pd:10},
+  carve:{towerMode:'gardens',perFace:12,minFig:6,round:4,minStoreys:2,maxStoreys:4,gBudget:0.25,pl:{merge:12,perPlan:3,minCourt:300,round:10,setback:8,share:0.15},fig:{op:'union',round:2,merge:3,smooth:3,coverage:0,minPiece:40,maxPieces:0},grow:0,depth:16,soft:0.6,budget:0.35,coreMargin:3,minSlab:2.5,lowest:2,ground:true,courtFloors:3,minPart:4,bodies:true},
+  egress:{bridge:3,plate:0.3,cut:1.2,res:0.5,minPart:4,load:9.3,perPerson:0.005,minW:1.1,maxTravel:37.5},
+  gfa:{target:46000},
+  agents:{on:true,every:3,settle:0.7,share:0.34,restless:0.8,step:4,target:0.35,wG:1,wO:1,wS:0.6,wN:0.4,leave:6},
+  G:{T:grpDefaults('T'),P:grpDefaults('P')}
+};
+// massing settings per group: the towers and the plinth are simulated separately, each with its own massing, carving and
+// figure edges (cfg.MG.T / cfg.MG.P); only building when growth finishes and merging the OBJ stay shared (cfg.mass)
+{const m0=cfg.mass,mk=()=>({mass:{mode:m0.mode,rule:[...m0.rule],base:m0.base,invert:false,pair:m0.pair,cross:m0.cross,res:m0.res,floating:m0.floating,wallFill:m0.wallFill},carve:JSON.parse(JSON.stringify(cfg.carve)),edge:{...cfg.edge}});
+  cfg.MG={T:mk(),P:mk()};cfg.mass={auto:m0.auto,merge:m0.merge};delete cfg.carve;delete cfg.edge;}
+const carveLike=g=>{const md=cfg.MG[g==='P'?'P':'T'].mass.mode;return md==='carve'||md==='figures';};
+const MS=g=>cfg.MG[g==='P'?'P':'T'].mass,CS=g=>cfg.MG[g==='P'?'P':'T'].carve,EG=g=>cfg.MG[g==='P'?'P':'T'].edge;
+// settings saved before the split (one shared mass / carve / edge) go to both groups; invert → towers, invertP → plinth
+function migrateCfg(oc){if(!oc)return oc;if(!oc.MG)migrateMG(oc);
+  // plinth voids: the old courts (plan 3) and ground passages (plan 1) counts become one count per plan
+  for(const g of Object.values(oc.MG||{})){const pl=g&&g.carve&&g.carve.pl;if(pl&&!('perPlan'in pl)&&('courts'in pl||'passages'in pl)){pl.perPlan=Math.max(pl.courts||0,pl.passages||0)||3;delete pl.courts;delete pl.passages;delete pl.minPass;}}
+  return oc;}
+function migrateMG(oc){const om=oc.mass||{},keys=['mode','rule','base','pair','cross','res','floating','wallFill'];
+  const grp=inv=>{const mass={};for(const k of keys)if(k in om)mass[k]=Array.isArray(om[k])?[...om[k]]:om[k];mass.invert=!!inv;const g={mass};if(oc.carve)g.carve=JSON.parse(JSON.stringify(oc.carve));if(oc.edge)g.edge={...oc.edge};return g;};
+  oc.MG={T:grp(om.invert),P:grp(om.invertP)};oc.mass={};if('auto'in om)oc.mass.auto=om.auto;if('merge'in om)oc.mass.merge=om.merge;delete oc.carve;delete oc.edge;return oc;}
+const modeLabel=m=>{const md=MS(m.grp).mode;return md==='figures'?(m.mesh&&m.mesh.carved?m.mesh.carved.count:0)+' pieces from figures':md==='carve'?(m.mesh&&m.mesh.carved?m.mesh.carved.count:0)+' carved':md==='count'?'overlap rule':'booleans';};
+// every setting's default, as the page defines it: a file is applied over these, so a setting the file doesn't have
+// (it didn't exist when the file was saved) takes its default, not whatever was set before loading
+const CFG_DEFAULT=JSON.parse(JSON.stringify(cfg));
+function resetCfg(){for(const k in cfg)delete cfg[k];Object.assign(cfg,JSON.parse(JSON.stringify(CFG_DEFAULT)));}
+let EDIT='T';
+// overlap rule: how many pieces of geometry cover a point -> mass (1) or void (0); index 7 = 7 or more
+// the towers and the plinth each have their own invert
+const invOf=g=>!!MS(g).invert;
+const ruleSolid=(k,g)=>!!MS(g).rule[Math.min(7,Math.max(0,k))]!==invOf(g);
+const GEN={};            // genomes by face key, kept across rebuilds
+let LOADED=null;         // shapes from a Podium Lab JSON file
+
+/* ---------- gradient: where the face is volume and where it is void ---------- */
+function vnoise(seed){const h=(i,j)=>{let n=Math.imul(i,374761393)^Math.imul(j,668265263)^Math.imul(seed,1274126177);n=Math.imul(n^(n>>>13),1274126177);return((n^(n>>>16))>>>0)/4294967296;};
+  const sm=t=>t*t*(3-2*t);
+  const one=(x,y)=>{const i=Math.floor(x),j=Math.floor(y),fx=sm(x-i),fy=sm(y-j);const a=h(i,j),b=h(i+1,j),c=h(i,j+1),d=h(i+1,j+1);return a+(b-a)*fx+(c-a)*fy+(a-b-c+d)*fx*fy;};
+  return(x,y)=>(one(x,y)+0.5*one(x*2.03+17.1,y*2.03+5.3)+0.25*one(x*4.07+3.7,y*4.07+29.9))/1.75;}
+function shapeT(g,t){const k=Math.max(0.05,g.sharp*14);if(g.sharp<0.02)return t;const s=x=>1/(1+Math.exp(-k*(x-g.mid)));const a=s(0),b=s(1);return(s(t)-a)/(b-a);}
+function gradT(g,u,v,W,H){switch(g.type){
+  case 'vertical':return v/H;
+  case 'horizontal':return u/W;
+  case 'linear':{const a=g.angle*deg,c=Math.cos(a),s=Math.sin(a);return clamp(0.5+((u/W-0.5)*c+(v/H-0.5)*s)/(Math.abs(c)+Math.abs(s)),0,1);}
+  case 'radial':return clamp(Math.hypot(u-g.cx*W,v-g.cy*H)/(g.rad*Math.hypot(W,H)),0,1);
+  case 'edges':return clamp(Math.min(u,W-u,v,H-v)/(Math.min(W,H)/2),0,1);
+  default:return v/H;}}
+// 'flat' has no gradient: the base density everywhere, so only the painted density (and noise) varies it
+function gradAt(g,noise,u,v,W,H){let G=g.type==='flat'?g.from:g.from+(g.to-g.from)*shapeT(g,gradT(g,u,v,W,H));if(g.noise>0)G+=g.noise*2*(noise(u/g.nsize,v/g.nsize)-0.5);return clamp(G,0,1);}
+// the field is the density of figures (0 = none, 1 = as dense as they pack)
+function biasW(gc,G){return G;}
+
+/* ---------- differential line growth: port of Differential Growth/01_experiments/dg_core.py · LineGrowth ---------- */
+class DG{
+  constructor(W,H,o,seed){this.W=W;this.H=H;this.o=o;this.R=rng(seed);this.N=0;this.cap=0;this.heads=[];this.gain=[];this.fig=[];this.t=0;this.tot=new Float64Array(8);this.alloc(2048);}
+  alloc(need){if(need<=this.cap)return;const n=Math.max(need,this.cap*2);const keep=(A,T)=>{const B=new T(n);if(A)B.set(A.subarray(0,this.N));return B;};
+    this.X=keep(this.X,Float64Array);this.Y=keep(this.Y,Float64Array);this.nx=keep(this.nx,Int32Array);this.pv=keep(this.pv,Int32Array);this.cid=keep(this.cid,Int32Array);
+    for(const k of['dx','dy','lx','ly','rx','ry','arc','w'])this[k]=new Float64Array(n);this.cnt=new Int32Array(n);this.ct=new Uint8Array(n);this.cell=new Int32Array(n);this.ord=new Int32Array(n);this.mk=new Uint8Array(n);this.cap=n;}
+  add(pts,gain,fig){const m=pts.length;if(m<3)return;this.fig.push(fig??this.heads.length);this.alloc(this.N+m);const c=this.heads.length,b=this.N;
+    for(let i=0;i<m;i++){const k=b+i;this.X[k]=pts[i][0];this.Y[k]=pts[i][1];this.nx[k]=b+(i+1)%m;this.pv[k]=b+(i-1+m)%m;this.cid[k]=c;}
+    this.N+=m;this.heads.push(b);this.gain.push(gain);if(this.tot.length<this.heads.length)this.tot=new Float64Array(this.heads.length*2);}
+  figures(){const by=new Map();this.curves().forEach((c,i)=>{const k=this.fig[i];if(!by.has(k))by.set(k,[]);by.get(k).push(c);});return[...by.values()];}
+  curves(){const out=[];for(const h of this.heads){const pts=[];let i=h,g=0;do{pts.push([this.X[i],this.Y[i]]);i=this.nx[i];}while(i!==h&&++g<1e6);out.push(pts);}return out;}
+  step(field){
+    const o=this.o,N=this.N,L0=o.L0;let X=this.X,Y=this.Y;const nx=this.nx,pv=this.pv,cid=this.cid,dx=this.dx,dy=this.dy,lx=this.lx,ly=this.ly,arc=this.arc,tot=this.tot;
+    dx.fill(0,0,N);dy.fill(0,0,N);
+    // 1. springs: every edge pulls / pushes toward its rest length L0
+    for(let i=0;i<N;i++){const j=nx[i],ex=X[j]-X[i],ey=Y[j]-Y[i],L=Math.sqrt(ex*ex+ey*ey)+1e-12,f=0.5*o.ks*(L-L0)/L;dx[i]+=f*ex;dy[i]+=f*ey;dx[j]-=f*ex;dy[j]-=f*ey;}
+    // 2. smoothing (Laplacian) + bending (bi-Laplacian): sets the fold wavelength
+    for(let i=0;i<N;i++){const a=pv[i],b=nx[i];lx[i]=0.5*(X[a]+X[b])-X[i];ly[i]=0.5*(Y[a]+Y[b])-Y[i];dx[i]+=o.ksm*lx[i];dy[i]+=o.ksm*ly[i];}
+    if(o.kb>0)for(let i=0;i<N;i++){const a=pv[i],b=nx[i];dx[i]-=o.kb*(0.5*(lx[a]+lx[b])-lx[i]);dy[i]-=o.kb*(0.5*(ly[a]+ly[b])-ly[i]);}
+    // arc length along each curve, so neighbours along a curve do not repel (they are not a fold)
+    for(let c=0;c<this.heads.length;c++){const h=this.heads[c];let i=h,s=0,g=0;arc[h]=0;for(;;){const j=nx[i];s+=Math.hypot(X[j]-X[i],Y[j]-Y[i]);if(j===h||++g>1e6)break;arc[j]=s;i=j;}tot[c]=s;}
+    // 3. repulsion: R between curves (wall), R_self between distant parts of one curve (fold); mean mode
+    const O=this.O||0,R=o.R,Rs=o.Rs,cs=Math.max(R,Rs)*Math.max(1,o.cf),cs2=cs*cs,gx=Math.ceil((this.W+2*O)/cs)+1,gy=Math.ceil((this.H+2*O)/cs)+1,NC=gx*gy;
+    if(!this.cst||this.cst.length<NC+1)this.cst=new Int32Array(NC+1);const st=this.cst,cell=this.cell,ord=this.ord;st.fill(0,0,NC+1);
+    for(let i=0;i<N;i++){const c=clamp(Math.floor((Y[i]+O)/cs),0,gy-1)*gx+clamp(Math.floor((X[i]+O)/cs),0,gx-1);cell[i]=c;st[c+1]++;}
+    for(let c=0;c<NC;c++)st[c+1]+=st[c];{const fillp=st.slice(0,NC);for(let i=0;i<N;i++)ord[fillp[cell[i]]++]=i;}
+    const rx=this.rx,ry=this.ry,cnt=this.cnt,ct=this.ct;rx.fill(0,0,N);ry.fill(0,0,N);cnt.fill(0,0,N);ct.fill(0,0,N);
+    for(let i=0;i<N;i++){const c=cell[i],cx=c%gx,cy=(c-cx)/gx,xi=X[i],yi=Y[i],ci=cid[i];
+      for(let yy=Math.max(0,cy-1);yy<=Math.min(gy-1,cy+1);yy++)for(let xx=Math.max(0,cx-1);xx<=Math.min(gx-1,cx+1);xx++){const q=yy*gx+xx;
+        for(let p=st[q],pe=st[q+1];p<pe;p++){const j=ord[p];if(j<=i)continue;const ex=xi-X[j],ey=yi-Y[j],d2=ex*ex+ey*ey;if(d2>=cs2)continue;
+          const same=ci===cid[j];if(!same&&o.overlap&&this.fig[ci]!==this.fig[cid[j]])continue;const d=Math.sqrt(d2)+1e-12,Rp=same?Rs:R;
+          if(same){let ds=Math.abs(arc[i]-arc[j]);const T=tot[ci];if(T-ds<ds)ds=T-ds;if(ds<o.ae*Rp)continue;}
+          if(o.contact&&!same&&d<o.cf*Rp){ct[i]=1;ct[j]=1;}
+          if(d<Rp){const f=0.5*o.kr*(Rp-d)/d;rx[i]+=f*ex;ry[i]+=f*ey;rx[j]-=f*ex;ry[j]-=f*ey;cnt[i]++;cnt[j]++;}}}}
+    // 4. integrate, clamp the step, keep inside the face
+    const lim=o.ms*L0,m=Math.min(R*0.5,1),W=this.W,H=this.H;
+    for(let i=0;i<N;i++){let ux=dx[i],uy=dy[i];if(cnt[i]){ux+=rx[i]/cnt[i];uy+=ry[i]/cnt[i];}const g=Math.sqrt(ux*ux+uy*uy);if(g>lim){ux*=lim/g;uy*=lim/g;}
+      X[i]=clamp(X[i]+ux,m-O,W+O-m);Y[i]=clamp(Y[i]+uy,m-O,H+O-m);}
+    if(this.proj)for(let i=0;i<N;i++){const r=this.proj(X[i],Y[i]);if(r){X[i]=r[0];Y[i]=r[1];}}   // a plinth plan: back inside the plinth's shape
+    // 5. growth: split long edges, and at random with p ∝ field(x) · gain where there is room and no contact
+    const w=this.w,mk=this.mk;let sw=0,nsp=0;
+    for(let i=0;i<N;i++){const j=nx[i],ex=X[j]-X[i],ey=Y[j]-Y[i],L=Math.sqrt(ex*ex+ey*ey);mk[i]=L>o.sf*L0?1:0;let wi=0;
+      if(L>o.room*L0&&!(o.contact&&(ct[i]||ct[j])))wi=field(0.5*(X[i]+X[j]),0.5*(Y[i]+Y[j]))*this.gain[cid[i]];w[i]=wi;sw+=wi;}
+    if(sw>0&&N<o.maxNodes&&o.rate>0){const k=o.rate/sw;for(let i=0;i<N;i++){if(!mk[i]&&this.R()<Math.min(w[i]*k,o.pcap))mk[i]=1;}}
+    for(let i=0;i<N;i++)if(mk[i])nsp++;
+    if(nsp){this.alloc(N+nsp);X=this.X;Y=this.Y;const nx2=this.nx,pv2=this.pv,cid2=this.cid,mk2=this.mk;let k=N;
+      for(let i=0;i<N;i++){if(!mk2[i])continue;const j=nx2[i],ex=X[j]-X[i],ey=Y[j]-Y[i],L=Math.hypot(ex,ey)+1e-12,jn=o.jit*L0*gaussR(this.R);
+        X[k]=X[i]+0.5*ex-ey/L*jn;Y[k]=Y[i]+0.5*ey+ex/L*jn;nx2[i]=k;pv2[k]=i;nx2[k]=j;pv2[j]=k;cid2[k]=cid2[i];k++;}
+      this.N=k;}
+    this.t++;}
+}
+
+/* ---------- masses: two towers + the plinth ---------- */
+function podiumSaved(){try{const o=JSON.parse(localStorage.getItem('yiwu-podium-lab-v3')||'null');return o&&o.S&&Array.isArray(o.S.shapes)&&o.S.shapes.length?o.S.shapes:null;}catch(e){return null;}}
+function defaultTowers(){const a=[(HIGH[1][0]+HIGH[2][0])/2,(HIGH[1][1]+HIGH[2][1])/2],b=[(HIGH[0][0]+HIGH[3][0])/2,(HIGH[0][1]+HIGH[3][1])/2];
+  return[0.3,0.7].map(t=>({rings:[rectR(46,46)],x:a[0]+(b[0]-a[0])*t,y:a[1]+(b[1]-a[1])*t,rot:10,sx:1,sy:1,base:0,h:130,mode:'fig',tower:true}));}
+function sourceShapes(){const s=cfg.plinth.src;if(s==='json')return LOADED?{shp:LOADED,from:'Podium Lab JSON'}:null;if(s==='envelope')return null;const sv=podiumSaved();return sv?{shp:sv,from:'Podium Lab (saved in this browser)'}:null;}
+// storeys of a block: a storey counts when it is at least 2.4 m tall
+function storeys(top){const P=cfg.plinth,L=[0];let z=P.ff1;while(z+2.4<=top+0.01){L.push(z);z+=P.ff;}return L;}
+function capDown(top,n){const L=storeys(top);return n<=0?top:L[Math.max(1,L.length-n)]??top;}
+let MASSES=[],PLINFO='',TBASE=[46,46];
+// a tower's floor plate in metres at the current scale (from its unscaled size)
+const towerSize=()=>[TBASE[0]*cfg.tower.sw,TBASE[1]*cfg.tower.sd];
+function buildMasses(){
+  const src=sourceShapes();const shp=src?src.shp.filter(s=>s&&s.rings&&s.rings.length):[];
+  let tws=shp.filter(s=>s.tower&&s.mode!=='void');if(!tws.length)tws=defaultTowers();
+  tws=tws.map(s=>({s,c:bb(wr(s))})).sort((a,b)=>(a.c.x0+a.c.x1)-(b.c.x0+b.c.x1)).map(o=>o.s).slice(0,2);
+  const M=[];const twN=tws.length===2?['Tower West','Tower East']:['Tower'];
+  {const s0=tws[0],L=bb(wr(s0).map(r=>r.map(p=>rot(p,-(s0.rot||0)))));TBASE=[L.x1-L.x0,L.y1-L.y0];}
+  // each tower's floor plate is scaled about its centre, along its own axes (Floor plate width / depth ×)
+  const scaleT=(rings,ang)=>{const c=bb(rings),cx=(c.x0+c.x1)/2,cy=(c.y0+c.y1)/2;return rings.map(r=>r.map(p=>{const q=rot([p[0]-cx,p[1]-cy],-ang),s2=rot([q[0]*cfg.tower.sw,q[1]*cfg.tower.sd],ang);return[cx+s2[0],cy+s2[1]];}));};
+  tws.forEach((s,i)=>M.push(mkMass(i?'TE':'TW',twN[i],'T',s.rot,[{rings:scaleT(wr(s),s.rot||0),base:0,top:cfg.tower.h}],[])));
+  let figs=shp.filter(s=>!s.tower&&s.mode==='fig'),voids=shp.filter(s=>s.mode==='void');let from=src?src.from:'podium control line';
+  if(!figs.length){figs=[{rings:[POD.map(p=>[p[0],p[1]])],x:0,y:0,rot:0,sx:1,sy:1,base:0,h:cfg.plinth.podH}];voids=[];if(src)from+=' (no podium blocks) → control line';}
+  const top0=Math.max(...figs.map(s=>(s.base||0)+s.h)),cap=capDown(top0,cfg.plinth.down);
+  const blocks=figs.map(s=>({rings:wr(s),base:s.base||0,top:Math.min(cap,(s.base||0)+s.h)})).filter(b=>b.top-b.base>=1);
+  const vds=voids.map(s=>({rings:wr(s),base:s.base||0,top:Math.min(cap,(s.base||0)+s.h)})).filter(b=>b.top>b.base);
+  if(blocks.length)M.push(mkMass('PL','Plinth','P',SITE_ANG,blocks,vds));
+  PLINFO=`${from} · ${blocks.length} block${blocks.length===1?'':'s'} · top ${f1(top0)} → ${f1(cap)} m (${cfg.plinth.down} floor${cfg.plinth.down===1?'':'s'} down)`;
+  MASSES=M;
+  // the plinth is grown in plan, on three plans (ground floor = plans 1 + 2, upper floor = 2 + 3, basement = 3 + 1); the towers on their four elevations
+  MASSES.forEach(m=>{m.plan=m.grp==='P';m.faces=(m.plan?planSides(m):['S','E','N','W']).map((sd,i)=>mkFace(m,sd,i));});}
+function mkMass(id,name,grp,ang,blocks,voids){
+  const all=blocks.flatMap(b=>b.rings),c=bb(all),o=[(c.x0+c.x1)/2,(c.y0+c.y1)/2];
+  const loc=r=>r.map(p=>rot([p[0]-o[0],p[1]-o[1]],-ang));
+  const lb=blocks.map(b=>({...b,lr:b.rings.map(loc)})),lv=voids.map(b=>({...b,lr:b.rings.map(loc)}));
+  const L=bb(lb.flatMap(b=>b.lr));const zTop=Math.max(...blocks.map(b=>b.top)),zMin=Math.min(...blocks.map(b=>b.base));
+  return{id,name,grp,ang,o,blocks:lb,voids:lv,a0:L.x0,a1:L.x1,b0:L.y0,b1:L.y1,zTop,zMin};}
+const SIDE_NAME={S:'south',E:'east',N:'north',W:'west'};
+function faceIndex(m,i){return m.id==='PL'?8+i:i;}
+// Tower East grows from Tower West's genome seed + 1 (identical twins when that is off)
+const seedOf=f=>cfg.G[f.grp].seed+(f.m.id==='TE'&&cfg.tower.plus1?1:0);
+// plan faces (P1…Pn), all seen from above: u runs along a, v along b
+function mkFace(m,side,i){const plan=side[0]==='P',W=plan||side==='S'||side==='N'?m.a1-m.a0:m.b1-m.b0,H=plan?m.b1-m.b0:m.zTop;
+  const f={m,side,plan,key:m.id+side,gi:plan?(side==='PB'?7:7+(+side.slice(1))):faceIndex(m,i),W,H,grp:m.grp,curves:[],dg:null};return f;}
+const FACES=()=>MASSES.flatMap(m=>m.faces);
+// the plinth's cores: Plinth cores of them, spread evenly along its length, each on the deepest point inside the plinth's
+// footprint on its line; solid through every plinth floor and a way out for egress. Local [a0, b0, a1, b1].
+function plinthCores(m){const P=cfg.core;if(m.grp!=='P'||!(P.pn>0))return[];const z=m.zMin+0.01,blk=m.blocks.filter(b=>b.base<=z&&b.top>z),B=blk.length?blk:m.blocks,out=[];
+  for(let i=0;i<P.pn;i++){const a=m.a0+(i+0.5)*(m.a1-m.a0)/P.pn;let best=-1e9,bb=(m.b0+m.b1)/2;for(let b=m.b0;b<=m.b1;b+=1){const s=envSD(B,[],a,b);if(s>best){best=s;bb=b;}}
+    if(best<Math.min(P.pw,P.pd)/2)continue;out.push([a-P.pw/2,bb-P.pd/2,a+P.pw/2,bb+P.pd/2]);}
+  return out;}
+// every core of a mass, local rects: a tower's own, or the plinth's
+const coreList=m=>m.grp==='T'?(coreRect(m)?[coreRect(m)]:[]):plinthCores(m);
+// each tower's core: a rectangle in the middle of its plan, in its local frame [a0, b0, a1, b1]
+function coreRect(m){if(m.grp!=='T'||!cfg.core.on)return null;const ca=(m.a0+m.a1)/2,cb=(m.b0+m.b1)/2,w=Math.min(cfg.core.w,m.a1-m.a0-2),d=Math.min(cfg.core.d,m.b1-m.b0-2);return[ca-w/2,cb-d/2,ca+w/2,cb+d/2];}
+// the plinth's plans and floors: the basement has a plan of its own (PB, just for the basement); the floors above ground
+// have one plan each, and floor k is made from plans k and k+1, cyclically, so every floor has its own pair and the top
+// floor loops back to the first pair (G, 1, 2, 3, 4 with five plans: 1+2, 2+3, 3+4, 4+5, 5+1)
+const plinthLevels=m=>massFloors(m);
+const aboveCount=m=>Math.max(2,plinthLevels(m).filter(f=>!f.below).length);
+const hasBasePlan=m=>plinthLevels(m).some(f=>f.below);
+const planSides=m=>[...(hasBasePlan(m)?['PB']:[]),...Array.from({length:aboveCount(m)},(_,i)=>'P'+(i+1))];
+const floorPair=(m,k)=>{const L=plinthLevels(m);if(L[k]&&L[k].below)return['PB'];const n=aboveCount(m),j=L.slice(0,k).filter(f=>!f.below).length;return['P'+(j%n+1),'P'+((j+1)%n+1)];};
+function plinthFloors(m){const F=[];plinthLevels(m).forEach((fl,k)=>{const pair=floorPair(m,k);
+    if(fl.below)F.push({lo:fl.z-1,hi:fl.z,pair,below:true,floor:true},{lo:fl.z,hi:fl.z+fl.h,pair,below:true,n:fl.n});else F.push({lo:fl.z,hi:fl.z+fl.h,pair,n:fl.n});});return F;}
+// which floors a plan makes, for its label
+const planUse=f=>{const m=f.m,L=plinthLevels(m);return L.map((fl,k)=>floorPair(m,k).includes(f.side)?fl.n:null).filter(Boolean).join(' + ');};
+// where a plan's curves sit in 3D and the OBJ: at the bottom of the first floor it makes
+const planZ=f=>{const m=f.m,L=plinthLevels(m);if(f.side==='PB'){const b=L.find(x=>x.below);return b?b.z:m.zMin;}const A=L.filter(x=>!x.below),i=Math.min((+f.side.slice(1))-1,A.length-1);return A[i]?A[i].z:m.zMin;};
+
+/* ---------- genome (Podium Lab rGene + a growth gain) ---------- */
+const NG=80;
+function rGene(r,np){return{on:r()<0.8?1:0,t:Math.floor(r()*np),u:r(),v:r(),r:r()<0.25?1:0,j:r()*2-1,s:r(),g:r(),st:r()};}
+function genomeFor(f){const sd=seedOf(f),key=f.grp+':'+f.gi+':'+sd;let G=GEN[key];
+  if(!G||G.seed!==sd){const r=rng(sd*7919+f.gi*104729+13);G=GEN[key]={seed:sd,win:[r(),r()],genes:Array.from({length:NG},()=>rGene(r,4096))};}
+  return G;}
+function mutateGroup(k,pm){const r=rng(Math.floor(Math.random()*1e9));let n=0;
+  for(const key in GEN){if(!key.startsWith(k+':'))continue;const G=GEN[key];
+    for(const g of G.genes){if(r()>pm)continue;n++;const q=r();
+      if(q<0.45){g.u=clamp(g.u+gaussR(r)*0.08,0,1);g.v=clamp(g.v+gaussR(r)*0.08,0,1);}else if(q<0.58)g.on^=1;else if(q<0.68)g.t=Math.floor(r()*4096);else if(q<0.76)g.r^=1;else if(q<0.84)g.s=clamp(g.s+gaussR(r)*0.2,0,1);else if(q<0.93)g.g=clamp(g.g+gaussR(r)*0.25,0,1);else g.st=r();g.j=clamp(g.j+gaussR(r)*0.1,-1,1);}
+    G.win=[clamp(G.win[0]+gaussR(r)*0.05*pm*4,0,1),clamp(G.win[1]+gaussR(r)*0.05*pm*4,0,1)];}
+  return n;}
+
+/* ---------- painted density on the plinth plans: per face, a 1 m grid of offsets (-1..1) added to the density field ---------- */
+const PAINT={};
+function paintGrid(f){const nx=Math.ceil(f.W)+2,ny=Math.ceil(f.H)+2;let p=PAINT[f.key];
+  if(!p||p.nx!==nx||p.ny!==ny){const q={nx,ny,d:new Float32Array(nx*ny)};if(p)for(let j=0;j<Math.min(ny,p.ny);j++)for(let i=0;i<Math.min(nx,p.nx);i++)q.d[j*nx+i]=p.d[j*p.nx+i];p=PAINT[f.key]=q;}
+  return p;}
+// a face's paint, plus (plinth plans) the shared plinth layer PLALL painted once for every plan
+function paintAt(f,u,v){let s=0;if(PAINT[f.key])s+=paintSample(PAINT[f.key],u,v);if(f.plan&&PAINT.PLALL)s+=paintSample(PAINT.PLALL,u,v);return s;}
+function paintSample(p,u,v){const x=clamp(u,0,p.nx-1.001),y=clamp(v,0,p.ny-1.001),i=Math.floor(x),j=Math.floor(y),fx=x-i,fy=y-j,d=p.d,k=j*p.nx+i;
+  return(d[k]*(1-fx)+d[k+1]*fx)*(1-fy)+(d[k+p.nx]*(1-fx)+d[k+p.nx+1]*fx)*fy;}
+// one dab of the brush: a soft disc of radius r, raising (sign 1) or lowering (sign -1) the density by up to the strength
+function paintDab(f,u,v,sign){const p=paintGrid(f),R=Math.max(0.5,cfg.paint.r),s=cfg.paint.k*sign;
+  for(let j=Math.max(0,Math.floor(v-R));j<=Math.min(p.ny-1,Math.ceil(v+R));j++)for(let i=Math.max(0,Math.floor(u-R));i<=Math.min(p.nx-1,Math.ceil(u+R));i++){
+    const d2=(i-u)**2+(j-v)**2;if(d2>R*R)continue;const q=j*p.nx+i;p.d[q]=clamp(p.d[q]+s*Math.exp(-3*d2/(R*R)),-1,1);}}
+
+/* ---------- face raster: gradient, growth field, background ---------- */
+function faceRaster(f){const gc=cfg.G[f.grp],g=gc.grad,W=f.W,H=f.H,px=Math.max(0.2,Math.sqrt(W*H/200000)),nx=Math.ceil(W/px)+4,ny=Math.ceil(H/px)+4,u0=-2*px,v0=-2*px;
+  const noise=vnoise(seedOf(f)*31+f.gi*7+1),G=new Float32Array(nx*ny),FW=new Float32Array(nx*ny),th=g.theta;
+  for(let j=0;j<ny;j++){const v=v0+(j+0.5)*px;for(let i=0;i<nx;i++){const u=u0+(i+0.5)*px,k=j*nx+i;const uc=clamp(u,0,W),vc=clamp(v,0,H),gv=clamp(gradAt(g,noise,uc,vc,W,H)+paintAt(f,uc,vc),0,1);G[k]=gv;FW[k]=(1-gc.growK)+gc.growK*biasW(gc,gv);}}
+  const bg=document.createElement('canvas');bg.width=nx;bg.height=ny;f.bgTone=null;
+  f.R={px,nx,ny,u0,v0,G,FW,bg};}
+function paintFace(f){const R=f.R;if(!R)return;const SHP=f.plan||f.def?planShape(f):null;const{nx,ny,px,u0,v0,G,bg}=R;
+  if(!R.oc){R.oc=document.createElement('canvas');R.oc.width=nx;R.oc.height=ny;}
+  const oc=R.oc.getContext('2d',{willReadFrequently:true});oc.setTransform(1,0,0,1,0,0);oc.globalCompositeOperation='source-over';oc.fillStyle='#000';oc.fillRect(0,0,nx,ny);
+  if(f.dg&&f.dg.N){oc.setTransform(1/px,0,0,1/px,-u0/px,-v0/px);oc.globalCompositeOperation='lighter';oc.fillStyle='rgb(32,32,32)';
+    f.reg=regFigures(f);for(const fig of f.reg){oc.beginPath();for(const c of fig){oc.moveTo(c[0][0],c[0][1]);for(let q=1;q<c.length;q++)oc.lineTo(c[q][0],c[q][1]);oc.closePath();}oc.fill('evenodd');}}
+  const cnt=oc.getImageData(0,0,nx,ny).data,th=cfg.G[f.grp].grad.theta,tone=$('#vTone').checked,base=MS(f.grp).base,cx=bg.getContext('2d'),im=cx.createImageData(nx,ny),D=im.data;
+  for(let j=0;j<ny;j++){const v=v0+(j+0.5)*px;for(let i=0;i<nx;i++){const k=j*nx+i,u=u0+(i+0.5)*px,q=k*4;let val=255;
+    if(u>=0&&u<=f.W&&v>=0&&v<=f.H){const c=Math.round(cnt[q]/32),g=G[k];const inv=invOf(f.grp),ink=(c>0)!==inv,tk=cfg.paint.on?150:70;val=ink?(tone&&inv?Math.round(g*60):0):(tone?Math.round(255-g*tk):255);if(SHP&&SHP.at(u,v)<0&&!(c>0))val=252;}
+    D[q]=D[q+1]=D[q+2]=val;D[q+3]=255;}}
+  cx.putImageData(im,0,0);}
+const rAt=(f,arr,u,v)=>{const R=f.R,i=clamp(Math.floor((u-R.u0)/R.px),0,R.nx-1),j=clamp(Math.floor((v-R.v0)/R.px),0,R.ny-1);return arr[j*R.nx+i];};
+
+/* ---------- seeding: Podium Lab Builder logic on the elevation (fit inside, no overlap, cover cap, gradient density) ---------- */
+function resample(r,step){const n=r.length;let per=0;for(let i=0;i<n;i++){const a=r[i],b=r[(i+1)%n];per+=Math.hypot(b[0]-a[0],b[1]-a[1]);}
+  const m=Math.max(8,Math.round(per/step)),ds=per/m,out=[];let seg=0,acc=0,a=r[0],b=r[1%n],L=Math.hypot(b[0]-a[0],b[1]-a[1]);
+  for(let k=0;k<m;k++){const target=k*ds;while(acc+L<target&&seg<n*2){acc+=L;seg++;a=r[seg%n];b=r[(seg+1)%n];L=Math.hypot(b[0]-a[0],b[1]-a[1]);}
+    const t=L>1e-9?(target-acc)/L:0;out.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t]);}
+  return out;}
+function place(rn,size,ang,cx,cy){const c=Math.cos(ang*deg),s=Math.sin(ang*deg);return rn.map(r=>r.map(p=>[cx+(p[0]*c-p[1]*s)*size,cy+(p[0]*s+p[1]*c)*size]));}
+function insideExt(rs,W,H,m,O){for(const r of rs)for(const p of r)if(p[0]<m-O||p[0]>W+O-m||p[1]<m-O||p[1]>H+O-m)return false;return true;}
+function insideFace(rs,W,H,m){for(const r of rs)for(const p of r)if(p[0]<m||p[0]>W-m||p[1]<m||p[1]>H-m)return false;return true;}
+// the face plus its overhang on every side: the pattern spreads over this, so counts and cover are taken over it
+const extArea=f=>{const O=cfg.G[f.grp].over||0;return f.plan&&f.shape?Math.max(1,f.shape.area):(f.W+2*O)*(f.H+2*O);};
+const targetCount=f=>Math.max(1,Math.round((cfg.G[f.grp].count|0)*extArea(f)/(f.W*f.H)));
+function Builder(f){const gc=cfg.G[f.grp],W=f.W,H=f.H,R=cfg.dg.R,acc=[],EA=extArea(f);let cov=0,n=0;
+  return{acc,get n(){return n;},get cov(){return cov/EA;},
+    try(rs,oi,stv,gain){const outer=rs[oi],b=bb([outer]),cx=(b.x0+b.x1)/2,cy=(b.y0+b.y1)/2;
+      const G=rAt(f,f.R.G,cx,cy),dens=(1-gc.seedK)+gc.seedK*biasW(gc,G);if(stv>dens)return 'd';
+      const A=area(outer);if((cov+A)/EA>Math.max(gc.cover,0.98))return false;
+      if(!cfg.dg.overlap)for(const o of acc){if(b.x1+R<o.b.x0||o.b.x1+R<b.x0||b.y1+R<o.b.y0||o.b.y1+R<b.y0)continue;
+        if(outer.some(p=>pip(p[0],p[1],o.outer))||o.outer.some(p=>pip(p[0],p[1],outer)))return false;}
+      const rr=rs.map(r=>resample(r,cfg.dg.L0)).filter(r=>r.length>=8);if(!rr.length)return false;
+      acc.push({rs:rr,outer:rr[Math.min(oi,rr.length-1)],b:{x0:b.x0-R/2,x1:b.x1+R/2,y0:b.y0-R/2,y1:b.y1+R/2},gain});cov+=A;n++;return true;}};}
+// Figures per face: each figure is sized so that the target count fills the cover share (area per figure =
+// cover · W · H / count), then varied by the gene's scale, shrunk where dense, and shrunk a little more after every
+// failed placement (overlap, cover). The genome's genes are tried first, then extra seeded genes until the count is met.
+function seedsAtlas(f){const gc=cfg.G[f.grp],pool=gc.src==='boardB'?LIB.filter(o=>!o.lm):LIB.filter(o=>gc.fam.includes(o.t));if(!pool.length)return[];
+  const W=f.W,H=f.H,O=gc.over||0,m=cfg.dg.R,B=Builder(f),N=targetCount(f),per=gc.cover*W*H/Math.max(1,gc.count|0),xr=rng(seedOf(f)*977+f.gi*31+3);
+  const gn=genomeFor(f).genes;let shrink=1,tries=0,i=0;
+  while(B.n<N&&tries<N*60){const g=i<gn.length?gn[i]:rGene(xr,4096);i++;tries++;if(!g.on&&i<=gn.length)continue;
+    const p=pool[g.t%pool.length],D=rAt(f,f.R.G,-O+g.u*(W+2*O),-O+g.v*(H+2*O));
+    const size=Math.sqrt(per/p.au)*(gc.sizeMul??1)*(gc.s0+(gc.s1-gc.s0)*g.s)/Math.sqrt((gc.s0*gc.s0+gc.s1*gc.s1)/2)*(1-0.6*(gc.sizeK??0)*D)*shrink;
+    const ang=g.r*90+g.j*gc.jit;let cx=-O+g.u*(W+2*O),cy=-O+g.v*(H+2*O),rs=place(p.rn,size,ang,cx,cy),k=0;
+    // pulled toward the centre (Podium Lab fitInside); what still overhangs is cut by the face
+    while(!insideExt(rs,W,H,m,O)&&k<4){cx+=(W/2-cx)*0.3;cy+=(H/2-cy)*0.3;rs=place(p.rn,size,ang,cx,cy);k++;}
+    if(!insideExt(rs,W,H,m,O))rs=rs.map(q=>clipRect(q,m-O,m-O,W+O-m,H+O-m)).filter(q=>q.length>=3&&area(q)>(1.5*cfg.dg.R)**2);
+    if(!rs.length||f.inShape&&!rs.every(r=>r.every(p=>f.inShape(p[0],p[1])))){shrink=Math.max(0.5,shrink*0.97);continue;}let oi=0;rs.forEach((q,j)=>{if(area(q)>area(rs[oi]))oi=j;});
+    const res=B.try(rs,oi,g.st,0.5+g.g);if(res===false)shrink=Math.max(0.5,shrink*0.97);}
+  return B;}
+// Sutherland–Hodgman: clip a ring to the rectangle [x0,x1] × [y0,y1]
+function clipRect(r,x0,y0,x1,y1){let P=r;const E=[[p=>p[0]>=x0,(a,b)=>{const t=(x0-a[0])/(b[0]-a[0]);return[x0,a[1]+t*(b[1]-a[1])];}],[p=>p[0]<=x1,(a,b)=>{const t=(x1-a[0])/(b[0]-a[0]);return[x1,a[1]+t*(b[1]-a[1])];}],
+  [p=>p[1]>=y0,(a,b)=>{const t=(y0-a[1])/(b[1]-a[1]);return[a[0]+t*(b[0]-a[0]),y0];}],[p=>p[1]<=y1,(a,b)=>{const t=(y1-a[1])/(b[1]-a[1]);return[a[0]+t*(b[0]-a[0]),y1];}]];
+  for(const[ins,cut]of E){if(!P.length)break;const Q=[];for(let i=0;i<P.length;i++){const a=P[(i+P.length-1)%P.length],b=P[i],ia=ins(a),ib=ins(b);if(ib){if(!ia)Q.push(cut(a,b));Q.push(b);}else if(ia)Q.push(cut(a,b));}P=Q;}
+  return P;}
+function seedsPlate(f){const gc=cfg.G[f.grp],pl=PLATES.find(p=>p.key===gc.plate)||PLATES[0],W=f.W,H=f.H,R=cfg.dg.R;
+  // the plate tiles, so a window of any size and position reads a continuous figure-ground
+  const O=gc.over||0,k=gc.plateScale,win=genomeFor(f).win,ww=(W+2*O)/k,wh=(H+2*O)/k,ox=win[0]*800,oy=win[1]*800;
+  const r=rng(seedOf(f)*131+f.gi*977+5),B=Builder(f),cand=[];
+  for(let ty=Math.floor(oy/800);ty<=Math.floor((oy+wh)/800);ty++)for(let tx=Math.floor(ox/800);tx<=Math.floor((ox+ww)/800);tx++)
+    for(const ring of pl.rings){const c=clipRect(ring.map(p=>[(p[0]+tx*800-ox)*k-O,(p[1]+ty*800-oy)*k-O]),R-O,R-O,W+O-R,H+O-R);if(c.length<3)continue;const b=bb([c]);if(Math.min(b.x1-b.x0,b.y1-b.y0)<1.2*R||area(c)<(1.5*R)**2)continue;if(f.inShape&&!c.every(p=>f.inShape(p[0],p[1])))continue;cand.push({rs:[c],o:r()});}
+  cand.sort((a,b)=>a.o-b.o);
+  for(const c of cand){if(B.n>=targetCount(f))break;B.try(c.rs,0,r(),0.5+r());}
+  return B;}
+// a plinth plan's shape: the plinth's footprint at ground (its blocks, less its voids), as a signed distance on the plan's
+// (u, v), > 0 inside. The plan's seeds, growth and agents stay within it plus the overhang; the sheet draws it.
+function planShape(f){const m=f.m,O=cfg.G[f.grp].over||0,key=[f.W,f.H,O,m.blocks.length].join();if(f.shape&&f.shape.key===key)return f.shape;
+  const px=0.5,u0=-O-2,v0=-O-2,nx=Math.ceil((f.W+2*O+4)/px),ny=Math.ceil((f.H+2*O+4)/px),S=new Float32Array(nx*ny),z=m.zMin+0.01;
+  const blk=m.blocks.filter(b=>b.base<=z&&b.top>z),vd=m.voids.filter(b=>b.base<=z&&b.top>z),B=blk.length?blk:m.blocks;let A=0;
+  for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){const s=envSD(B,vd,m.a0+u0+(i+0.5)*px,m.b0+v0+(j+0.5)*px);S[j*nx+i]=s;if(s>-O)A++;}
+  const at=(u,v)=>{const x=(u-u0)/px-0.5,y=(v-v0)/px-0.5;if(x<0||y<0||x>nx-1.001||y>ny-1.001)return-1e3;const i=Math.floor(x),j=Math.floor(y),fx=x-i,fy=y-j,k=j*nx+i;return(S[k]*(1-fx)+S[k+1]*fx)*(1-fy)+(S[k+nx]*(1-fx)+S[k+nx+1]*fx)*fy;};
+  f.shape={key,at,O,area:A*px*px,loops:contourLoops(S,nx,ny,u0,v0,px)};return f.shape;}
+function seedFace(f){faceRaster(f);
+  if(f.plan){const sh=planShape(f),lim=-sh.O+cfg.dg.R*0.5;f.inShape=(u,v)=>sh.at(u,v)>lim;
+    f.proj=(x,y)=>{const s=sh.at(x,y);if(s>=lim)return null;const h=0.5,gx=sh.at(x+h,y)-sh.at(x-h,y),gy=sh.at(x,y+h)-sh.at(x,y-h),g=Math.hypot(gx,gy)||1,d=lim-s+0.05;return[x+gx/g*d,y+gy/g*d];};}
+  else{f.inShape=null;f.proj=null;}
+  const gc=cfg.G[f.grp],B=gc.src==='plate'?seedsPlate(f):seedsAtlas(f);
+  const dg=new DG(f.W,f.H,cfg.dg,(seedOf(f)*2654435761+f.gi*40503)>>>0);dg.O=gc.over||0;dg.proj=f.proj||null;
+  (B.acc||[]).forEach((s,fi)=>{for(const r of s.rs)dg.add(r,s.gain,fi);});
+  f.dg=dg;f.ag=new Map();f.agv=[];f.nSeeds=B.n||0;f.seedCov=B.cov||0;f.field=(x,y)=>rAt(f,f.R.FW,x,y);f.mask=null;paintFace(f);}
+
+/* ---------- agents: every seed figure is an agent that diffuses and settles (SHANCHENG settle rule, 03_vertical_city_lab) ----------
+   Happiness terms, 0..1: gradient (the bias field under it), overlap (closeness of its overlapped share to a target, so the
+   count rule has overlaps to work with), support (what is under its lowest edge: ground, the gradient's volume or another
+   figure), neighbours (other figures within 3 m of its edge). Each agent step the unhappiest share plus a random tenth of
+   the rest try four diffusion hops (gaussian, sigma = step x (0.25 + T)), two quarter turns and, when restless or chronically
+   unhappy, a long hop. The happiest pose is taken if it gains; otherwise a random one at the annealing temperature T. */
+function agentsStep(f,T,scoreOnly){const A=cfg.agents,dg=f.dg;if(!dg||!dg.N)return;const OV=dg.O||0;const gc=cfg.G[f.grp],th=gc.grad.theta,W=f.W,H=f.H,res=Math.max(1,Math.sqrt(W*H/12000)),m=cfg.dg.R;
+  const nx=Math.ceil(W/res),ny=Math.ceil(H/res),N=nx*ny,cs=dg.curves(),byF=new Map();
+  cs.forEach((c,i)=>{const k=dg.fig[i];if(!byF.has(k))byF.set(k,{fi:k,curves:[],idx:[]});const o=byF.get(k);o.curves.push(c);o.idx.push(i);});
+  const figs=[...byF.values()],C=new Uint8Array(N);
+  const prep=o=>{o.mask=fillEO(o.curves,nx,ny,res,0,0,new Uint8Array(N));o.b=bb(o.curves);const pts=[];for(let k=0;k<N;k++)if(o.mask[k]){const i=k%nx;pts.push([(i+0.5)*res,((k-i)/nx+0.5)*res]);}
+    const st=Math.max(1,Math.ceil(pts.length/80));o.S=pts.filter((_,q)=>q%st===0);if(!o.S.length)o.S=[[(o.b.x0+o.b.x1)/2,(o.b.y0+o.b.y1)/2]];
+    o.c=[o.S.reduce((t,p)=>t+p[0],0)/o.S.length,o.S.reduce((t,p)=>t+p[1],0)/o.S.length];};
+  for(const o of figs){prep(o);for(let k=0;k<N;k++)C[k]+=o.mask[k];}
+  const cell=(u,v)=>{const i=Math.floor(u/res),j=Math.floor(v/res);return i<0||j<0||i>=nx||j>=ny?-1:j*nx+i;};
+  const other=(o,u,v)=>{const k=cell(u,v);return k<0?0:C[k]-o.mask[k];};
+  const Gat=(u,v)=>rAt(f,f.R.G,u,v);
+  // 3D crossings: my extrusion runs through the mass; the opposite face's figures cover the same line, the two
+  // perpendicular faces' figures cross it over the share of their row at this height
+  const OPP={S:'N',N:'S',E:'W',W:'E'},PERP={S:['E','W'],N:['E','W'],E:['S','N'],W:['S','N']},sib=sd=>f.m.faces.find(q=>q.side===sd);
+  const fo=f.plan?null:sib(OPP[f.side]),fp=f.plan?[]:PERP[f.side].map(sib),parts=f.plan?f.m.faces.filter(q=>q!==f):[];
+  const covAt=(q,u,v)=>{const a=q&&q.agc;if(!a)return 0;const i=Math.floor(u/a.res),j=Math.floor(v/a.res);return i<0||j<0||i>=a.nx||j>=a.ny?0:(a.C[j*a.nx+i]?1:0);};
+  const rowAt=(q,v)=>{const a=q&&q.agc;if(!a)return 0;const j=Math.floor(v/a.res);return j<0||j>=a.ny?0:a.rc[j];};
+  // plans: the share of the other two plans over this point (each floor is a pair of plans)
+  const cross=(u,v)=>{if(f.plan)return parts.reduce((t,q)=>t+covAt(q,u,v),0)/Math.max(1,parts.length);if(covAt(fo,(fo?fo.W:W)-u,v))return 1;const a=rowAt(fp[0],v),b=rowAt(fp[1],v);return a+b-a*b;};
+  const xf=(o,p,d,q)=>{let x=p[0]-o.c[0],y=p[1]-o.c[1];for(let n=0;n<q;n++){const t=x;x=-y;y=t;}return[o.c[0]+x+d[0],o.c[1]+y+d[1]];};
+  const fits=(o,d,q)=>{const b=o.b,P=[[b.x0,b.y0],[b.x1,b.y0],[b.x1,b.y1],[b.x0,b.y1]].map(p=>xf(o,p,d,q)),t=bb([P]);
+    const EW=W+2*OV,EH=H+2*OV,wide=b.x1-b.x0>EW-2*m-0.5,tall=b.y1-b.y0>EH-2*m-0.5;if(q&&(wide||tall||t.x1-t.x0>EW-2*m||t.y1-t.y0>EH-2*m))return false;
+    return(wide?Math.abs(d[0])<1e-9:t.x0>=m-OV-0.01&&t.x1<=W+OV-m+0.01)&&(tall?Math.abs(d[1])<1e-9:t.y0>=m-OV-0.01&&t.y1<=H+OV-m+0.01)&&(!f.inShape||o.S.every(p=>{const tp=xf(o,p,d,q);return f.inShape(tp[0],tp[1]);}));};
+  const happy=(o,d,q0)=>{const q=q0;const P=o.S.map(p=>xf(o,p,d,q));let low=1e9;for(const p of P)low=Math.min(low,p[1]);let g=0,ov=0,sup=0,ns=0;
+    let clash=0;for(const c of o.curves){const stp=Math.max(1,Math.floor(c.length/120));for(let q=0;q<c.length;q+=stp){const p=xf(o,c[q],d,q0);if(other(o,p[0],p[1])>0)clash++;}}
+    for(const p of P){g+=biasW(gc,Gat(p[0],p[1]));if(other(o,p[0],p[1])>0)clash++;ov+=cross(p[0],p[1]);if(!f.plan&&p[1]<low+1.5*res){ns++;const y=p[1]-1.5*res;if(y<1.5||other(o,p[0],y)>0||(MS(f.grp).base&&Gat(p[0],y)>th))sup++;}}
+    g/=P.length;ov/=P.length;sup=ns?sup/ns:1;const tau=A.target,to=1-Math.abs(ov-tau)/Math.max(tau,1-tau);
+    const b=o.b,hw=((q%2?b.y1-b.y0:b.x1-b.x0))/2+3,hh=((q%2?b.x1-b.x0:b.y1-b.y0))/2+3,cx=o.c[0]+d[0],cy=o.c[1]+d[1];let nb=0;
+    for(const[a,c]of[[-1,-1],[0,-1],[1,-1],[-1,0],[1,0],[-1,1],[0,1],[1,1]])if(other(o,cx+a*hw,cy+c*hh)>0)nb++;nb=Math.min(1,nb/3);
+    const w=(A.wG+A.wO+A.wS+A.wN)||1;return{h:(A.wG*g+A.wO*to+A.wS*sup+A.wN*nb)/w,g,o:to,ov,s:sup,n:nb,clash:clash/P.length};};
+  const st=o=>{let a=f.ag.get(o.fi);if(!a){a={unhappy:0};f.ag.set(o.fi,a);}return a;};
+  for(const o of figs){const a=st(o);Object.assign(a,happy(o,[0,0],0));}
+  if(!scoreOnly){const rnd=dg.R,sorted=[...figs].sort((x,y)=>st(x).h-st(y).h),nMove=Math.max(1,Math.round(figs.length*A.share));
+    const movers=sorted.filter((o,i)=>i<nMove||rnd()<0.1);
+    for(const o of movers){const a=st(o);a.unhappy=a.h<0.45?a.unhappy+1:0;const sig=A.step*(0.25+T),props=[];
+      for(let n=0;n<4;n++)props.push([[gaussR(rnd)*sig,gaussR(rnd)*sig],0]);props.push([[0,0],1],[[0,0],3]);
+      if(a.unhappy>=A.leave||rnd()<T*0.12)props.push([[m-OV+rnd()*(W+2*OV-2*m)-o.c[0],m-OV+rnd()*(H+2*OV-2*m)-o.c[1]],0]);
+      const ok=props.filter(([d,q])=>fits(o,d,q)).map(([d,q])=>({d,q,...happy(o,d,q)})).filter(x=>x.clash===0);if(!ok.length)continue;
+      ok.sort((x,y)=>y.h-x.h);let pick=null;if(ok[0].h>a.h+0.002)pick=ok[0];else if(rnd()<T*0.25)pick=ok[Math.floor(rnd()*ok.length)];
+      if(!pick)continue;if(a.unhappy>=A.leave)a.unhappy=0;
+      // move the figure's nodes rigidly; re-raster it so the next agent sees it where it is now
+      for(const ci of o.idx){const h=dg.heads[ci];let i=h,gd=0;do{const p=xf(o,[dg.X[i],dg.Y[i]],pick.d,pick.q);dg.X[i]=clamp(p[0],-OV,W+OV);dg.Y[i]=clamp(p[1],-OV,H+OV);i=dg.nx[i];}while(i!==h&&++gd<1e6);}
+      for(let k=0;k<N;k++)C[k]-=o.mask[k];o.curves=o.idx.map(ci=>{const out=[],h=dg.heads[ci];let i=h,gd=0;do{out.push([dg.X[i],dg.Y[i]]);i=dg.nx[i];}while(i!==h&&++gd<1e6);return out;});
+      prep(o);for(let k=0;k<N;k++)C[k]+=o.mask[k];Object.assign(a,happy(o,[0,0],0));}}
+  const rc=new Float32Array(ny);for(let j=0;j<ny;j++){let c=0;for(let i=0;i<nx;i++)if(C[j*nx+i])c++;rc[j]=c/nx;}
+  f.agc={C,res,nx,ny,rc};f.agv=figs.map(o=>({c:o.c,h:st(o).h}));}
+const meanHappy=()=>{let s=0,n=0;for(const f of FACES())for(const a of(f.agv||[])){s+=a.h;n++;}return n?s/n:0;};
+const agentCount=()=>FACES().reduce((t,f)=>t+(f.agv?f.agv.length:0),0);
+
+/* ---------- straight edges: Douglas–Peucker, then squared to the face axes (building-footprint regularisation) ---------- */
+function dpOpen(P,eps){const n=P.length;if(n<3)return P.slice();const keep=new Uint8Array(n);keep[0]=keep[n-1]=1;const st=[[0,n-1]];
+  while(st.length){const[a,b]=st.pop();const A=P[a],B=P[b],dx=B[0]-A[0],dy=B[1]-A[1],L=Math.hypot(dx,dy)||1e-9;let md=-1,mi=-1;
+    for(let i=a+1;i<b;i++){const d=Math.abs((P[i][0]-A[0])*dy-(P[i][1]-A[1])*dx)/L;if(d>md){md=d;mi=i;}}if(md>eps){keep[mi]=1;st.push([a,mi],[mi,b]);}}
+  return P.filter((_,i)=>keep[i]);}
+function dpClosed(c,eps){let far=0,fd=-1;for(let i=1;i<c.length;i++){const d=Math.hypot(c[i][0]-c[0][0],c[i][1]-c[0][1]);if(d>fd){fd=d;far=i;}}
+  if(far<1)return c.slice();const A=dpOpen(c.slice(0,far+1),eps),B=dpOpen([...c.slice(far),c[0]],eps);return[...A.slice(0,-1),...B.slice(0,-1)];}
+function orthoRing(c,eps,minL){const P=dpClosed(c,eps),b=bb([c]),rect=[[b.x0,b.y0],[b.x1,b.y0],[b.x1,b.y1],[b.x0,b.y1]];if(P.length<3)return rect;
+  let runs=[];for(let i=0;i<P.length;i++){const a=P[i],q=P[(i+1)%P.length],dx=q[0]-a[0],dy=q[1]-a[1],L=Math.hypot(dx,dy);if(L<1e-6)continue;const h=Math.abs(dx)>=Math.abs(dy);runs.push({h,L,k:h?(a[1]+q[1])/2:(a[0]+q[0])/2});}
+  const merge=()=>{let ch=true;while(ch&&runs.length>1){ch=false;for(let i=0;i<runs.length;i++){const x=runs[i],j=(i+1)%runs.length,y=runs[j];if(j!==i&&x.h===y.h){const L=x.L+y.L;x.k=(x.k*x.L+y.k*y.L)/L;x.L=L;runs.splice(j,1);ch=true;break;}}}};
+  merge();for(let g=0;g<200&&runs.length>4;g++){let mi=-1,ml=minL;runs.forEach((x,i)=>{if(x.L<ml){ml=x.L;mi=i;}});if(mi<0)break;runs.splice(mi,1);merge();}
+  if(runs.length<4||runs.length%2)return rect;
+  return runs.map((x,i)=>{const y=runs[(i+1)%runs.length];return x.h?[y.k,x.k]:[x.k,y.k];});}
+// floor-to-floor grid of a face: ground floor, then typical floors (towers: Towers + plinth panel; plinth: its storeys)
+function floorLevels(f){const P=f.grp==='P'?cfg.plinth:cfg.tower,O=f.dg&&f.dg.O||0,L=[0];let z=P.ff1;while(z<f.H+O+P.ff){L.push(z);z+=P.ff;}return L;}
+const nearestL=(L,v)=>{let b=L[0],d=Infinity;for(const z of L){const e=Math.abs(z-v);if(e<d){d=e;b=z;}}return b;};
+// one face of each figure snaps to the floor grid: its bottom edge (default), top edge, both, or every horizontal edge
+function snapFig(fig,L,mode){if(mode==='off'||!fig.length)return fig;let oi=0;fig.forEach((c,i)=>{if(area(c)>area(fig[oi]))oi=i;});
+  let y0=Infinity,y1=-Infinity;for(const p of fig[oi]){y0=Math.min(y0,p[1]);y1=Math.max(y1,p[1]);}
+  if(mode==='all')return fig.map(c=>c.map(p=>[p[0],nearestL(L,p[1])]));
+  const mv=new Map();if(mode==='bottom'||mode==='both')mv.set(y0,nearestL(L,y0));if(mode==='top'||mode==='both')mv.set(y1,nearestL(L,y1));
+  const nb=mv.has(y0)?mv.get(y0):y0,nt=mv.has(y1)?mv.get(y1):y1;
+  if(nt-nb<1){const d=(mode==='top'?nt-y1:nb-y0);return fig.map(c=>c.map(p=>[p[0],p[1]+d]));}   // too thin to reshape: move it whole onto the line
+  // the snapped edge becomes the whole bottom (top): steps that reach past the floor line are trimmed back to it
+  return fig.map(c=>c.map(p=>{let y=p[1];if(mv.has(y0)&&(Math.abs(y-y0)<1e-6||y<nb))y=nb;if(mv.has(y1)&&(Math.abs(y-y1)<1e-6||y>nt))y=nt;return[p[0],y];}));}
+function regFigures(f){if(!f.dg)return[];const F=f.dg.figures(),E=EG(f.grp);if(E.mode==='off')return F;const L=floorLevels(f);
+  return F.map(fig=>snapFig(fig.map(c=>E.mode==='ortho'?orthoRing(c,E.eps,E.min):dpClosed(c,E.eps)),L,f.plan?'off':E.snap).filter(c=>c.length>=3&&area(c)>1));}
+
+/* exact massing for rectilinear pieces: z bands at every vertex height; in each band the S/N pieces cut the a axis and the
+   E/W pieces the b axis into intervals; each cell counts the extrusions over it, the rule and the original geometry decide;
+   faces are emitted as merged quads with straight edges */
+function boxMesh(m){const FS=Object.fromEntries(m.faces.map(f=>[f.side,f])),RG={};for(const sd in FS)RG[sd]=regFigures(FS[sd]);
+  const zs=new Set([m.zMin,m.zTop]);if(!m.plan)for(const sd in RG)for(const fig of RG[sd])for(const c of fig)for(const p of c)if(p[1]>0&&p[1]<FS[sd].H)zs.add(+(m.zMin+p[1]).toFixed(4));
+  for(const b of[...m.blocks,...m.voids]){zs.add(b.base);zs.add(b.top);}
+  const PFL=m.plan?plinthFloors(m):null;if(PFL)for(const q of PFL){zs.add(+q.lo.toFixed(4));zs.add(+q.hi.toFixed(4));}
+  const zLo=PFL?PFL[0].lo:m.zMin,Z=[...zs].filter(z=>z>=zLo-1e-6&&z<=m.zTop).sort((a,b)=>a-b);
+  const slice=(sd,v)=>{const out=[];for(const fig of RG[sd]){const xs=[];for(const c of fig)for(let i=0;i<c.length;i++){const a=c[i],b=c[(i+1)%c.length];if((a[1]>v)!==(b[1]>v))xs.push(a[0]+(v-a[1])*(b[0]-a[0])/(b[1]-a[1]));}
+    xs.sort((p,q)=>p-q);const iv=[];for(let q=0;q+1<xs.length;q+=2)iv.push([xs[q],xs[q+1]]);if(iv.length)out.push(iv);}return out;};
+  const inside=(ivs,u)=>{let c=0;for(const iv of ivs)for(const[x0,x1]of iv)if(u>=x0&&u<x1){c++;break;}return c;};
+  // slanted envelope edges get breaks every metre so the clip follows them closely
+  const env=[...m.blocks,...m.voids],slA=new Set(),slB=new Set(),st=Math.max(0.5,MS(m.grp).res);
+  for(const b of env)for(const r of b.lr)for(let i=0;i<r.length;i++){const p=r[i],q=r[(i+1)%r.length];if(Math.abs(p[0]-q[0])>0.05&&Math.abs(p[1]-q[1])>0.05){
+    for(let x=Math.min(p[0],q[0]);x<Math.max(p[0],q[0]);x+=st)slA.add(+x.toFixed(3));for(let y=Math.min(p[1],q[1]);y<Math.max(p[1],q[1]);y+=st)slB.add(+y.toFixed(3));}}
+  const uniq=(arr,lo,hi)=>{const s=[...new Set(arr.map(x=>+clamp(x,lo,hi).toFixed(4)))].sort((a,b)=>a-b);return s;};
+  // with overhang, the grid runs that far past the walls so overlaps outside the envelope can be kept
+  const OV=MS(m.grp).wallFill?Math.max(0,cfg.G[m.grp].over||0):0,ea0=m.a0-OV,ea1=m.a1+OV,eb0=m.b0-OV,eb1=m.b1+OV;
+  const CR=coreRect(m);
+  let bands=[];const raw=[];let dig=0,foot=null,dugB=null;
+  // count the figures of a set over the cells of grid A × B: scan each column, even-odd intervals per figure
+  const scanCount=(figs,A,B)=>{const na=A.length-1,nb=B.length-1,C=new Uint8Array(na*nb),BM=new Float64Array(nb);for(let j=0;j<nb;j++)BM[j]=(B[j]+B[j+1])/2;
+    for(let i=0;i<na;i++){const am=(A[i]+A[i+1])/2;for(const fig of figs){const xs=[];for(const c of fig)for(let q=0;q<c.length;q++){const p=c[q],r=c[(q+1)%c.length];if((p[0]>am)!==(r[0]>am))xs.push(p[1]+(am-p[0])*(r[1]-p[1])/(r[0]-p[0]));}
+      if(xs.length<2)continue;xs.sort((x,y)=>x-y);for(let t=0;t+1<xs.length;t+=2){let lo=0,hi=nb;while(lo<hi){const md=(lo+hi)>>1;if(BM[md]<xs[t])lo=md+1;else hi=md;}for(let j=lo;j<nb&&BM[j]<xs[t+1];j++)C[j*na+i]++;}}}
+    return C;};
+  if(m.plan){
+    // the plinth in plan: each plan's figures are extruded through the floors it belongs to; in each z band the floor's two
+    // plans are counted per cell, and the rule (with the plinth's own invert) and the plinth's geometry decide
+    const PF={};for(const sd of m.faces.map(f=>f.side))PF[sd]=(RG[sd]||[]).map(fig=>fig.map(c=>c.map(p=>[m.a0+p[0],m.b0+p[1]])));
+    const Ab=[m.a0,m.a1,ea0,ea1,...slA],Bb=[m.b0,m.b1,eb0,eb1,...slB];for(const b of env)for(const r of b.lr)for(const p of r){Ab.push(p[0]);Bb.push(p[1]);}
+    if(EG(m.grp).mode==='ortho'){for(const sd in PF)for(const fig of PF[sd])for(const c of fig)for(const p of c){Ab.push(p[0]);Bb.push(p[1]);}}
+    else{for(let x=ea0;x<ea1;x+=st)Ab.push(x);for(let y=eb0;y<eb1;y+=st)Bb.push(y);}
+    const A=uniq(Ab,ea0,ea1),B=uniq(Bb,eb0,eb1),na=A.length-1,nb=B.length-1,CP={};for(const sd in PF)CP[sd]=scanCount(PF[sd],A,B);
+    // the basement lies under the plinth's ground-floor footprint
+    const ground=m.blocks.filter(b=>b.base<=m.zMin+1e-6),footR=[],PCR=plinthCores(m);
+    for(let k=0;k+1<Z.length;k++){const z0=Z[k],z1=Z[k+1];if(z1-z0<1e-3)continue;const zm=(z0+z1)/2,fl=PFL.find(q=>zm>=q.lo&&zm<q.hi);if(!fl)continue;
+      const blk=fl.below?ground:m.blocks.filter(b=>b.base<=zm&&b.top>zm),vd=fl.below?[]:m.voids.filter(b=>b.base<=zm&&b.top>zm);if(!blk.length)continue;
+      const inB=scanCount(blk.map(b=>b.lr),A,B),inV=vd.length?scanCount(vd.map(b=>b.lr),A,B):null,S=new Uint8Array(na*nb);
+      const inEnv=(i,j)=>i>=0&&j>=0&&i<na&&j<nb&&inB[j*na+i]>0&&!(inV&&inV[j*na+i]);
+      const c1=CP[fl.pair[0]],c2=fl.pair[1]?CP[fl.pair[1]]:new Uint8Array(c1.length);
+      // gap: 1 = outside the plinth, a piece of one plan over a piece of the other (in the overhang); 2 = one that touches the mass at the walls
+      const gap=new Uint8Array(na*nb);let nGap=0;
+      // the basement is dug out of the ground: where its rule says mass the earth is removed, so S there is the earth left
+      if(fl.below){for(let j=0;j<nb;j++)for(let i=0;i<na;i++){const q=j*na+i;if(!inEnv(i,j))continue;if(!fl.floor&&!foot)footR.push([A[i],B[j],A[i+1],B[j+1]]);
+          if(!fl.floor&&ruleSolid(c1[q]+c2[q],'P'))dig+=(A[i+1]-A[i])*(B[j+1]-B[j])*(z1-z0);else S[q]=1;}
+        if(!fl.floor&&!foot)foot=footR;
+        // keep the basement's dug cells and footprint for its floor plan
+        if(!fl.floor&&!dugB){const D=new Uint8Array(na*nb),E=new Uint8Array(na*nb);for(let j=0;j<nb;j++)for(let i=0;i<na;i++){const q=j*na+i;if(inEnv(i,j)){E[q]=1;if(!S[q])D[q]=1;}}dugB={z0,z1,A,B,na,nb,S:D,E};}
+        raw.push({z0,z1,A,B,S,na,nb,gap:null,below:true});continue;}
+      for(let j=0;j<nb;j++)for(let i=0;i<na;i++){const q=j*na+i;if(inEnv(i,j)){if(ruleSolid(c1[q]+c2[q],'P')||PCR.some(R=>{const am=(A[i]+A[i+1])/2,bm=(B[j]+B[j+1])/2;return am>R[0]&&am<R[2]&&bm>R[1]&&bm<R[3];}))S[q]=1;}else if(OV&&c1[q]&&c2[q]){gap[q]=1;nGap++;}}
+      const solidIn=(x,y)=>inEnv(x,y)&&S[y*na+x]===1;
+      if(nGap)for(let j=0;j<nb;j++)for(let i=0;i<na;i++)if(gap[j*na+i]===1&&(solidIn(i-1,j)||solidIn(i+1,j)||solidIn(i,j-1)||solidIn(i,j+1)))gap[j*na+i]=2;
+      raw.push({z0,z1,A,B,S,na,nb,gap:nGap?gap:null});}
+  }else
+  for(let k=0;k+1<Z.length;k++){const z0=Z[k],z1=Z[k+1];if(z1-z0<1e-3)continue;const zm=(z0+z1)/2,v=zm-m.zMin;
+    const sS=slice('S',v),sN=slice('N',v),sE=slice('E',v),sW=slice('W',v);
+    const blk=m.blocks.filter(b=>b.base<=zm&&b.top>zm),vd=m.voids.filter(b=>b.base<=zm&&b.top>zm);if(!blk.length)continue;
+    const Ab=[m.a0,m.a1,...slA],Bb=[m.b0,m.b1,...slB];
+    for(const iv of sS)for(const[x0,x1]of iv)Ab.push(m.a0+x0,m.a0+x1);for(const iv of sN)for(const[x0,x1]of iv)Ab.push(m.a1-x0,m.a1-x1);
+    for(const iv of sE)for(const[x0,x1]of iv)Bb.push(m.b0+x0,m.b0+x1);for(const iv of sW)for(const[x0,x1]of iv)Bb.push(m.b1-x0,m.b1-x1);
+    for(const b of[...blk,...vd])for(const r of b.lr)for(const p of r){Ab.push(p[0]);Bb.push(p[1]);}
+    if(OV){Ab.push(ea0,ea1);Bb.push(eb0,eb1);}if(CR){Ab.push(CR[0],CR[2]);Bb.push(CR[1],CR[3]);}
+    const A=uniq(Ab,ea0,ea1),B=uniq(Bb,eb0,eb1),na=A.length-1,nb=B.length-1,S=new Uint8Array(Math.max(0,na*nb));
+    const cA=new Int16Array(na);for(let i=0;i<na;i++){const am=(A[i]+A[i+1])/2;cA[i]=inside(sS,am-m.a0)+inside(sN,m.a1-am);}
+    const cB=new Int16Array(nb);for(let j=0;j<nb;j++){const bm=(B[j]+B[j+1])/2;cB[j]=inside(sE,bm-m.b0)+inside(sW,m.b1-bm);}
+    const EV=new Int8Array(na*nb).fill(-1),inEnv=(i,j)=>{if(i<0||j<0||i>=na||j>=nb)return 0;const q=j*na+i;
+      if(EV[q]<0){const am=(A[i]+A[i+1])/2,bm=(B[j]+B[j+1])/2;EV[q]=blk.some(b=>pipR(am,bm,b.lr))&&!vd.some(b=>pipR(am,bm,b.lr))?1:0;}return EV[q];};
+    // gap: 1 = outside the envelope, a piece from S/N crossing a piece from E/W (in the overhang); 2 = one that touches the mass at the walls
+    const gap=new Uint8Array(na*nb);let nGap=0;
+    for(let j=0;j<nb;j++)for(let i=0;i<na;i++){const n=cA[i]+cB[j];
+      if(inEnv(i,j)){if(ruleSolid(n,m.grp)||CR&&inCore(i,j))S[j*na+i]=1;}else if(OV&&cA[i]&&cB[j]){gap[j*na+i]=1;nGap++;}}
+    // the core is solid through the full height of the tower
+    function inCore(i,j){const am=(A[i]+A[i+1])/2,bm=(B[j]+B[j+1])/2;return am>CR[0]&&am<CR[2]&&bm>CR[1]&&bm<CR[3];}
+    const solidIn=(x,y)=>x>=0&&y>=0&&x<na&&y<nb&&S[y*na+x]===1&&inEnv(x,y);
+    if(nGap)for(let j=0;j<nb;j++)for(let i=0;i<na;i++)if(gap[j*na+i]===1&&(solidIn(i-1,j)||solidIn(i+1,j)||solidIn(i,j-1)||solidIn(i,j+1)))gap[j*na+i]=2;
+    raw.push({z0,z1,A,B,S,na,nb,gap:nGap?gap:null});}
+  // outside overlaps connected (in 3D, through the bands above and below) to the mass at the walls become mass
+  const rng=(X,lo,hi)=>{let s=0,h=X.length-1;while(h-s>1){const md=(s+h)>>1;if(X[md]<=lo)s=md;else h=md;}let e=s;while(e<X.length-1&&X[e]<hi)e++;return[s,e];};
+  const stk=[];raw.forEach((bd,k)=>{if(bd.gap)for(let q=0;q<bd.gap.length;q++)if(bd.gap[q]===2)stk.push(k,q);});
+  while(stk.length){const q=stk.pop(),k=stk.pop(),bd=raw[k],i=q%bd.na,j=(q-i)/bd.na,g=bd.gap;
+    for(const[x,y]of[[i-1,j],[i+1,j],[i,j-1],[i,j+1]])if(x>=0&&y>=0&&x<bd.na&&y<bd.nb&&g[y*bd.na+x]===1){g[y*bd.na+x]=2;stk.push(k,y*bd.na+x);}
+    for(const k2 of[k-1,k+1]){const o=raw[k2];if(!o||!o.gap||(k2<k?o.z1!==bd.z0:o.z0!==bd.z1))continue;
+      const[i0,i1]=rng(o.A,bd.A[i],bd.A[i+1]),[j0,j1]=rng(o.B,bd.B[j],bd.B[j+1]);
+      for(let y=j0;y<j1;y++)for(let x=i0;x<i1;x++)if(o.gap[y*o.na+x]===1){o.gap[y*o.na+x]=2;stk.push(k2,y*o.na+x);}}}
+  for(const bd of raw){const{z0,z1,A,B,S,na,nb,gap,below}=bd;if(gap)for(let q=0;q<gap.length;q++)if(gap[q]===2)S[q]=1;
+    const last=bands[bands.length-1];
+    if(last&&last.z1===z0&&!!last.below===!!below&&last.A.length===A.length&&last.B.length===B.length&&last.A.every((x,i)=>x===A[i])&&last.B.every((x,i)=>x===B[i])&&last.S.every((x,i)=>x===S[i]))last.z1=z1;
+    else bands.push({z0,z1,A,B,S,na,nb,below});}
+  // the plinth's basement band is meshed apart, as the earth left around the dug-out basement
+  if(m.plan){const main=meshBands(m,bands.filter(b=>!b.below),ea0,ea1,eb0,eb1),earth=meshBands(m,bands.filter(b=>b.below),ea0,ea1,eb0,eb1);
+    main.earth=earth.idx.length?earth:null;main.dig=dig;main.bands=bands.filter(b=>!b.below);main.dugB=dugB;main.ea=[ea0,ea1,eb0,eb1];
+    // the basement's footprint in world plan coordinates, so the site plane can be cut open over it
+    const c=Math.cos(m.ang*deg),s=Math.sin(m.ang*deg),W2=p=>[m.o[0]+p[0]*c-p[1]*s,m.o[1]+p[0]*s+p[1]*c];
+    main.foot=foot&&foot.length?unionRects(foot).map(({outer,holes})=>({outer:outer.map(W2),holes:holes.map(h=>h.map(W2))})):null;return main;}
+  const out=meshBands(m,bands,ea0,ea1,eb0,eb1);out.bands=bands;out.ea=[ea0,ea1,eb0,eb1];return out;}
+// is cell (a, b) of a band solid? (binary search on its breakpoints)
+function atBand(bd,a,b){if(!bd)return 0;const{A,B,na,S}=bd;if(a<=A[0]||a>=A[A.length-1]||b<=B[0]||b>=B[B.length-1])return 0;let lo=0,hi=A.length-1;while(hi-lo>1){const md=(lo+hi)>>1;if(A[md]<=a)lo=md;else hi=md;}const i=lo;lo=0;hi=B.length-1;while(hi-lo>1){const md=(lo+hi)>>1;if(B[md]<=b)lo=md;else hi=md;}return S[lo*na+i];}
+// mesh a stack of z bands of cells (each band: breakpoints A × B, solid flags S) as merged straight faces
+function meshBands(m,bands,ea0,ea1,eb0,eb1){const uniq=(arr,lo,hi)=>[...new Set(arr.map(x=>+clamp(x,lo,hi).toFixed(4)))].sort((a,b)=>a-b);
+  const pos=[],idx=[],c=Math.cos(m.ang*deg),sn=Math.sin(m.ang*deg);let vol=0;
+  const W_=(a,b,z)=>[m.o[0]+a*c-b*sn,m.o[1]+a*sn+b*c,z];
+  const PL=new Map(),quad=(p0,p1,p2,p3)=>{const ax=p0[0]===p1[0]&&p1[0]===p2[0]?0:p0[1]===p1[1]&&p1[1]===p2[1]?1:2,u=[p1[0]-p0[0],p1[1]-p0[1],p1[2]-p0[2]],v=[p2[0]-p1[0],p2[1]-p1[1],p2[2]-p1[2]],n=[u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0]],sg=n[ax]>0?1:-1,o=[0,1,2].filter(q=>q!==ax),P=[p0,p1,p2,p3],xs=P.map(q=>q[o[0]]),ys=P.map(q=>q[o[1]]),key=ax+'|'+p0[ax]+'|'+sg;
+    if(!PL.has(key))PL.set(key,{ax,c:p0[ax],sg,o,R:[]});PL.get(key).R.push([Math.min(...xs),Math.min(...ys),Math.max(...xs),Math.max(...ys)]);};
+  const quadOld=(p0,p1,p2,p3)=>{const n=pos.length/3;for(const p of[p0,p1,p2,p3]){const w=W_(p[0],p[1],p[2]);pos.push(w[0],w[1],w[2]);}idx.push(n,n+1,n+2,n,n+2,n+3);};
+  const at=(bd,a,b)=>{if(!bd)return 0;const{A,B,na,S}=bd;if(a<=A[0]||a>=A[A.length-1]||b<=B[0]||b>=B[B.length-1])return 0;let i=0,j=0,lo=0,hi=A.length-1;while(hi-lo>1){const md=(lo+hi)>>1;if(A[md]<=a)lo=md;else hi=md;}i=lo;lo=0;hi=B.length-1;while(hi-lo>1){const md=(lo+hi)>>1;if(B[md]<=b)lo=md;else hi=md;}j=lo;return S[j*na+i];};
+  for(const bd of bands){const{z0,z1,A,B,S,na,nb}=bd;
+    for(let j=0;j<nb;j++)for(let i=0;i<na;i++)if(S[j*na+i])vol+=(A[i+1]-A[i])*(B[j+1]-B[j])*(z1-z0);
+    // side faces across a (runs along b merged)
+    for(let i=0;i<=na;i++){let j=0;while(j<nb){const L=i>0?S[j*na+i-1]:0,R=i<na?S[j*na+i]:0;if(L===R){j++;continue;}let e=j+1;while(e<nb&&(i>0?S[e*na+i-1]:0)===L&&(i<na?S[e*na+i]:0)===R)e++;
+      const a=A[i],b0=B[j],b1=B[e];if(L)quad([a,b0,z0],[a,b1,z0],[a,b1,z1],[a,b0,z1]);else quad([a,b1,z0],[a,b0,z0],[a,b0,z1],[a,b1,z1]);j=e;}}
+    // side faces across b (runs along a merged)
+    for(let j=0;j<=nb;j++){let i=0;while(i<na){const L=j>0?S[(j-1)*na+i]:0,R=j<nb?S[j*na+i]:0;if(L===R){i++;continue;}let e=i+1;while(e<na&&(j>0?S[(j-1)*na+e]:0)===L&&(j<nb?S[j*na+e]:0)===R)e++;
+      const b=B[j],a0=A[i],a1=A[e];if(L)quad([a1,b,z0],[a0,b,z0],[a0,b,z1],[a1,b,z1]);else quad([a0,b,z0],[a1,b,z0],[a1,b,z1],[a0,b,z1]);i=e;}}}
+  // horizontal faces between consecutive bands (and ground / sky)
+  const lv=[];for(let q=0;q<bands.length;q++){const lo=bands[q-1]&&bands[q-1].z1===bands[q].z0?bands[q-1]:null;lv.push([bands[q].z0,lo,bands[q]]);const hi=bands[q+1]&&bands[q+1].z0===bands[q].z1?bands[q+1]:null;if(!hi)lv.push([bands[q].z1,bands[q],null]);}
+  for(const[z,lo,hi]of lv){const A=uniq([...(lo?lo.A:[]),...(hi?hi.A:[])],ea0,ea1),B=uniq([...(lo?lo.B:[]),...(hi?hi.B:[])],eb0,eb1),na=A.length-1,nb=B.length-1;
+    for(let j=0;j<nb;j++){const bm=(B[j]+B[j+1])/2;let i=0;const t=q=>{const am=(A[q]+A[q+1])/2,d=at(lo,am,bm),u=at(hi,am,bm);return d&&!u?1:!d&&u?-1:0;};
+      while(i<na){const tp=t(i);if(!tp){i++;continue;}let e=i+1;while(e<na&&t(e)===tp)e++;const a0=A[i],a1=A[e],b0=B[j],b1=B[j+1];
+        if(tp>0)quad([a0,b0,z],[a1,b0,z],[a1,b1,z],[a0,b1,z]);else quad([a0,b1,z],[a1,b1,z],[a1,b0,z],[a0,b0,z]);i=e;}}}
+  // merge: every plane's rectangles become their union, so a mass reads as one continuous volume
+  const lines=[];
+  for(const pl of PL.values()){const toW=(x,y)=>{const L=[0,0,0];L[pl.ax]=pl.c;L[pl.o[0]]=x;L[pl.o[1]]=y;return W_(L[0],L[1],L[2]);};
+    for(const{outer,holes}of unionRects(pl.R)){const all=[outer,...holes].flat(),base=pos.length/3;
+      for(const q of all){const w=toW(q[0],q[1]);pos.push(w[0],w[1],w[2]);}
+      const tris=typeof THREE!=='undefined'?THREE.ShapeUtils.triangulateShape(outer.map(q=>new THREE.Vector2(q[0],q[1])),holes.map(h=>h.map(q=>new THREE.Vector2(q[0],q[1])))):[];
+      for(const t of tris){const A=all[t[0]],B=all[t[1]],C=all[t[2]],cr=(B[0]-A[0])*(C[1]-A[1])-(B[1]-A[1])*(C[0]-A[0]),nn=pl.ax===1?-cr:cr;
+        if((nn>0?1:-1)===pl.sg)idx.push(base+t[0],base+t[1],base+t[2]);else idx.push(base+t[0],base+t[2],base+t[1]);}
+      for(const ring of[outer,...holes])for(let i=0;i<ring.length;i++){const a=toW(ring[i][0],ring[i][1]),b=toW(ring[(i+1)%ring.length][0],ring[(i+1)%ring.length][1]);lines.push(a[0],a[1],a[2],b[0],b[1],b[2]);}}}
+  return{pos:new Float32Array(pos),idx:new Uint32Array(idx),vol,lines:new Float32Array(lines)};}
+// union of axis-aligned rectangles: cover the cells of their breakpoint grid, trace the boundary with the filled side on the
+// left (outer loops counter-clockwise, holes clockwise, left turn first at pinch points), drop collinear points
+function unionRects(R){const X=[...new Set(R.flatMap(r=>[r[0],r[2]]))].sort((a,b)=>a-b),Y=[...new Set(R.flatMap(r=>[r[1],r[3]]))].sort((a,b)=>a-b),nx=X.length-1,ny=Y.length-1;if(nx<1||ny<1)return[];
+  const xi=new Map(X.map((x,i)=>[x,i])),yi=new Map(Y.map((y,i)=>[y,i])),C=new Uint8Array(nx*ny);
+  for(const r of R){const i0=xi.get(r[0]),i1=xi.get(r[2]),j0=yi.get(r[1]),j1=yi.get(r[3]);for(let j=j0;j<j1;j++)for(let i=i0;i<i1;i++)C[j*nx+i]=1;}
+  const cov=(i,j)=>i>=0&&j>=0&&i<nx&&j<ny&&C[j*nx+i]===1,W1=nx+1,out=new Map(),K=(i,j)=>j*W1+i;
+  const add=(i,j,i2,j2)=>{const k=K(i,j);if(!out.has(k))out.set(k,[]);out.get(k).push([i2,j2]);};
+  for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){if(!C[j*nx+i])continue;if(!cov(i,j-1))add(i,j,i+1,j);if(!cov(i+1,j))add(i+1,j,i+1,j+1);if(!cov(i,j+1))add(i+1,j+1,i,j+1);if(!cov(i-1,j))add(i,j+1,i,j);}
+  const loops=[];
+  for(const[k0,l0]of out){while(l0.length){const s0=[k0%W1,Math.floor(k0/W1)];let cur=s0,dir=null;const loop=[s0];
+    for(let g=0;g<1e6;g++){const L=out.get(K(cur[0],cur[1]));if(!L||!L.length)break;let pi=0;
+      if(L.length>1&&dir){const lf=[-dir[1],dir[0]];const sc=c=>{const d=[Math.sign(c[0]-cur[0]),Math.sign(c[1]-cur[1])];return d[0]===lf[0]&&d[1]===lf[1]?0:d[0]===dir[0]&&d[1]===dir[1]?1:2;};pi=L.reduce((b,c,i)=>sc(c)<sc(L[b])?i:b,0);}
+      const nx_=L.splice(pi,1)[0];dir=[Math.sign(nx_[0]-cur[0]),Math.sign(nx_[1]-cur[1])];cur=nx_;if(cur[0]===s0[0]&&cur[1]===s0[1])break;loop.push(cur);}
+    const pts=loop.filter((q,i)=>{const a=loop[(i-1+loop.length)%loop.length],b=loop[(i+1)%loop.length];return!((a[0]===q[0]&&q[0]===b[0])||(a[1]===q[1]&&q[1]===b[1]));}).map(q=>[X[q[0]],Y[q[1]]]);
+    if(pts.length>=3)loops.push(pts);}}
+  const outers=[],holes=[];for(const l of loops)(sarea(l)>0?outers:holes).push(l);
+  const res=outers.map(o=>({outer:o,holes:[],A:area(o)}));
+  for(const h of holes){const a=h[0],b=h[1],mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,dx=Math.sign(b[0]-a[0]),dy=Math.sign(b[1]-a[1]),px=mx-dy*1e-4,py=my+dx*1e-4;
+    let best=null;for(const o of res)if(pip(px,py,o.outer)&&(!best||o.A<best.A))best=o;if(best)best.holes.push(h);}
+  return res;}
+
+/* ---------- floor plans + egress: every floor is cut from the massing, traced back to a way out, and bridged if it has none ----------
+   Each floor is rasterised (cfg.egress.res) at its cut height. Walkable = floor ∪ core ∪ bridges. Ways out: the tower cores
+   (towers; in the plinth, any tower core that reaches into it) and, on a ground floor, any floor cell on the outside wall.
+   A part of the floor that cannot reach a way out is joined to one by the cheapest rectilinear route: each new cell costs
+   1000, each turn 1, walking over existing floor nothing; the route is widened to the bridge width and becomes a thin floor
+   plate (in the basement, a passage dug out of the earth). */
+function massFloors(m){const F=[];
+  if(m.grp==='T'){const P=cfg.tower;let z=m.zMin,h=P.ff1,k=0;while(z<m.zTop-1){F.push({z,h:Math.min(h,m.zTop-z),n:k?String(k):'G',ground:!k});z+=h;h=P.ff;k++;}}
+  else{const bd=Math.max(0,cfg.plinth.bdepth||0);if(bd>0)F.push({z:m.zMin-bd,h:bd,n:'B1',below:true});
+    const L=storeys(m.zTop-m.zMin).map(z=>m.zMin+z);L.forEach((z,k)=>F.push({z,h:(L[k+1]??m.zTop)-z,n:k?String(k):'G',ground:!k}));}
+  return F;}
+// a small binary heap of (cost, value)
+function Heap(){const K=[],V=[];return{get size(){return K.length;},push(k,v){K.push(k);V.push(v);let i=K.length-1;while(i>0){const p=(i-1)>>1;if(K[p]<=K[i])break;[K[p],K[i]]=[K[i],K[p]];[V[p],V[i]]=[V[i],V[p]];i=p;}},
+  pop(){const k=K[0],v=V[0],lk=K.pop(),lv=V.pop();if(K.length){K[0]=lk;V[0]=lv;let i=0;for(;;){const l=2*i+1,r=l+1;let s=i;if(l<K.length&&K[l]<K[s])s=l;if(r<K.length&&K[r]<K[s])s=r;if(s===i)break;[K[s],K[i]]=[K[i],K[s]];[V[s],V[i]]=[V[i],V[s]];i=s;}}return[k,v];}};}
+const DIRS=[[1,0],[0,1],[-1,0],[0,-1]];
+function floorPlan(m,fl,cores){const M=m.mesh,r=cfg.egress.res,[ea0,ea1,eb0,eb1]=M.ea||[m.a0,m.a1,m.b0,m.b1];
+  const x0=ea0,y0=eb0,nx=Math.max(1,Math.ceil((ea1-ea0)/r)),ny=Math.max(1,Math.ceil((eb1-eb0)/r)),N=nx*ny,X=i=>x0+(i+0.5)*r,Y=j=>y0+(j+0.5)*r;
+  const floor=new Uint8Array(N),env=new Uint8Array(N),core=new Uint8Array(N);
+  const zc=fl.z+Math.min(cfg.egress.cut,fl.h/2);
+  // floor area: the mass at the cut height (the basement: the cells dug out); the envelope: the original geometry there
+  if(fl.below){const D=M.dugB;if(D)for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){const q=j*nx+i;floor[q]=atBand(D,X(i),Y(j));env[q]=atBand({...D,S:D.E},X(i),Y(j));}}
+  else{const bd=M.bands?M.bands.find(q=>zc>=q.z0&&zc<q.z1):null,V=M.V;
+    const blk=m.blocks.filter(b=>b.base<=zc&&b.top>zc),vd=m.voids.filter(b=>b.base<=zc&&b.top>zc);
+    for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){const q=j*nx+i,a=X(i),b=Y(j);
+      if(bd)floor[q]=atBand(bd,a,b);else if(V){const ii=Math.round((a-V.A0)/V.r),jj=Math.round((b-V.B0)/V.r),kk=Math.round((zc-V.Z0)/V.r);floor[q]=ii>=0&&jj>=0&&kk>=0&&ii<V.nx&&jj<V.ny&&kk<V.nz&&V.F[(kk*V.ny+jj)*V.nx+ii]>0?1:0;}
+      env[q]=blk.some(b2=>pipR(a,b,b2.lr))&&!vd.some(b2=>pipR(a,b,b2.lr))?1:0;}}
+  for(const c of cores)for(let j=0;j<ny;j++)for(let i=0;i<nx;i++)if(pip(X(i),Y(j),c))core[j*nx+i]=1;
+  const bridge=new Uint8Array(N),walk=q=>floor[q]||core[q]||bridge[q];
+  // ways out: the cores, and on a ground floor every floor cell on the outside wall
+  const exitC=new Uint8Array(N);if(fl.ground)for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){const q=j*nx+i;if(!floor[q])continue;for(const[dx,dy]of DIRS){const x=i+dx,y=j+dy;if(x<0||y<0||x>=nx||y>=ny||!env[y*nx+x]&&!floor[y*nx+x]){exitC[q]=1;break;}}}
+  const target=q=>core[q]||exitC[q];
+  const dist=new Int32Array(N);
+  const bfs=()=>{dist.fill(-1);const Q=new Int32Array(N);let h=0,t=0;for(let q=0;q<N;q++)if(target(q)&&walk(q)){dist[q]=0;Q[t++]=q;}
+    while(h<t){const q=Q[h++],i=q%nx,j=(q-i)/nx;for(const[dx,dy]of DIRS){const x=i+dx,y=j+dy;if(x<0||y<0||x>=nx||y>=ny)continue;const p=y*nx+x;if(dist[p]<0&&walk(p)){dist[p]=dist[q]+1;Q[t++]=p;}}}};
+  bfs();let nBridge=0,stranded=0;const widths=[];const hasTarget=dist.some(d=>d===0);
+  // join each part that has no way out, cheapest route first
+  const minCells=Math.max(1,Math.round(cfg.egress.minPart/(r*r)));
+  for(let guard=0;guard<600&&hasTarget;guard++){let s=-1;for(let q=0;q<N;q++)if(floor[q]===1&&dist[q]<0){s=q;break;}if(s<0)break;
+    // the part containing s; a sliver smaller than the smallest floor part is a fragment (3): drawn, never bridged
+    const part=new Uint8Array(N),st=[s];part[s]=1;let pc=0;while(st.length){const q=st.pop(),i=q%nx,j=(q-i)/nx;pc++;for(const[dx,dy]of DIRS){const x=i+dx,y=j+dy;if(x<0||y<0||x>=nx||y>=ny)continue;const p=y*nx+x;if(!part[p]&&walk(p)){part[p]=1;st.push(p);}}}
+    if(pc<minCells){for(let q=0;q<N;q++)if(part[q]&&floor[q]===1)floor[q]=3;continue;}
+    // a bridge may leave the original geometry where it has to, at twice the cost
+    const allowed=()=>true,cost=new Float64Array(N*4).fill(Infinity),prev=new Int32Array(N*4).fill(-1),H=Heap();
+    for(let q=0;q<N;q++)if(part[q])for(let d=0;d<4;d++){cost[q*4+d]=0;H.push(0,q*4+d);}
+    let end=-1;while(H.size){const[c,sd]=H.pop();if(c>cost[sd])continue;const q=sd>>2,d=sd&3;if(dist[q]>=0){end=sd;break;}const i=q%nx,j=(q-i)/nx;
+      for(let d2=0;d2<4;d2++){const x=i+DIRS[d2][0],y=j+DIRS[d2][1];if(x<0||y<0||x>=nx||y>=ny)continue;const p=y*nx+x;if(!allowed(p))continue;
+        const nc=c+(walk(p)?0:env[p]?1000:2000)+(d2!==d&&!part[q]?1:0),ns=p*4+d2;if(nc<cost[ns]){cost[ns]=nc;prev[ns]=sd;H.push(nc,ns);}}}
+    if(end<0){for(let q=0;q<N;q++)if(part[q])floor[q]=floor[q]?2:0;stranded++;bfs();continue;}   // no route: mark it stranded (2) and go on
+    // the route's new cells, widened to the bridge width
+    // wide enough for the people it serves: the part's occupant load (area / load factor) × width per person, never under the minimum
+    const occ=Math.ceil(pc*r*r/cfg.egress.load),need=Math.max(cfg.egress.minW,occ*cfg.egress.perPerson),bw=Math.max(cfg.egress.bridge,need),half=Math.max(0,Math.ceil((bw/r-1)/2));widths.push({w:(2*half+1)*r,need,occ});let sd=end;const path=[];while(sd>=0){path.push(sd>>2);sd=prev[sd];}
+    for(const q of path){if(walk(q))continue;const i=q%nx,j=(q-i)/nx;for(let y=j-half;y<=j+half;y++)for(let x=i-half;x<=i+half;x++){if(x<0||y<0||x>=nx||y>=ny)continue;const p=y*nx+x;if(!floor[p]&&!core[p]&&allowed(p))bridge[p]=1;}}
+    nBridge++;bfs();}
+  // egress pathway of each part: from its farthest cell down the distance field to a way out (straight where it can)
+  const lab=new Int32Array(N).fill(-1),paths=[];let nl=0;
+  for(let q0=0;q0<N;q0++){if(lab[q0]>=0||!(floor[q0]===1||bridge[q0])||core[q0])continue;const st=[q0],cells=[];lab[q0]=nl;
+    while(st.length){const q=st.pop();cells.push(q);const i=q%nx,j=(q-i)/nx;for(const[dx,dy]of DIRS){const x=i+dx,y=j+dy;if(x<0||y<0||x>=nx||y>=ny)continue;const p=y*nx+x;if(lab[p]<0&&(floor[p]===1||bridge[p])&&!core[p]){lab[p]=nl;st.push(p);}}}
+    nl++;let far=-1;for(const q of cells)if(dist[q]>=0&&(far<0||dist[q]>dist[far]))far=q;if(far<0||cells.length<4)continue;
+    const pts=[];let q=far,d=-1;for(let g=0;g<N&&dist[q]>0;g++){const i=q%nx,j=(q-i)/nx;pts.push([X(i),Y(j)]);let nxt=-1,nd=-1;
+      for(let k=0;k<4;k++){const dd=d<0?k:(d+k)%4,x=i+DIRS[dd][0],y=j+DIRS[dd][1];if(x<0||y<0||x>=nx||y>=ny)continue;const p=y*nx+x;if(dist[p]===dist[q]-1){nxt=p;nd=dd;break;}}if(nxt<0)break;q=nxt;d=nd;}
+    {const i=q%nx,j=(q-i)/nx;pts.push([X(i),Y(j)]);}
+    const simp=pts.filter((p,k)=>k===0||k===pts.length-1||!((pts[k-1][0]===p[0]&&p[0]===pts[k+1][0])||(pts[k-1][1]===p[1]&&p[1]===pts[k+1][1])));
+    paths.push({pts:simp,len:dist[far]*r});}
+  let area=0,barea=0,maxLen=0;for(let q=0;q<N;q++){if(floor[q]===1||floor[q]===3)area++;if(bridge[q])barea++;}for(const p of paths)maxLen=Math.max(maxLen,p.len);
+  const A2=area*r*r;
+  return{fl,nx,ny,x0,y0,r,floor,env,core,bridge,exitC,paths,area:A2,barea:barea*r*r,nBridge,stranded,maxLen,hasTarget,widths,occ:Math.ceil(A2/cfg.egress.load),overTravel:maxLen>cfg.egress.maxTravel,narrow:widths.filter(w=>w.w+1e-6<w.need).length};}
+// cores in a mass's local frame: its own (towers) or every tower core that reaches into it (plinth), as local polygons
+function localCores(m){const out=plinthCores(m).map(R=>[[R[0],R[1]],[R[2],R[1]],[R[2],R[3]],[R[0],R[3]]]);for(const t of MASSES){const CR=coreRect(t);if(!CR)continue;const ct=Math.cos(t.ang*deg),stt=Math.sin(t.ang*deg),cm=Math.cos(m.ang*deg),sm=Math.sin(m.ang*deg);
+    if(t!==m&&!m.plan)continue;
+    out.push([[CR[0],CR[1]],[CR[2],CR[1]],[CR[2],CR[3]],[CR[0],CR[3]]].map(([a,b])=>{const wx=t.o[0]+a*ct-b*stt,wy=t.o[1]+a*stt+b*ct,dx=wx-m.o[0],dy=wy-m.o[1];return[dx*cm+dy*sm,-dx*sm+dy*cm];}));}
+  return out;}
+// plans for one mass, the bridges as thin floor plates (dug passages in the basement), and the earth re-cut around them
+function buildPlans(m){if(!m.mesh)return;const cores=localCores(m),P=massFloors(m).map(fl=>floorPlan(m,fl,cores));m.plans=P;
+  const t=cfg.egress.plate,BB=[];let bvol=0;
+  for(const p of P){if(!p.nBridge||p.fl.below)continue;const A=[...Array(p.nx+1).keys()].map(i=>p.x0+i*p.r),B=[...Array(p.ny+1).keys()].map(j=>p.y0+j*p.r);
+    BB.push({z0:p.fl.z-t,z1:p.fl.z,A,B,na:p.nx,nb:p.ny,S:p.bridge});bvol+=p.barea*t;}
+  BB.sort((a,b)=>a.z0-b.z0);const ea=m.mesh.ea||[m.a0,m.a1,m.b0,m.b1];
+  m.mesh.bridges=BB.length?meshBands(m,BB,ea[0],ea[1],ea[2],ea[3]):null;m.mesh.bvol=bvol;
+  // basement passages are dug: the earth is rebuilt on the plan's grid without them
+  const pb=P.find(p=>p.fl.below);if(pb&&pb.nBridge&&m.mesh.earth){const A=[...Array(pb.nx+1).keys()].map(i=>pb.x0+i*pb.r),B=[...Array(pb.ny+1).keys()].map(j=>pb.y0+j*pb.r),N=pb.nx*pb.ny;
+    const Se=new Uint8Array(N),Sf=new Uint8Array(N);let extra=0;for(let q=0;q<N;q++){if(!pb.env[q])continue;Sf[q]=1;if(!pb.floor[q]&&!pb.bridge[q]&&!pb.core[q])Se[q]=1;if(pb.bridge[q])extra++;}
+    m.mesh.earth=meshBands(m,[{z0:pb.fl.z-1,z1:pb.fl.z,A,B,na:pb.nx,nb:pb.ny,S:Sf},{z0:pb.fl.z,z1:pb.fl.z+pb.fl.h,A,B,na:pb.nx,nb:pb.ny,S:Se}],ea[0],ea[1],ea[2],ea[3]);
+    m.mesh.dig=(m.mesh.dig||0)+extra*pb.r*pb.r*pb.fl.h;}}
+
+/* ---------- carved voids: soft porosity after Steven Holl ----------
+   Li-Ze SOHO (2013): a subtractive tower, one continuous mass with a few carved sky gardens in its upper body and porosity
+   at the ground. Tianjin Ecocity Planning Museum: a block pierced by a handful of soft, rounded voids, its twin the cast of
+   those voids ("Bau Gua", in reverse relation). Sliced Porosity Block: deliberate, urban-scale openings, never fragments.
+   So instead of counting overlapping extrusions, each mass starts whole and a few voids are carved from it:
+   - towers: the largest grown figures on each face become sky gardens carved into that face (whole storeys, a set depth,
+     never closer to the core than the core margin); the plinth: roof figures become courts open to the sky (its top
+     storeys), ground-plan figures become porous passages through the ground floor;
+   - each void is a superellipse in plan (softness: rounded box → ellipse) and terraced in section (narrower toward its
+     first and last storey); a void near a corner is pushed past it so no sliver is left;
+   - limits keep the voids intimate and the floors whole: so many per face, a volume budget, a gap between voids, the
+     core ring, and fragments under the smallest floor part are removed;
+   - the solid is traced per storey from an analytic field (signed distance to the envelope, the voids and the core), so
+     edges are smooth curves and straight walls, then extruded; Invert gives the void bodies (Tianjin's reverse). */
+function polySD(rings,a,b){let md=1e18,ins=false;for(const r of rings)for(let i=0,n=r.length;i<n;i++){const p=r[i],q=r[(i+1)%n],dx=q[0]-p[0],dy=q[1]-p[1],L2=dx*dx+dy*dy||1e-12;
+    let t=((a-p[0])*dx+(b-p[1])*dy)/L2;t=t<0?0:t>1?1:t;const ex=p[0]+t*dx-a,ey=p[1]+t*dy-b,d2=ex*ex+ey*ey;if(d2<md)md=d2;if((p[1]>b)!==(q[1]>b)&&a<p[0]+(b-p[1])*dx/dy)ins=!ins;}
+  return(ins?1:-1)*Math.sqrt(md);}
+function envSD(blk,vd,a,b){let d=-1e9;for(const B of blk){const s=polySD(B.lr,a,b);if(s>d)d=s;}for(const V of vd){const s=-polySD(V.lr,a,b);if(s<d)d=s;}return d;}
+// morphology on a raster mask with a disc of radius rad (m): dilate, erode, and the soft outline (close of open)
+const dilateM=(M,nx,ny,px,rad)=>{if(rad<=0)return M.slice();const d=chamfer(M,nx,ny),o=new Uint8Array(M.length);for(let k=0;k<o.length;k++)o[k]=d[k]*px<=rad?1:0;return o;};
+const erodeM=(M,nx,ny,px,rad,edge)=>{if(rad<=0)return M.slice();const inv=new Uint8Array(M.length);for(let k=0;k<M.length;k++)inv[k]=M[k]?0:1;
+  /* edge: beyond the grid counts as outside (the plinth's plans) */if(edge)for(let i=0;i<nx;i++){inv[i]=1;inv[(ny-1)*nx+i]=1;}for(let j=0;j<ny;j++){inv[j*nx]=1;inv[j*nx+nx-1]=1;}const d=chamfer(inv,nx,ny),o=new Uint8Array(M.length);for(let k=0;k<o.length;k++)o[k]=M[k]&&d[k]*px>rad?1:0;return o;};
+// smooth a mask's outline: blurred over the radius (three box passes ≈ a gaussian) and cut at half, so stepped edges become
+// clean curves while the shapes (and their size) stay
+function smoothM(M,nx,ny,px,rad){const rc=Math.round(rad/px/2);if(rc<1)return M;const N=M.length,D=new Float32Array(N),T=new Float32Array(N);for(let k=0;k<N;k++)D[k]=M[k];
+  for(let pass=0;pass<3;pass++){for(let j=0;j<ny;j++){let s=0;const row=j*nx;for(let i=-rc;i<=rc;i++)s+=D[row+clamp(i,0,nx-1)];for(let i=0;i<nx;i++){T[row+i]=s/(2*rc+1);s+=D[row+clamp(i+rc+1,0,nx-1)]-D[row+clamp(i-rc,0,nx-1)];}}
+    for(let i=0;i<nx;i++){let s=0;for(let j=-rc;j<=rc;j++)s+=T[clamp(j,0,ny-1)*nx+i];for(let j=0;j<ny;j++){D[j*nx+i]=s/(2*rc+1);s+=T[clamp(j+rc+1,0,ny-1)*nx+i]-T[clamp(j-rc,0,ny-1)*nx+i];}}}
+  const O=new Uint8Array(N);for(let k=0;k<N;k++)O[k]=D[k]>=0.5?1:0;return O;}
+// a face's (or plan's) voids: its grown figures, as many as the budget allows, largest first, rasterised where they sit,
+// rounded (open then close at the rounding radius), grown or shrunk, as a signed distance (> 0 inside) on the face's (u, v)
+function faceVoidSD(f,budgetArea,levels){const C=CS(f.grp),O=cfg.G[f.grp].over||0,px=0.5,u0=-O-2,v0=-O-2,nx=Math.ceil((f.W+2*O+4)/px),ny=Math.ceil((f.H+2*O+4)/px),N=nx*ny;
+  const figs=(f.dg?regFigures(f):[]).filter(fig=>fig&&fig.length).map(fig=>({fig,A:fig.reduce((t,c)=>t+Math.abs(area(c)),0)})).filter(o=>o.A>=C.minFig).sort((x,y)=>y.A-x.A);
+  const M=new Uint8Array(N),tmp=new Uint8Array(N);let used=0,n=0;
+  // each figure is rounded on its own (opened with a disc no wider than ~its own half-thickness, so no figure is lost
+  // and small ones become soft ellipses); then neighbours closer than the rounding merge and inner corners soften (close)
+  const R=C.round;
+  for(const o of figs){if(n>=C.perFace||used+o.A>budgetArea)continue;tmp.fill(0);fillEO(o.fig,nx,ny,px,u0,v0,tmp);
+    const inv=new Uint8Array(N);for(let k=0;k<N;k++)inv[k]=tmp[k]?0:1;const din=chamfer(inv,nx,ny);let rin=0;for(let k=0;k<N;k++)if(tmp[k]&&din[k]>rin)rin=din[k];
+    const rr=Math.min(R,Math.max(0,rin*px*0.85-px)),op=dilateM(erodeM(tmp,nx,ny,px,rr),nx,ny,px,rr);for(let k=0;k<N;k++)if(op[k])M[k]=1;used+=o.A;n++;}
+  if(!n)return null;
+  const soft=erodeM(dilateM(M,nx,ny,px,R),nx,ny,px,R);
+  const G=C.grow>0?dilateM(soft,nx,ny,px,C.grow):C.grow<0?erodeM(soft,nx,ny,px,-C.grow):soft,SD=sdf(G,nx,ny,px);
+  const at=(u,v)=>{const x=(u-u0)/px-0.5,y=(v-v0)/px-0.5;if(x<0||y<0||x>nx-1.001||y>ny-1.001)return-1;const i=Math.floor(x),j=Math.floor(y),fx=x-i,fy=y-j,k=j*nx+i;
+    return(SD[k]*(1-fx)+SD[k+1]*fx)*(1-fy)+(SD[k+nx]*(1-fx)+SD[k+nx+1]*fx)*fy;};
+  // which rows (v) hold any void, so storeys without one are skipped
+  const rowMax=new Float32Array(ny);for(let j=0;j<ny;j++){let mx=-1e9;for(let i=0;i<nx;i++)mx=Math.max(mx,SD[j*nx+i]);rowMax[j]=mx;}
+  const rowAny=v=>{const j=Math.round((v-v0)/px-0.5);return j>=0&&j<ny&&rowMax[j]>0;};
+  f.voidLoops=contourLoops(SD,nx,ny,u0,v0,px);
+  // sky gardens (towers): each void region spans whole storeys, its bottom and top snapped to the nearest floor levels
+  // (at least C.minStoreys), its width the region's extent across the face, the same plan on every storey it spans
+  let gardens=null;
+  if(levels){gardens=[];const lab=new Int32Array(N).fill(-1);const Lv=levels,near=v=>{let b=0;for(let i=1;i<Lv.length;i++)if(Math.abs(Lv[i]-v)<Math.abs(Lv[b]-v))b=i;return b;};
+    for(let q0=0;q0<N;q0++){if(!G[q0]||lab[q0]>=0)continue;const st=[q0];lab[q0]=q0;let jm=1e9,jx=-1;const cols=new Uint8Array(nx);
+      while(st.length){const q=st.pop(),i=q%nx,j=(q-i)/nx;jm=Math.min(jm,j);jx=Math.max(jx,j);cols[i]=1;for(const[dx,dy]of DIRS){const x=i+dx,y=j+dy;if(x<0||y<0||x>=nx||y>=ny)continue;const k=y*nx+x;if(G[k]&&lab[k]<0){lab[k]=q0;st.push(k);}}}
+      const vb=clamp(v0+jm*px,0,f.H),vt=clamp(v0+(jx+1)*px,0,f.H);if(vt-vb<1)continue;
+      let kb=near(vb),kt=near(vt);if(kt<=kb)kt=kb+1;const ms=Math.max(1,C.minStoreys|0);if(kt-kb<ms){kt=Math.min(Lv.length-1,kb+ms);kb=Math.max(0,kt-ms);}if(kt<=kb)continue;
+      const iv=[];let i=0;while(i<nx){if(!cols[i]){i++;continue;}let e=i+1;while(e<nx&&cols[e])e++;iv.push([u0+i*px,u0+e*px]);i=e;}
+      const wsum=iv.reduce((s,[a,b])=>s+b-a,0),half=Math.max(...iv.map(([a,b])=>(b-a)/2)),mx=Math.max(ms,C.maxStoreys|0);
+      // taller than the storey cap: stacked gardens with one solid storey between them
+      for(let k=kb;k<kt;k+=mx+1){const ke=Math.min(kt,k+mx);if(ke-k<1)break;gardens.push({z0:Lv[k],z1:Lv[ke],iv,half,A:wsum*(Lv[ke]-Lv[k])});}}
+    // largest first, within the budget (a share of the facade)
+    gardens.sort((x,y)=>y.A-x.A);let ga=0;gardens=gardens.filter(g=>{if(ga+g.A>C.gBudget*f.W*f.H)return false;ga+=g.A;return true;});
+    f.voidLoops=gardens.flatMap(g=>g.iv.map(([a,b])=>[[a,g.z0],[b,g.z0],[b,g.z1],[a,g.z1]]));}
+  return{at,rowAny,n,area:used,gardens};}
+// the plinth's voids, as a few large forms rather than many small holes (an urban block's courts): a plan's figures are
+// rasterised, merged with their neighbours (closed at the merge radius), kept only as the largest few regions above the
+// smallest size, rounded generously (each no more than its own half-thickness), and held back from the plinth's edge by
+// the setback (so the plinth stays one body around its courts). Signed distance, > 0 inside, on the plan's (u, v).
+function planVoidSD(f,o){const C=CS(f.grp),m=f.m,px=0.5,u0=-2,v0=-2,nx=Math.ceil((f.W+4)/px),ny=Math.ceil((f.H+4)/px),N=nx*ny,X=i=>u0+(i+0.5)*px,Y=j=>v0+(j+0.5)*px;
+  const M=new Uint8Array(N),tmp=new Uint8Array(N);
+  for(const fig of(f.dg?regFigures(f):[]).filter(g=>g&&g.length)){if(fig.reduce((t,c)=>t+Math.abs(area(c)),0)<C.minFig)continue;tmp.fill(0);fillEO(fig,nx,ny,px,u0,v0,tmp);for(let k=0;k<N;k++)if(tmp[k])M[k]=1;}
+  // the setback: only where the plinth (at the void's top storey) is deeper than the setback from its edge
+  const zt=o.z-0.01,blk=m.blocks.filter(b=>b.base<=zt&&b.top>zt),vd=m.voids.filter(b=>b.base<=zt&&b.top>zt),env=new Uint8Array(N),ok=new Uint8Array(N);let envA=0;
+  for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){const k=j*nx+i,e=envSD(blk,vd,m.a0+X(i),m.b0+Y(j));if(e>0){env[k]=1;envA++;}if(e>=o.setback)ok[k]=1;}
+  // the figures' density: blurred over the merge radius (three box passes ≈ a gaussian), so neighbours merge into large
+  // soft forms; the voids are the densest part, up to the share of the plinth (and at least a third dense)
+  const D=new Float32Array(N);for(let k=0;k<N;k++)D[k]=M[k];const rc=Math.max(0,Math.round(o.merge/px/2));
+  if(rc>0){const tmpF=new Float32Array(N);for(let pass=0;pass<3;pass++){
+      for(let j=0;j<ny;j++){let s=0;const row=j*nx;for(let i=-rc;i<=rc;i++)s+=D[row+clamp(i,0,nx-1)];for(let i=0;i<nx;i++){tmpF[row+i]=s/(2*rc+1);s+=D[row+clamp(i+rc+1,0,nx-1)]-D[row+clamp(i-rc,0,nx-1)];}}
+      for(let i=0;i<nx;i++){let s=0;for(let j=-rc;j<=rc;j++)s+=tmpF[clamp(j,0,ny-1)*nx+i];for(let j=0;j<ny;j++){D[j*nx+i]=s/(2*rc+1);s+=tmpF[clamp(j+rc+1,0,ny-1)*nx+i]-tmpF[clamp(j-rc,0,ny-1)*nx+i];}}}}
+  const vals=[];for(let k=0;k<N;k++)if(ok[k])vals.push(D[k]);vals.sort((a,b)=>b-a);
+  const thr=Math.max(0.34,vals.length?vals[Math.min(vals.length-1,Math.floor((o.share>0?o.share:1)*envA))]:1);
+  const G=new Uint8Array(N);for(let k=0;k<N;k++)if(ok[k]&&D[k]>=thr&&D[k]>0)G[k]=1;
+  // the largest few regions
+  const lab=new Int32Array(N).fill(-1),regs=[];for(let q0=0;q0<N;q0++){if(!G[q0]||lab[q0]>=0)continue;const st=[q0],cells=[];lab[q0]=q0;while(st.length){const q=st.pop();cells.push(q);const i=q%nx,j=(q-i)/nx;for(const[dx,dy]of DIRS){const x=i+dx,y=j+dy;if(x<0||y<0||x>=nx||y>=ny)continue;const k=y*nx+x;if(G[k]&&lab[k]<0){lab[k]=q0;st.push(k);}}}regs.push(cells);}
+  regs.sort((a,b)=>b.length-a.length);const keep=regs.filter(r=>r.length*px*px>=o.min).slice(0,o.max);if(!keep.length)return null;
+  // each region rounded on its own (no wider than its own half-thickness)
+  const OUT=new Uint8Array(N);for(const r of keep){tmp.fill(0);for(const q of r)tmp[q]=1;const inv=new Uint8Array(N);for(let k=0;k<N;k++)inv[k]=tmp[k]?0:1;const din=chamfer(inv,nx,ny);let rin=0;for(const q of r)if(din[q]>rin)rin=din[q];
+    const rr=Math.min(o.round,Math.max(0,rin*px*0.85-px)),op=dilateM(erodeM(tmp,nx,ny,px,rr,true),nx,ny,px,rr);for(let k=0;k<N;k++)if(op[k])OUT[k]=1;}
+  const FIN=OUT;
+  const SD=sdf(FIN,nx,ny,px);f.voidLoops=contourLoops(SD,nx,ny,u0,v0,px);
+  return{n:keep.length,at:(u,v)=>{const x=(u-u0)/px-0.5,y=(v-v0)/px-0.5;if(x<0||y<0||x>nx-1.001||y>ny-1.001)return-1;const i=Math.floor(x),j=Math.floor(y),fx=x-i,fy=y-j,k=j*nx+i;return(SD[k]*(1-fx)+SD[k+1]*fx)*(1-fy)+(SD[k+nx]*(1-fx)+SD[k+nx+1]*fx)*fy;}};}
+// the voids of a mass as one field: < 0 inside a void. Towers: each face's voids carve into it as soft scoops, deepest where
+// the outline is widest (depth × a profile of the distance to the outline), never nearer the core than the core margin.
+// Plinth: each plan's voids cut through the floors that plan belongs to (see below).
+function voidFields(m){const C=CS(m.grp);for(const f of m.faces)f.voidLoops=null;
+  if(m.grp==='T'){const CR=coreRect(m)||[(m.a0+m.a1)/2,(m.b0+m.b1)/2,(m.a0+m.a1)/2,(m.b0+m.b1)/2],faces=[];let count=0;
+    const lev=[...massFloors(m).filter(f=>!f.below).map(f=>f.z-m.zMin),m.zTop-m.zMin];
+    for(const f of m.faces){const sd=f.side,toCore=sd==='S'?CR[1]-m.b0:sd==='N'?m.b1-CR[3]:sd==='E'?m.a1-CR[2]:CR[0]-m.a0,D=Math.min(C.depth,toCore-C.coreMargin);if(D<1)continue;
+      if(C.towerMode==='scoop'){const V=faceVoidSD(f,C.budget*f.W*f.H);if(!V)continue;count+=V.n;faces.push({sd,D,V});continue;}
+      const V=faceVoidSD(f,C.budget*f.W*f.H,lev);if(!V||!V.gardens.length)continue;count+=V.gardens.length;faces.push({sd,D,G:V.gardens});}
+    // soft scoops (the method the base settings were made with): each figure's rounded outline carved storey by storey,
+    // deepest where the outline is widest
+    if(C.towerMode==='scoop'){const rr=Math.max(0.5,C.round*1.5);
+      return{count,active:zm=>faces.some(o=>o.V.rowAny(zm-m.zMin)),at:(a,b,zm)=>{const v=zm-m.zMin;let best=1e9;
+        for(const o of faces){const sd=o.sd,u=sd==='S'?a-m.a0:sd==='N'?m.a1-a:sd==='E'?b-m.b0:m.b1-b,w=sd==='S'?b-m.b0:sd==='N'?m.b1-b:sd==='E'?m.a1-a:a-m.a0;
+          const s=o.V.at(u,v);if(s<=0){if(-s<best)best=-s;continue;}
+          const Dp=o.D*Math.pow(Math.min(1,s/rr),C.soft);const f2=Math.max(-s,w-Dp);if(f2<best)best=f2;}
+        return best;}};}
+    // a garden's plan: across its width a soft scoop, deepest mid-width (depth D) and easing out to the facade at its edges
+    const prof=(iv,u)=>{let s=-1e9;for(const[ua,ub]of iv){const d=Math.min(u-ua,ub-u);if(d>s)s=d;}return s;};
+    // the gardens on each storey, found once per storey
+    let lastZ=NaN,cur=[];const onStorey=zm=>{if(zm!==lastZ){lastZ=zm;const v=zm-m.zMin;cur=faces.map(o=>({o,G:o.G.filter(g=>v>=g.z0&&v<g.z1)})).filter(x=>x.G.length);}return cur;};
+    return{count,active:zm=>onStorey(zm).length>0,at:(a,b,zm)=>{let best=1e9;
+      for(const{o,G}of onStorey(zm)){const sd=o.sd,u=sd==='S'?a-m.a0:sd==='N'?m.a1-a:sd==='E'?b-m.b0:m.b1-b,w=sd==='S'?b-m.b0:sd==='N'?m.b1-b:sd==='E'?m.a1-a:a-m.a0;
+        if(w>o.D+2){if(w-o.D<best)best=w-o.D;continue;}
+        for(const g of G){const s=prof(g.iv,u);if(s<=0){if(-s<best)best=-s;continue;}
+          const rr=Math.max(0.5,Math.min(C.round*2,g.half)),Dp=o.D*Math.pow(Math.min(1,s/rr),C.soft*0.5),f2=Math.max(-s,w-Dp);if(f2<best)best=f2;}}
+      return best;}};}
+  // the plinth, floor by floor: floor k is made from its two plans (plinthFloors). Carved: each plan's voids (planVoidSD)
+  // cut through the floors it makes. Figures (the plinth's massing 'figures'): the floor's mass is built from its two plans'
+  // figures (figureFloors). The basement's dug space is its floor's voids (carved) or its figures (figures).
+  const FL=plinthLevels(m);if(!FL.length)return{count:0,active:()=>false,at:()=>1e9};
+  const F=Object.fromEntries(m.faces.map(f=>[f.side,f])),floorOf=zm=>{for(let k=0;k<FL.length;k++)if(zm>=FL[k].z&&zm<FL[k].z+FL[k].h)return k;return-1;};
+  if(MS(m.grp).mode==='figures')return figureFloors(m,FL,F,floorOf);
+  const PL=C.pl,V={},groundPlans=new Set(),topOf={};
+  FL.forEach((fl,k)=>{for(const s of floorPair(m,k)){if(fl.n==='G')groundPlans.add(s);if(!fl.below)topOf[s]=Math.max(topOf[s]||-1e9,fl.z+fl.h);}});
+  for(const f of m.faces)V[f.side]=planVoidSD(f,{z:topOf[f.side]??m.zTop,merge:PL.merge,max:PL.perPlan,min:PL.minCourt,round:PL.round,setback:groundPlans.has(f.side)?0:PL.setback,share:PL.share});
+  const pairAt=k=>k<0?[]:floorPair(m,k).filter(s=>V[s]),bk=FL.findIndex(fl=>fl.below);
+  return{count:m.faces.reduce((t,f)=>t+(V[f.side]?V[f.side].n:0),0),
+    court:(a,b)=>{let s=-1;for(const p of pairAt(bk))s=Math.max(s,V[p].at(a-m.a0,b-m.b0));return s;},
+    active:zm=>pairAt(floorOf(zm)).length>0,at:(a,b,zm)=>{let best=1e9;const u=a-m.a0,v=b-m.b0;for(const p of pairAt(floorOf(zm)))best=Math.min(best,-V[p].at(u,v));return best;}};}
+// the plinth from its figures: each plan's figures rasterised where they sit (each at least the smallest figure), rounded on
+// their own (no wider than their own half-thickness) and merged with near neighbours; a floor combines its two plans
+// (union, overlap: both, or one-not-both), is held within the plinth, grows or shrinks evenly to the target coverage
+// (its share of the footprint, shapes kept), and keeps only pieces of at least the smallest piece (and the largest few)
+function figureFloors(m,FL,F,floorOf){const C=CS(m.grp),G=C.fig,px=0.5,f0=m.faces[0],u0=-2,v0=-2,nx=Math.ceil((f0.W+4)/px),ny=Math.ceil((f0.H+4)/px),N=nx*ny,X=i=>u0+(i+0.5)*px,Y=j=>v0+(j+0.5)*px;
+  const SDp={};
+  for(const f of m.faces){const M=new Uint8Array(N),tmp=new Uint8Array(N);
+    for(const fig of(f.dg?regFigures(f):[]).filter(g=>g&&g.length)){if(fig.reduce((t,c)=>t+Math.abs(area(c)),0)<C.minFig)continue;tmp.fill(0);fillEO(fig,nx,ny,px,u0,v0,tmp);
+      const inv=new Uint8Array(N);for(let k=0;k<N;k++)inv[k]=tmp[k]?0:1;const din=chamfer(inv,nx,ny);let rin=0;for(let k=0;k<N;k++)if(tmp[k]&&din[k]>rin)rin=din[k];
+      const rr=Math.min(G.round,Math.max(0,rin*px*0.85-px)),op=rr>0?dilateM(erodeM(tmp,nx,ny,px,rr,true),nx,ny,px,rr):tmp;for(let k=0;k<N;k++)if(op[k])M[k]=1;}
+    const Ms=G.smooth>0?smoothM(M,nx,ny,px,G.smooth):M,Mm=G.merge>0?erodeM(dilateM(Ms,nx,ny,px,G.merge),nx,ny,px,G.merge,true):Ms;SDp[f.side]=sdf(Mm,nx,ny,px);f.voidLoops=contourLoops(SDp[f.side],nx,ny,u0,v0,px);}
+  const floors=FL.map((fl,k)=>{const[pa,pb]=floorPair(m,k),A=SDp[pa],B=pb?SDp[pb]:SDp[pa];if(!A||!B)return null;
+    const zm=fl.z+fl.h/2,ze=fl.below?m.zMin+0.01:zm,blk=m.blocks.filter(b=>b.base<=ze&&b.top>ze),vd=fl.below?[]:m.voids.filter(b=>b.base<=ze&&b.top>ze),env=new Uint8Array(N);let envA=0;
+    for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){const q=j*nx+i;if(envSD(blk,vd,m.a0+X(i),m.b0+Y(j))>0){env[q]=1;envA++;}}
+    const S=new Float32Array(N);for(let q=0;q<N;q++){const a=A[q],b=B[q];S[q]=!pb?a:G.op==='overlap'?Math.min(a,b):G.op==='xor'?Math.max(Math.min(a,-b),Math.min(b,-a)):Math.max(a,b);}
+    // coverage: an even offset t so that the mass covers the target share of the footprint
+    let t=0;if(G.coverage>0&&envA){const target=G.coverage*envA,cnt=tt=>{let c=0;for(let q=0;q<N;q++)if(env[q]&&S[q]>tt)c++;return c;};let lo=-25,hi=25;for(let it=0;it<22;it++){const md=(lo+hi)/2;if(cnt(md)>target)lo=md;else hi=md;}t=(lo+hi)/2;}
+    const Bm=new Uint8Array(N);for(let q=0;q<N;q++)Bm[q]=env[q]&&S[q]>t?1:0;
+    // pieces: at least the smallest piece; at most the largest few (0 = all)
+    const lab=new Int32Array(N).fill(-1),regs=[];for(let q0=0;q0<N;q0++){if(!Bm[q0]||lab[q0]>=0)continue;const st=[q0],cells=[];lab[q0]=q0;while(st.length){const q=st.pop();cells.push(q);const i=q%nx,j=(q-i)/nx;for(const[dx,dy]of DIRS){const x=i+dx,y=j+dy;if(x<0||y<0||x>=nx||y>=ny)continue;const k2=y*nx+x;if(Bm[k2]&&lab[k2]<0){lab[k2]=q0;st.push(k2);}}}regs.push(cells);}
+    regs.sort((x,y)=>y.length-x.length);const keep=regs.filter(r=>r.length*px*px>=G.minPiece).slice(0,G.maxPieces>0?G.maxPieces:1e9);
+    const FM=new Uint8Array(N);for(const r of keep)for(const q of r)FM[q]=1;return{SD:sdf(FM,nx,ny,px),n:keep.length};});
+  const at=(k,a,b)=>{const fl=floors[k];if(!fl)return-1e9;const x=(a-m.a0-u0)/px-0.5,y=(b-m.b0-v0)/px-0.5;if(x<0||y<0||x>nx-1.001||y>ny-1.001)return-1e9;const i=Math.floor(x),j=Math.floor(y),fx=x-i,fy=y-j,q=j*nx+i,S=fl.SD;
+    return(S[q]*(1-fx)+S[q+1]*fx)*(1-fy)+(S[q+nx]*(1-fx)+S[q+nx+1]*fx)*fy;};
+  const bk=FL.findIndex(fl=>fl.below);
+  return{count:floors.reduce((t,f)=>t+(f?f.n:0),0),court:(a,b)=>bk<0?-1:at(bk,a,b),active:zm=>floorOf(zm)>=0,at:(a,b,zm)=>at(floorOf(zm),a,b)};}
+// marching squares on a cell-centred field (solid > 0): closed loops with the solid on the left (outer CCW, holes CW)
+function contourLoops(F,nx,ny,x0,y0,r){const W=nx+2,val=(i,j)=>i<0||j<0||i>=nx||j>=ny?-1:F[j*nx+i],P=new Map(),nxt=new Map();
+  const H=(i,j)=>((j+1)*W+(i+1))*2,Vk=(i,j)=>((j+1)*W+(i+1))*2+1,XY=(i,j)=>[x0+(i+0.5)*r,y0+(j+0.5)*r];
+  for(let j=-1;j<ny;j++)for(let i=-1;i<nx;i++){const v0=val(i,j),v1=val(i+1,j),v2=val(i+1,j+1),v3=val(i,j+1);const m0=v0>0,m1=v1>0,m2=v2>0,m3=v3>0;if(m0===m1&&m1===m2&&m2===m3)continue;
+    const E=[[H(i,j),[i,j],[i+1,j],v0,v1],[Vk(i+1,j),[i+1,j],[i+1,j+1],v1,v2],[H(i,j+1),[i+1,j+1],[i,j+1],v2,v3],[Vk(i,j),[i,j+1],[i,j],v3,v0]],cr=[];
+    for(const[k,a,b,va,vb]of E)if((va>0)!==(vb>0)){if(!P.has(k)){const t=va/(va-vb),pa=XY(...a),pb=XY(...b);P.set(k,[pa[0]+(pb[0]-pa[0])*t,pa[1]+(pb[1]-pa[1])*t]);}cr.push([k,va>0?'x':'n']);}
+    if(cr.length===2){const x=cr[0][1]==='x'?cr[0]:cr[1],n=x===cr[0]?cr[1]:cr[0];nxt.set(x[0],n[0]);}
+    else if(cr.length===4){const c=(v0+v1+v2+v3)/4;for(let q=0;q<4;q++)if(cr[q][1]==='x')nxt.set(cr[q][0],cr[(q+(c>0?1:3))%4][0]);}}
+  const loops=[],seen=new Set();for(const k0 of nxt.keys()){if(seen.has(k0))continue;const L=[];let k=k0;for(let g=0;g<1e6&&!seen.has(k);g++){seen.add(k);L.push(P.get(k));k=nxt.get(k);if(k===undefined)break;}if(L.length>=3)loops.push(L);}
+  return loops;}
+// extrude stacked storeys of loops into closed prisms (walls + caps), with outlines; storeys whose solid is unchanged merge
+function prismMesh(m,items,eps){const c=Math.cos(m.ang*deg),sn=Math.sin(m.ang*deg),W_=(a,b,z)=>[m.o[0]+a*c-b*sn,m.o[1]+a*sn+b*c,z],pos=[],idx=[],lines=[];let vol=0;
+  const V=(a,b,z)=>{const w=W_(a,b,z);pos.push(w[0],w[1],w[2]);return pos.length/3-1;},seg=(p,q)=>lines.push(p[0],p[1],p[2],q[0],q[1],q[2]);
+  for(const it of items){const loops=it.loops.map(L=>dpClosed(L,eps)).filter(L=>L.length>=3&&Math.abs(area(L))>0.05);if(!loops.length)continue;const{z0,z1}=it;
+    const outers=[],holes=[];for(const L of loops)(sarea(L)>0?outers:holes).push(L);const groups=outers.map(o=>({o,h:[],A:area(o)}));
+    for(const h of holes){let best=null;for(const g of groups)if(pip(h[0][0],h[0][1],g.o)&&(!best||g.A<best.A))best=g;if(best)best.h.push(h);}
+    for(const L of loops){vol+=sarea(L)*(z1-z0);const n=L.length;for(let q=0;q<n;q++){const p=L[q],r=L[(q+1)%n],a=V(p[0],p[1],z0),b=V(r[0],r[1],z0),cc=V(r[0],r[1],z1),d=V(p[0],p[1],z1);idx.push(a,b,cc,a,cc,d);
+        seg(W_(p[0],p[1],z0),W_(r[0],r[1],z0));seg(W_(p[0],p[1],z1),W_(r[0],r[1],z1));
+        const pr=L[(q-1+n)%n],u=[p[0]-pr[0],p[1]-pr[1]],w=[r[0]-p[0],r[1]-p[1]],cs=(u[0]*w[0]+u[1]*w[1])/((Math.hypot(...u)*Math.hypot(...w))||1);if(cs<0.9)seg(W_(p[0],p[1],z0),W_(p[0],p[1],z1));}}
+    for(const g of groups){const all=[g.o,...g.h].flat(),tri=THREE.ShapeUtils.triangulateShape(g.o.map(q=>new THREE.Vector2(q[0],q[1])),g.h.map(h=>h.map(q=>new THREE.Vector2(q[0],q[1]))));
+      const t0=all.map(q=>V(q[0],q[1],z0)),t1=all.map(q=>V(q[0],q[1],z1));
+      for(const t of tri){const A=all[t[0]],B=all[t[1]],C=all[t[2]],up=(B[0]-A[0])*(C[1]-A[1])-(B[1]-A[1])*(C[0]-A[0])>0;
+        if(up){idx.push(t1[t[0]],t1[t[1]],t1[t[2]],t0[t[0]],t0[t[2]],t0[t[1]]);}else{idx.push(t1[t[0]],t1[t[2]],t1[t[1]],t0[t[0]],t0[t[1]],t0[t[2]]);}}}}
+  return{pos:new Float32Array(pos),idx:new Uint32Array(idx),vol,lines:new Float32Array(lines)};}
+function carveMesh(m){const C=CS(m.grp),VF=voidFields(m),r=m.plan?0.5:0.25,inv=invOf(m.grp),CR=coreRect(m),CRL=coreList(m);
+  const x0=m.a0-2*r,y0=m.b0-2*r,nx=Math.ceil((m.a1-m.a0)/r)+4,ny=Math.ceil((m.b1-m.b0)/r)+4,N=nx*ny,X=i=>x0+(i+0.5)*r,Y=j=>y0+(j+0.5)*r;
+  const FL=massFloors(m).filter(f=>!f.below),envC=new Map(),st=[];const minC=Math.max(1,Math.round(C.minPart/(r*r)));
+  for(const fl of FL){const z0=fl.z,z1=fl.z+fl.h,zm=(z0+z1)/2,blk=m.blocks.filter(b=>b.base<=zm&&b.top>zm),vd=m.voids.filter(b=>b.base<=zm&&b.top>zm);if(!blk.length)continue;
+    const key=blk.map(b=>m.blocks.indexOf(b))+'|'+vd.map(b=>m.voids.indexOf(b));let E=envC.get(key);
+    if(!E){E=new Float32Array(N);for(let j=0;j<ny;j++)for(let i=0;i<nx;i++)E[j*nx+i]=envSD(blk,vd,X(i),Y(j));envC.set(key,E);}
+    const act=VF.active(zm)?[1]:[],F=new Float32Array(N),G=new Float32Array(N);
+    for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){const q=j*nx+i,e=E[q];const vf=act.length?VF.at(X(i),Y(j),zm):1e9;
+      let so=Math.min(e,vf),bo=Math.min(e,-vf);if(inv){const t=so;so=bo;bo=t;}
+      for(const R of CRL){const cs=Math.min(X(i)-R[0],R[2]-X(i),Y(j)-R[1],R[3]-Y(j));so=Math.max(so,Math.min(cs,e));bo=Math.min(bo,-cs);}   // the core is always solid
+      F[q]=so;G[q]=bo;}
+    // fragments smaller than the smallest floor part are removed
+    const B=new Uint8Array(N),lab=new Int32Array(N).fill(-1);for(let q=0;q<N;q++)B[q]=F[q]>0?1:0;
+    for(let q0=0;q0<N;q0++){if(!B[q0]||lab[q0]>=0)continue;const s=[q0],cells=[];lab[q0]=q0;while(s.length){const q=s.pop();cells.push(q);const i=q%nx,j=(q-i)/nx;for(const[dx,dy]of DIRS){const x=i+dx,y=j+dy;if(x<0||y<0||x>=nx||y>=ny)continue;const p=y*nx+x;if(B[p]&&lab[p]<0){lab[p]=q0;s.push(p);}}}
+      if(cells.length<minC)for(const q of cells){B[q]=0;F[q]=-r;}}
+    const last=st[st.length-1];if(last&&Math.abs(last.z1-z0)<1e-6&&!act.length&&!last.act&&last.key===key){last.z1=z1;continue;}
+    st.push({z0,z1,F,G,B,key,act:act.length});}
+  const eps=m.plan?0.12:0.06,solid=prismMesh(m,st.map(s=>({z0:s.z0,z1:s.z1,loops:contourLoops(s.F,nx,ny,x0,y0,r)})),eps);
+  const vbody=prismMesh(m,st.filter(s=>s.act||inv).map(s=>({z0:s.z0,z1:s.z1,loops:contourLoops(s.G,nx,ny,x0,y0,r)})),eps);
+  const A=[...Array(nx+1).keys()].map(i=>x0+i*r),Bv=[...Array(ny+1).keys()].map(j=>y0+j*r);
+  solid.bands=st.map(s=>({z0:s.z0,z1:s.z1,A,B:Bv,na:nx,nb:ny,S:s.B}));solid.ea=[x0,x0+nx*r,y0,y0+ny*r];solid.voidMesh=vbody.idx.length?vbody:null;solid.carved={count:VF.count};
+  // the plinth's basement, dug out under its courts (the sunken gardens below them), in a slab of earth under its footprint
+  const bd=Math.max(0,cfg.plinth.bdepth||0);
+  if(m.plan&&bd>0){const g=m.blocks.filter(b=>b.base<=m.zMin+1e-6);if(g.length){const env=new Uint8Array(N),D=new Uint8Array(N),Sf=new Uint8Array(N),Se=new Uint8Array(N);let dug=0;
+      for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){const q=j*nx+i;if(!g.some(b=>pipR(X(i),Y(j),b.lr)))continue;env[q]=1;Sf[q]=1;
+        if(VF.court&&VF.court(X(i),Y(j))>0){D[q]=1;dug++;}else Se[q]=1;}
+      const zb=m.zMin-bd;solid.earth=meshBands(m,[{z0:zb-1,z1:zb,A,B:Bv,na:nx,nb:ny,S:Sf},{z0:zb,z1:m.zMin,A,B:Bv,na:nx,nb:ny,S:Se}],x0,x0+nx*r,y0,y0+ny*r);
+      solid.dugB={z0:zb,z1:m.zMin,A,B:Bv,na:nx,nb:ny,S:D,E:env};solid.dig=dug*r*r*bd;
+      const R=[];for(let j=0;j<ny;j++){let i=0;while(i<nx){if(!env[j*nx+i]){i++;continue;}let e=i+1;while(e<nx&&env[j*nx+e])e++;R.push([A[i],Bv[j],A[e],Bv[j+1]]);i=e;}}
+      const cA=Math.cos(m.ang*deg),sA=Math.sin(m.ang*deg),W2=p=>[m.o[0]+p[0]*cA-p[1]*sA,m.o[1]+p[0]*sA+p[1]*cA];
+      solid.foot=unionRects(R).map(({outer,holes})=>({outer:outer.map(W2),holes:holes.map(h=>h.map(W2))}));}}
+  return solid;}
+
+/* ---------- area: GFA from the floor plans (above ground: floors + bridges; the basement apart), against a target ---------- */
+const SQFT=10.7639;
+function gfaStats(){const per=[];let gfa=0,base=0,occ=0,over=0,narrow=0,floors=0;
+  for(const m of MASSES){const P=m.plans||[];let a=0;for(const p of P){if(p.fl.below)base+=p.area;else{a+=p.area+p.barea;floors++;}occ+=p.occ;if(p.overTravel)over++;narrow+=p.narrow;}per.push([m.name,a]);gfa+=a;}
+  return{gfa,base,occ,over,narrow,floors,per,target:cfg.gfa.target,ok:gfa>=cfg.gfa.target};}
+const areaTxt=a=>`${f0(a)} m² (${f0(a*SQFT)} sq ft)`;
+function gfaLine(){const s=gfaStats();return`GFA ${areaTxt(s.gfa)} · target ${areaTxt(s.target)} · ${s.ok?'✓ enough':'✗ short by '+f0(s.target-s.gfa)+' m²'}`;}
+// Meet GFA target: raise both groups' cover step by step (regrow, rebuild, measure) until the GFA reaches the target,
+// keeping the best; stop after 8 tries, at the cover cap, or when 3 tries in a row gain nothing
+let FIT=null;
+function meetTarget(){if(FIT)return toast('Already fitting');FIT={n:0,best:null,stall:0,auto:cfg.mass.auto};cfg.mass.auto=true;fitStep(true);}
+function fitStep(first){const s=gfaStats(),cov={T:cfg.G.T.cover,P:cfg.G.P.cover};
+  if(!first){if(!FIT.best||s.gfa>FIT.best.gfa+1){FIT.best={gfa:s.gfa,cov};FIT.stall=0;}else FIT.stall++;}
+  else if(built)FIT.best={gfa:s.gfa,cov};
+  const done=msg=>{const b=FIT.best,au=FIT.auto;FIT=null;cfg.mass.auto=au;renderPanels();updateArea();toast(msg);};
+  if(built&&s.ok)return done(`GFA target met · ${f0(s.gfa)} m²`);
+  const capped=cfg.G.T.cover>=0.95&&cfg.G.P.cover>=0.95;
+  if(FIT.n>=8||capped||FIT.stall>=3){const b=FIT.best;if(b&&(b.cov.T!==cfg.G.T.cover||b.cov.P!==cfg.G.P.cover)){cfg.G.T.cover=b.cov.T;cfg.G.P.cover=b.cov.P;FIT.n=99;renderPanels();reseedAll(true);FIT.finalMsg=true;return;}
+    return done(`Cover alone can’t reach the target (best ${f0(b?b.gfa:s.gfa)} m²) · try a bigger floor plate or more height`);}
+  if(FIT.finalMsg)return done(`Kept the best cover · GFA ${f0(s.gfa)} m² · try a bigger floor plate or more height`);
+  FIT.n++;for(const k of['T','P'])cfg.G[k].cover=Math.min(0.95,+(cfg.G[k].cover+0.08).toFixed(2));renderPanels();toast(`Raising cover to meet the GFA target · try ${FIT.n}`);reseedAll(true);}
+function updateArea(){const el=$('#areaSum');if(!el)return;if(!built){el.textContent='Build the massing to measure it.';return;}const s=gfaStats();
+  el.innerHTML=`<b>GFA ${areaTxt(s.gfa)}</b><br>${s.per.map(([n,a])=>`${n} ${f0(a)} m²`).join(' · ')}${s.base?` · basement ${f0(s.base)} m² (not in GFA)`:''}<br>`+
+    `<span style="color:${s.ok?'inherit':'#e0412b'}">${s.ok?'✓ meets':'✗ short of'} the ${areaTxt(s.target)} target${s.ok?'':' by '+f0(s.target-s.gfa)+' m²'}</span><br>`+
+    `${f0(s.occ)} occupants · ${s.narrow?`<span style="color:#e0412b">${s.narrow} bridge${s.narrow===1?'':'s'} too narrow</span>`:'every bridge wide enough'} · ${s.over?`<span style="color:#e0412b">${s.over} of ${s.floors} floors over ${f1(cfg.egress.maxTravel)} m travel</span>`:`all floors within ${f1(cfg.egress.maxTravel)} m travel`}`;}
+
+/* ---------- growth loop ---------- */
+let running=false,built=false,buildTimer=0,lastPaint=0;
+// the plinth's default plan: not grown, it shows the shared paint layer (PLALL) over the plinth's density; paint it alone and
+// the paint reaches every plinth plan (each plan's density = its own paint + this)
+function defaultPlan(pl){const f0=pl.faces[0];if(!pl.defFace||pl.defFace.W!==f0.W||pl.defFace.H!==f0.H)pl.defFace={m:pl,side:'PD',def:true,plan:false,key:'PLALL',gi:20,W:f0.W,H:f0.H,grp:'P',dg:null,curves:[]};return pl.defFace;}
+// painting the default plan replaces the plans' own paint: from then on every plan has exactly the default paint (and can
+// still be painted on its own afterwards, on top of it)
+function replacePlanPaint(pl){const own=pl.faces.filter(f=>PAINT[f.key]);if(!own.length)return;for(const f of own)delete PAINT[f.key];toast('Default plan paint now replaces each plan’s own paint');}
+function refreshDefault(){const pl=MASSES.find(m=>m.plan);if(!pl||!pl.faces.length)return;const d=defaultPlan(pl);faceRaster(d);paintFace(d);}
+function reseedAll(go=true){refreshDefault();for(const f of FACES())seedFace(f);built=false;invalidateMass();updateBig();drawSheet();if(go)setRun(true);}
+function setRun(on){const was=running;running=on;$('#bGrow').textContent=on?'Pause':'Grow';$('#bGrow').insertAdjacentHTML('beforeend','<kbd>␣</kbd>');if(on&&!was)setTimeout(tick,0);}
+function tick(){if(!running)return;const t0=performance.now(),F=FACES(),S=cfg.dg.steps;let any=false;
+  const A=cfg.agents,SE=Math.max(1,A.settle*S);
+  do{any=false;for(const f of F){if(f.dg&&f.dg.t<S){f.dg.step(f.field);any=true;
+    if(A.on&&f.dg.t%A.every===0&&f.dg.t<SE)agentsStep(f,A.restless*(1-f.dg.t/SE),false);else if(f.dg.t===S)agentsStep(f,0,true);}}}while(any&&performance.now()-t0<30);
+  const now=performance.now();if(!any||now-lastPaint>160){F.forEach(paintFace);lastPaint=now;}
+  drawSheet();updateBig();
+  if(!any){setRun(false);updateBig();toast('Growth finished · '+f0(totalNodes())+' nodes');if(cfg.mass.auto)buildMassing();return;}
+  setTimeout(tick,4);}
+const totalNodes=()=>FACES().reduce((t,f)=>t+(f.dg?f.dg.N:0),0);
+function updateBig(){const F=FACES(),S=cfg.dg.steps,t=F.length?Math.min(...F.map(f=>f.dg?f.dg.t:0)):0;
+  $('#bStep').textContent=t+' / '+S;$('#bNodes').textContent=f0(totalNodes());$('#prog').style.width=(S?t/S*100:0).toFixed(1)+'%';
+  $('#agSum')&&($('#agSum').textContent=agentCount()?agentCount()+' · happiness '+meanHappy().toFixed(2):'');const gT=F.filter(f=>f.grp===EDIT);$('#seedSum').textContent=gT.length?gT.reduce((a,f)=>a+(f.nSeeds||0),0)+' seeds · '+gT.length+' faces':'';
+  const na=agentCount();$('#sheetMsg').textContent=`${F.length} faces · step ${t} / ${S} · ${f0(totalNodes())} nodes`+(na?` · ${na} agents · happiness ${meanHappy().toFixed(2)}`:'')+(running?' · growing':'');}
+
+/* ---------- elevation sheet ---------- */
+const SH={cv:$('#sheet'),k:1,tx:0,ty:0,layout:[],bbox:null,fitted:false,hover:null};
+function layoutSheet(){const L=[];const gap=Math.max(12,2*Math.max(cfg.G.T.over||0,cfg.G.P.over||0)+6);let x=0;const tw=MASSES.filter(m=>m.grp==='T'),pl=MASSES.find(m=>m.grp==='P');let H0=0;
+  tw.forEach((m,mi)=>{for(const f of m.faces){L.push({f,x,y:0,w:f.W,h:f.H});x+=f.W+gap;H0=Math.max(H0,f.H);}x+=gap*2;});
+  let wTop=x-gap*3;
+  // the plinth's three plans under the towers: plans 1 and 2 side by side, plan 3 below
+  if(pl){let y=0,xx=0;const D=defaultPlan(pl);if(!D.R){faceRaster(D);paintFace(D);}[D,...pl.faces].forEach((f,i)=>{if(i%2===0){y-=f.H+34;xx=0;}L.push({f,x:xx,y,w:f.W,h:f.H});xx+=f.W+gap*2;wTop=Math.max(wTop,xx);});}
+  SH.layout=L;const x0=Math.min(...L.map(r=>r.x)),x1=Math.max(...L.map(r=>r.x+r.w)),y0=Math.min(...L.map(r=>r.y)),y1=Math.max(...L.map(r=>r.y+r.h));SH.bbox=[x0-10,y0-14,x1+10,y1+22];}
+function sheetFit(b){const cv=SH.cv,r=cv.getBoundingClientRect();if(r.width<20)return;b=b||SH.bbox;const pad=24;const k=Math.min((r.width-2*pad)/(b[2]-b[0]),(r.height-2*pad-20)/(b[3]-b[1]));
+  SH.k=k;SH.tx=(r.width-(b[2]-b[0])*k)/2-b[0]*k;SH.ty=(r.height+(b[3]-b[1])*k)/2+b[1]*k;SH.fitted=true;drawSheet();}
+function sheetSize(){const cv=SH.cv,r=cv.getBoundingClientRect(),dpr=Math.min(2,devicePixelRatio||1);const w=Math.max(1,Math.round(r.width*dpr)),h=Math.max(1,Math.round(r.height*dpr));if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h;}return{dpr,W:r.width,H:r.height};}
+function drawSheet(){const cv=SH.cv;if(!cv.offsetParent)return;const{dpr,W,H}=sheetSize();if(!SH.fitted){sheetFit();return;}
+  const cx=cv.getContext('2d');cx.setTransform(1,0,0,1,0,0);cx.fillStyle='#fff';cx.fillRect(0,0,cv.width,cv.height);
+  const k=SH.k,showC=$('#vCurves').checked;
+  for(const r of SH.layout){const f=r.f;if(!f.R)continue;const sx=SH.tx+r.x*k,sy=SH.ty-r.y*k;if(sx>W||sx+r.w*k<0||sy<0||sy-r.h*k>H)continue;
+    cx.save();cx.setTransform(dpr*k,0,0,-dpr*k,dpr*sx,dpr*sy);
+    cx.beginPath();cx.rect(0,0,r.w,r.h);cx.clip();
+    cx.imageSmoothingEnabled=false;cx.drawImage(f.R.bg,f.R.u0,f.R.v0,f.R.nx*f.R.px,f.R.ny*f.R.px);
+    if((f.plan||f.def)&&f.shape){cx.beginPath();for(const L of f.shape.loops){cx.moveTo(L[0][0],L[0][1]);for(let q=1;q<L.length;q++)cx.lineTo(L[q][0],L[q][1]);cx.closePath();}cx.lineWidth=1.4/k;cx.strokeStyle='#000';cx.stroke();
+      for(const R of plinthCores(f.m)){cx.strokeStyle='#e0412b';cx.strokeRect(R[0]-f.m.a0,R[1]-f.m.b0,R[2]-R[0],R[3]-R[1]);}}
+    if($('#vFloors').checked&&k>0.8&&!f.plan&&!f.def){cx.beginPath();for(const z of floorLevels(f))if(z>0&&z<f.H){cx.moveTo(0,z);cx.lineTo(r.w,z);}cx.lineWidth=1/k;cx.strokeStyle='rgba(120,120,120,.55)';cx.stroke();}
+    if(f.dg&&f.dg.N){cx.beginPath();for(const fig of(f.reg||regFigures(f)))for(const c of fig){cx.moveTo(c[0][0],c[0][1]);for(let q=1;q<c.length;q++)cx.lineTo(c[q][0],c[q][1]);cx.closePath();}
+      if(showC&&k>1.2){cx.lineWidth=1/k;cx.strokeStyle='#e0412b';cx.globalAlpha=0.55;cx.stroke();cx.globalAlpha=1;
+        if(cfg.agents.on)for(const a of(f.agv||[])){const rr=Math.max(1.2,5/k);cx.beginPath();cx.arc(a.c[0],a.c[1],rr,0,2*Math.PI);cx.fillStyle='#fff';cx.fill();cx.lineWidth=1.2/k;cx.strokeStyle='#e0412b';cx.stroke();
+          cx.beginPath();cx.moveTo(a.c[0],a.c[1]);cx.arc(a.c[0],a.c[1],rr,Math.PI/2,Math.PI/2-2*Math.PI*clamp(a.h,0,1),true);cx.closePath();cx.fillStyle='#e0412b';cx.fill();}}}
+    // carved voids on the face or plan they come from, exactly as carved (each figure's rounded outline)
+    if(carveLike(f.grp)&&built&&f.voidLoops&&f.voidLoops.length){cx.beginPath();for(const L of f.voidLoops){cx.moveTo(L[0][0],L[0][1]);for(let q=1;q<L.length;q++)cx.lineTo(L[q][0],L[q][1]);cx.closePath();}
+      cx.fillStyle='rgba(224,65,43,0.22)';cx.fill('evenodd');cx.lineWidth=1.6/k;cx.strokeStyle='#e0412b';cx.stroke();}
+    cx.restore();
+    if(showC&&(f.dg&&f.dg.O)&&k>0.6){cx.save();cx.setTransform(dpr*k,0,0,-dpr*k,dpr*sx,dpr*sy);cx.beginPath();cx.rect(-f.dg.O,-f.dg.O,r.w+2*f.dg.O,r.h+2*f.dg.O);cx.rect(r.w,0,-r.w,r.h);cx.clip('evenodd');
+      cx.beginPath();for(const fig of(f.reg||[]))for(const c of fig){cx.moveTo(c[0][0],c[0][1]);for(let q=1;q<c.length;q++)cx.lineTo(c[q][0],c[q][1]);cx.closePath();}cx.fillStyle='rgba(0,0,0,.18)';cx.fill('evenodd');cx.lineWidth=1/k;cx.strokeStyle='rgba(0,0,0,.45)';cx.stroke();cx.restore();}
+    cx.setTransform(dpr,0,0,dpr,0,0);cx.strokeStyle=f.plan||f.def?'#c8c8c8':'#000';cx.lineWidth=SH.hover===r?2:1;cx.strokeRect(sx+0.5,sy-r.h*k+0.5,r.w*k,r.h*k);
+    if(r.w*k>34){cx.fillStyle='#000';cx.font='600 10px "IBM Plex Mono",monospace';cx.textBaseline='bottom';const lab=(f.m.grp==='T'?f.m.name.replace('Tower ','T·'):'Plinth')+' '+(f.def?'default plan':f.side==='PB'?'basement plan':f.plan?'plan '+f.side.slice(1):f.side);cx.fillText(lab,sx,sy-r.h*k-3);
+      if(r.w*k>110){const lw=cx.measureText(lab).width;cx.fillStyle='#6b6b6b';cx.font='10px "IBM Plex Mono",monospace';const sub=f.def?'paint here · replaces every plan’s paint':f.plan?planUse(f)+(r.w*k>380?` · ${f1(f.W)} × ${f1(f.H)} m`:''):`${f1(f.W)} × ${f1(f.H)} m`;if(lw+30+cx.measureText(sub).width<r.w*k+40)cx.fillText(sub,sx+lw+30,sy-r.h*k-3);}}}
+  // density brush
+  if(cfg.paint.on&&SH.brush){cx.setTransform(dpr,0,0,dpr,0,0);cx.beginPath();cx.arc(SH.tx+SH.brush[0]*k,SH.ty-SH.brush[1]*k,Math.max(2,cfg.paint.r*k),0,2*Math.PI);cx.lineWidth=1.5;cx.strokeStyle='#e0412b';cx.stroke();}
+  // scale bar
+  const nice=[1,2,5,10,20,50,100,200];let m=nice[0];for(const n of nice)if(n*k<=140)m=n;cx.setTransform(dpr,0,0,dpr,0,0);cx.fillStyle='#000';const bx=W-24-m*k,by=H-22;
+  cx.fillRect(bx,by,m*k/2,5);cx.strokeStyle='#000';cx.lineWidth=1;cx.strokeRect(bx+0.5,by+0.5,m*k,5);cx.font='10px "IBM Plex Mono",monospace';cx.textBaseline='bottom';cx.textAlign='right';cx.fillText(m+' m',W-24,by-2);cx.textAlign='left';}
+const sheetXY=e=>{const r=SH.cv.getBoundingClientRect();return[(e.clientX-r.left-SH.tx)/SH.k,(SH.ty-(e.clientY-r.top))/SH.k];};
+function sheetHit(e){const[x,y]=sheetXY(e);return SH.layout.find(q=>x>=q.x&&x<=q.x+q.w&&y>=q.y&&y<=q.y+q.h)||null;}
+// painting: with the brush on, a left-drag over a plinth plan paints its density (Shift lowers it); the face is re-seeded on release
+let paintRAF=0;
+function paintStroke(P,e){const[x,y]=sheetXY(e),u=x-P.r.x,v=y-P.r.y,sg=e.shiftKey?-1:1,f0=P.r.f,tg=cfg.paint.shared&&f0.plan?{key:'PLALL',W:f0.W,H:f0.H}:f0,toAll=f0.def||tg!==f0;
+  // dabs spaced evenly along the stroke, so a fast drag leaves no gaps
+  if(P.last){const L=Math.hypot(u-P.last[0],v-P.last[1]),stp=Math.max(0.5,cfg.paint.r/4),n=Math.max(1,Math.ceil(L/stp));for(let i=1;i<=n;i++)paintDab(tg,P.last[0]+(u-P.last[0])*i/n,P.last[1]+(v-P.last[1])*i/n,sg);}
+  else paintDab(tg,u,v,sg);P.last=[u,v];P.dirty=true;
+  if(!paintRAF)paintRAF=requestAnimationFrame(()=>{paintRAF=0;for(const f of(toAll?[...f0.m.faces,defaultPlan(f0.m)]:[f0])){faceRaster(f);paintFace(f);}drawSheet();});}
+function reseedFaces(list){refreshDefault();for(const f of list)seedFace(f);built=false;invalidateMass();updateBig();drawSheet();setRun(true);}
+{const cv=SH.cv;let d=null,P=null;
+  cv.addEventListener('wheel',e=>{e.preventDefault();const r=cv.getBoundingClientRect(),sx=e.clientX-r.left,sy=e.clientY-r.top,wx=(sx-SH.tx)/SH.k,wy=(SH.ty-sy)/SH.k,f=Math.exp(-e.deltaY*0.0015);SH.k=clamp(SH.k*f,0.2,80);SH.tx=sx-wx*SH.k;SH.ty=sy+wy*SH.k;drawSheet();},{passive:false});
+  cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);const h=sheetHit(e);
+    if(cfg.paint.on&&e.button===0&&h){setRun(false);if(h.f.def||cfg.paint.shared&&h.f.plan)replacePlanPaint(h.f.m);P={r:h,dirty:false};paintStroke(P,e);return;}
+    d={x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY};cv.style.cursor='grabbing';});
+  cv.addEventListener('pointermove',e=>{if(cfg.paint.on){SH.brush=sheetXY(e);if(!d&&!P)drawSheet();}
+    if(P){paintStroke(P,e);return;}
+    if(!d){const h=sheetHit(e);if(h!==SH.hover){SH.hover=h;drawSheet();}return;}SH.tx+=e.clientX-d.x;SH.ty+=e.clientY-d.y;d.x=e.clientX;d.y=e.clientY;drawSheet();});
+  cv.addEventListener('pointerup',e=>{cv.style.cursor=cfg.paint.on?'crosshair':'grab';if(P){if(P.dirty)reseedFaces(P.r.f.def||cfg.paint.shared&&P.r.f.plan?P.r.f.m.faces:[P.r.f]);P=null;return;}
+    if(d&&!cfg.paint.on&&Math.hypot(e.clientX-d.x0,e.clientY-d.y0)<4){const h=sheetHit(e);if(h)sheetFit([h.x-4,h.y-6,h.x+h.w+4,h.y+h.h+12]);}d=null;});
+  cv.addEventListener('dblclick',()=>{if(!cfg.paint.on)sheetFit();});cv.addEventListener('contextmenu',e=>e.preventDefault());
+  cv.addEventListener('pointerleave',()=>{SH.brush=null;if(SH.hover){SH.hover=null;}drawSheet();});}
+
+/* ---------- face mask: grown figures XOR the gradient's solid zone, as a signed distance ---------- */
+function chamfer(zero,nx,ny){const N=nx*ny,d=new Float32Array(N),S2=Math.SQRT2;for(let k=0;k<N;k++)d[k]=zero[k]?0:1e6;
+  for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){const k=j*nx+i;if(!d[k])continue;let v=d[k];if(i>0)v=Math.min(v,d[k-1]+1);if(j>0){v=Math.min(v,d[k-nx]+1);if(i>0)v=Math.min(v,d[k-nx-1]+S2);if(i<nx-1)v=Math.min(v,d[k-nx+1]+S2);}d[k]=v;}
+  for(let j=ny-1;j>=0;j--)for(let i=nx-1;i>=0;i--){const k=j*nx+i;if(!d[k])continue;let v=d[k];if(i<nx-1)v=Math.min(v,d[k+1]+1);if(j<ny-1){v=Math.min(v,d[k+nx]+1);if(i<nx-1)v=Math.min(v,d[k+nx+1]+S2);if(i>0)v=Math.min(v,d[k+nx-1]+S2);}d[k]=v;}
+  return d;}
+function sdf(mask,nx,ny,px){const N=nx*ny,inv=new Uint8Array(N);for(let k=0;k<N;k++)inv[k]=mask[k]?0:1;const dIn=chamfer(inv,nx,ny),dOut=chamfer(mask,nx,ny),s=new Float32Array(N);
+  for(let k=0;k<N;k++)s[k]=mask[k]?(dIn[k]-0.5)*px:-(dOut[k]-0.5)*px;return s;}
+// even-odd scanline fill of polygons into a raster (edge table by row)
+function fillEO(polys,nx,ny,px,u0,v0,out){const rows=Array.from({length:ny},()=>[]);
+  for(const P of polys){const n=P.length;for(let q=0;q<n;q++){const a=P[q],b=P[(q+1)%n];if(a[1]===b[1])continue;const lo=Math.min(a[1],b[1]),hi=Math.max(a[1],b[1]);
+    const j0=Math.max(0,Math.ceil((lo-v0)/px-0.5)),j1=Math.min(ny-1,Math.floor((hi-v0)/px-0.5));
+    for(let j=j0;j<=j1;j++){const y=v0+(j+0.5)*px;if((a[1]>y)!==(b[1]>y))rows[j].push(a[0]+(y-a[1])*(b[0]-a[0])/(b[1]-a[1]));}}}
+  for(let j=0;j<ny;j++){const xs=rows[j];if(xs.length<2)continue;xs.sort((p,q)=>p-q);for(let q=0;q+1<xs.length;q+=2){const i0=Math.max(0,Math.ceil((xs[q]-u0)/px-0.5)),i1=Math.min(nx-1,Math.floor((xs[q+1]-u0)/px-0.5));for(let i=i0;i<=i1;i++)out[j*nx+i]^=1;}}
+  return out;}
+function faceMask(f){const R=f.R,{nx,ny,px,u0,v0,G}=R,th=cfg.G[f.grp].grad.theta,base=MS(f.grp).base,N=nx*ny,C=new Uint8Array(N),tmp=new Uint8Array(N);
+  if(f.dg)for(const fig of regFigures(f)){tmp.fill(0);fillEO(fig,nx,ny,px,u0,v0,tmp);for(let k=0;k<N;k++)C[k]+=tmp[k];}
+  const M=new Uint8Array(N),bnd=new Uint8Array(N);let sol=0,tot=0;
+  for(let j=0;j<ny;j++){const v=v0+(j+0.5)*px;for(let i=0;i<nx;i++){const k=j*nx+i,u=u0+(i+0.5)*px;if(u<0||u>f.W||v<0||v>f.H){C[k]=0;continue;}
+    M[k]=ruleSolid(C[k]+(base&&G[k]>th?1:0),f.grp)?1:0;tot++;sol+=M[k];}}
+  for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){const k=j*nx+i;if(i<nx-1&&C[k]!==C[k+1])bnd[k]=bnd[k+1]=1;if(j<ny-1&&C[k]!==C[k+nx])bnd[k]=bnd[k+nx]=1;}
+  const dB=chamfer(bnd,nx,ny),D=new Float32Array(N);for(let k=0;k<N;k++)D[k]=Math.min(1e4,(dB[k]+0.5)*px);
+  f.C=C;f.D=D;f.solid=tot?sol/tot:0;f.sd=MS(f.grp).mode==='bool'?sdf(M,nx,ny,px):null;}
+const cntAt=(f,u,v)=>{const R=f.R,i=Math.floor((u-R.u0)/R.px),j=Math.floor((v-R.v0)/R.px);return i<0||j<0||i>=R.nx||j>=R.ny?0:f.C[j*R.nx+i];};
+function dAt(f,u,v){const R=f.R,x=clamp((u-R.u0)/R.px-0.5,0,R.nx-1.001),y=clamp((v-R.v0)/R.px-0.5,0,R.ny-1.001),i=Math.floor(x),j=Math.floor(y),fx=x-i,fy=y-j,s=f.D,k=j*R.nx+i;
+  return(s[k]*(1-fx)+s[k+1]*fx)*(1-fy)+(s[k+R.nx]*(1-fx)+s[k+R.nx+1]*fx)*fy;}
+function sdAt(f,u,v){const R=f.R,x=(u-R.u0)/R.px-0.5,y=(v-R.v0)/R.px-0.5;if(x<0||y<0||x>R.nx-1||y>R.ny-1)return-R.px*2;
+  const i=Math.min(R.nx-2,Math.floor(x)),j=Math.min(R.ny-2,Math.floor(y)),fx=x-i,fy=y-j,s=f.sd,k=j*R.nx+i;
+  return(s[k]*(1-fx)+s[k+1]*fx)*(1-fy)+(s[k+R.nx]*(1-fx)+s[k+R.nx+1]*fx)*fy;}
+
+/* ---------- 3D overlaps: extrude each elevation through the mass, intersect, clip by the original geometry, mesh with surface nets ---------- */
+function envBands(m,r,nx,ny,A0,B0){const zs=[...new Set([...m.blocks.flatMap(b=>[b.base,b.top]),...m.voids.flatMap(v=>[v.base,v.top])])].sort((a,b)=>a-b);const bands=[];
+  const e=Math.min(0.5,r/2),pad=3,x0=m.a0-pad,y0=m.b0-pad,gx=Math.ceil((m.a1-m.a0+2*pad)/e),gy=Math.ceil((m.b1-m.b0+2*pad)/e);
+  for(let q=0;q+1<zs.length;q++){const lo=zs[q],hi=zs[q+1];if(hi-lo<1e-6)continue;const act=m.blocks.filter(b=>b.base<=lo+1e-6&&b.top>=hi-1e-6);if(!act.length)continue;
+    const vo=m.voids.filter(b=>b.base<=lo+1e-6&&b.top>=hi-1e-6);const mask=new Uint8Array(gx*gy);
+    for(const b of act){const t=fillEO(b.lr,gx,gy,e,x0,y0,new Uint8Array(gx*gy));for(let k=0;k<t.length;k++)if(t[k])mask[k]=1;}
+    for(const b of vo){const t=fillEO(b.lr,gx,gy,e,x0,y0,new Uint8Array(gx*gy));for(let k=0;k<t.length;k++)if(t[k])mask[k]=0;}
+    const sd=sdf(mask,gx,gy,e),grid=new Float32Array(nx*ny);
+    for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){const a=A0+i*r,b=B0+j*r,x=(a-x0)/e-0.5,y=(b-y0)/e-0.5;let val;
+      if(x<0||y<0||x>gx-1||y>gy-1)val=-pad;else{const ii=Math.min(gx-2,Math.floor(x)),jj=Math.min(gy-2,Math.floor(y)),fx=x-ii,fy=y-jj,k=jj*gx+ii;val=(sd[k]*(1-fx)+sd[k+1]*fx)*(1-fy)+(sd[k+gx]*(1-fx)+sd[k+gx+1]*fx)*fy;}
+      grid[j*nx+i]=val;}
+    bands.push({lo,hi,grid});}
+  return bands;}
+function massField(m){const r=MS(m.grp).res,nx=Math.ceil((m.a1-m.a0)/r)+4,ny=Math.ceil((m.b1-m.b0)/r)+4,nz=Math.ceil((m.zTop-m.zMin)/r)+4;
+  const A0=m.a0-1.5*r,B0=m.b0-1.5*r,Z0=m.zMin-1.5*r,F=new Float32Array(nx*ny*nz),Fc=Object.fromEntries(m.faces.map(f=>[f.side,f]));
+  const bands=envBands(m,r,nx,ny,A0,B0),pair=MS(m.grp).pair,cross=MS(m.grp).cross;
+  const sS=new Float32Array(nx),sN=new Float32Array(nx),sE=new Float32Array(ny),sW=new Float32Array(ny);
+  const comb=(a,b)=>pair==='union'?Math.max(a,b):pair==='overlap'?Math.min(a,b):a;
+  if(MS(m.grp).mode==='count'){
+    // every figure on every face is extruded straight through the mass; at each voxel count the pieces covering it
+    // (plus one for the gradient's volume zone), then the rule says mass or void. Field = +/- distance to the nearest piece boundary.
+    const gc=cfg.G[m.grp],g=gc.grad,th=g.theta,base=MS(m.grp).base,Wm=(m.a1-m.a0+m.b1-m.b0)/2,Hm=m.zTop-m.zMin;
+    const Lspan=g.type==='vertical'?Hm:g.type==='horizontal'?Wm:g.type==='linear'?Math.max(Wm,Hm)/2:Math.min(Wm,Hm)/2,Lg=Lspan/Math.max(0.05,Math.abs(g.to-g.from))/(1+g.sharp*4);
+    const cS=new Int16Array(nx),cN=new Int16Array(nx),cE=new Int16Array(ny),cW=new Int16Array(ny),dS=new Float32Array(nx),dN=new Float32Array(nx),dE=new Float32Array(ny),dW=new Float32Array(ny),gS=new Float32Array(nx),gN=new Float32Array(nx),gE=new Float32Array(ny),gW=new Float32Array(ny);
+    const CRv=coreRect(m);
+    const sm=(f,u,v,ci,di,gi,q)=>{ci[q]=cntAt(f,u,v);di[q]=dAt(f,u,v);gi[q]=rAt(f,f.R.G,u,v);};
+    for(let k=0;k<nz;k++){const z=Z0+k*r,v=z-m.zMin;
+      for(let i=0;i<nx;i++){const a=A0+i*r;sm(Fc.S,a-m.a0,v,cS,dS,gS,i);sm(Fc.N,m.a1-a,v,cN,dN,gN,i);}
+      for(let j=0;j<ny;j++){const b=B0+j*r;sm(Fc.E,b-m.b0,v,cE,dE,gE,j);sm(Fc.W,m.b1-b,v,cW,dW,gW,j);}
+      const band=bands.find(q=>z>=q.lo&&z<q.hi),dz=Math.min(z-m.zMin,m.zTop-z),bs=k*nx*ny;
+      for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){const Gm=(gS[i]+gN[i]+gE[j]+gW[j])/4,b=base&&Gm>th?1:0,n=b+cS[i]+cN[i]+cE[j]+cW[j];
+        let mm=Math.min(dS[i],dN[i],dE[j],dW[j]);if(base)mm=Math.min(mm,Math.abs(Gm-th)*Lg);
+        let val=(ruleSolid(n,m.grp)?1:-1)*Math.max(mm,0.02);
+        // the core is solid
+        if(CRv){const a=A0+i*r,b=B0+j*r,dc=Math.min(a-CRv[0],CRv[2]-a,b-CRv[1],CRv[3]-b);val=Math.max(val,dc);}F[bs+j*nx+i]=Math.min(val,dz,band?band.grid[j*nx+i]:-r);}}
+  }else
+  for(let k=0;k<nz;k++){const z=Z0+k*r,v=z-m.zMin;
+    for(let i=0;i<nx;i++){const a=A0+i*r;sS[i]=sdAt(Fc.S,a-m.a0,v);sN[i]=sdAt(Fc.N,m.a1-a,v);}
+    for(let j=0;j<ny;j++){const b=B0+j*r;sE[j]=sdAt(Fc.E,b-m.b0,v);sW[j]=sdAt(Fc.W,m.b1-b,v);}
+    const band=bands.find(q=>z>=q.lo&&z<q.hi),dz=Math.min(z-m.zMin,m.zTop-z),base=k*nx*ny;
+    for(let j=0;j<ny;j++){const ew=comb(sE[j],sW[j]);for(let i=0;i<nx;i++){const sn=comb(sS[i],sN[i]);let val=cross==='overlap'?Math.min(sn,ew):Math.max(sn,ew);
+      val=Math.min(val,dz,band?band.grid[j*nx+i]:-r);F[base+j*nx+i]=val;}}}
+  // boundary layer is always outside, so the surface closes
+  for(let k=0;k<nz;k++)for(let j=0;j<ny;j++)for(let i=0;i<nx;i++)if(!i||!j||!k||i===nx-1||j===ny-1||k===nz-1)F[(k*ny+j)*nx+i]=-r;
+  if(MS(m.grp).floating)dropFloating(F,nx,ny,nz,r,m);
+  let solid=0;for(let q=0;q<F.length;q++)if(F[q]>0)solid++;
+  return{F,nx,ny,nz,A0,B0,Z0,r,vol:solid*r*r*r};}
+function dropFloating(F,nx,ny,nz,r,m){const N=F.length,seen=new Uint8Array(N),st=[];const kz=Math.min(nz-1,Math.ceil(1.5+1.2));
+  for(let k=1;k<=kz;k++)for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){const q=(k*ny+j)*nx+i;if(F[q]>0&&!seen[q]){seen[q]=1;st.push(q);}}
+  while(st.length){const q=st.pop(),i=q%nx,j=((q-i)/nx)%ny,k=(q-i-j*nx)/(nx*ny);const nb=[i>0?q-1:-1,i<nx-1?q+1:-1,j>0?q-nx:-1,j<ny-1?q+nx:-1,k>0?q-nx*ny:-1,k<nz-1?q+nx*ny:-1];
+    for(const p of nb)if(p>=0&&!seen[p]&&F[p]>0){seen[p]=1;st.push(p);}}
+  for(let q=0;q<N;q++)if(F[q]>0&&!seen[q])F[q]=-r*0.5;}
+// naive surface nets: one vertex per sign-changing cell, one quad per sign-changing grid edge
+function surfaceNets(V){const{F,nx,ny,nz}=V,cx=nx-1,cy=ny-1,cz=nz-1,cellV=new Int32Array(cx*cy*cz).fill(-1),pos=[],idx=[];
+  const E=[[0,1],[2,3],[4,5],[6,7],[0,2],[1,3],[4,6],[5,7],[0,4],[1,5],[2,6],[3,7]],C=[[0,0,0],[1,0,0],[0,1,0],[1,1,0],[0,0,1],[1,0,1],[0,1,1],[1,1,1]],val=new Float32Array(8);
+  for(let k=0;k<cz;k++)for(let j=0;j<cy;j++)for(let i=0;i<cx;i++){let m=0;
+    for(let c=0;c<8;c++){const v=F[((k+C[c][2])*ny+j+C[c][1])*nx+i+C[c][0]];val[c]=v;if(v>0)m|=1<<c;}
+    if(m===0||m===255)continue;let sx=0,sy=0,sz=0,n=0;
+    for(const[a,b]of E){const va=val[a],vb=val[b];if((va>0)===(vb>0))continue;const t=va/(va-vb);sx+=C[a][0]+(C[b][0]-C[a][0])*t;sy+=C[a][1]+(C[b][1]-C[a][1])*t;sz+=C[a][2]+(C[b][2]-C[a][2])*t;n++;}
+    cellV[(k*cy+j)*cx+i]=pos.length/3;pos.push(i+sx/n,j+sy/n,k+sz/n);}
+  const cv=(i,j,k)=>cellV[(k*cy+j)*cx+i];
+  const quad=(a,b,c,d,flip)=>{if(a<0||b<0||c<0||d<0)return;if(flip)idx.push(a,c,b,a,d,c);else idx.push(a,b,c,a,c,d);};
+  for(let k=1;k<cz;k++)for(let j=1;j<cy;j++)for(let i=0;i<cx;i++){const s0=F[(k*ny+j)*nx+i]>0,s1=F[(k*ny+j)*nx+i+1]>0;if(s0===s1)continue;quad(cv(i,j-1,k-1),cv(i,j,k-1),cv(i,j,k),cv(i,j-1,k),!s0);}
+  for(let k=1;k<cz;k++)for(let j=0;j<cy;j++)for(let i=1;i<cx;i++){const s0=F[(k*ny+j)*nx+i]>0,s1=F[(k*ny+j+1)*nx+i]>0;if(s0===s1)continue;quad(cv(i-1,j,k-1),cv(i-1,j,k),cv(i,j,k),cv(i,j,k-1),!s0);}
+  for(let k=0;k<cz;k++)for(let j=1;j<cy;j++)for(let i=1;i<cx;i++){const s0=F[(k*ny+j)*nx+i]>0,s1=F[((k+1)*ny+j)*nx+i]>0;if(s0===s1)continue;quad(cv(i-1,j-1,k),cv(i,j-1,k),cv(i,j,k),cv(i-1,j,k),!s0);}
+  return{pos,idx};}
+function massMesh(m){const V=massField(m),sn=surfaceNets(V),P=new Float32Array(sn.pos.length),c=Math.cos(m.ang*deg),s=Math.sin(m.ang*deg);
+  for(let q=0;q<sn.pos.length;q+=3){const a=V.A0+sn.pos[q]*V.r,b=V.B0+sn.pos[q+1]*V.r,z=V.Z0+sn.pos[q+2]*V.r;P[q]=m.o[0]+a*c-b*s;P[q+1]=m.o[1]+a*s+b*c;P[q+2]=z;}
+  return{pos:P,idx:new Uint32Array(sn.idx),vol:V.vol,V};}
+let buildSeq=0;
+function invalidateMass(){buildSeq++;}
+function buildMassing(){const seq=++buildSeq;clearTimeout(buildTimer);$('#axoMsg').textContent='building…';
+  const F=FACES();for(const f of F)faceMask(f);const list=[...MASSES];let vol=0;const t0=performance.now();
+  const next=()=>{if(seq!==buildSeq)return;const m=list.shift();if(!m){built=true;$('#bVol').textContent=f0(vol);axoBuild();renderPlans();updateArea();if(FIT)setTimeout(()=>FIT&&fitStep(false),0);
+      const dig=MASSES.reduce((t,m)=>t+(m.mesh&&m.mesh.dig||0),0),bv=MASSES.reduce((t,m)=>t+(m.mesh&&m.mesh.bvol||0),0),nb=MASSES.reduce((t,m)=>t+(m.plans||[]).reduce((s,p)=>s+p.nBridge,0),0);
+      $('#axoMsg').textContent=`${MASSES.length} masses · ${f0(vol)} m³${dig?` · basement dug ${f0(dig)} m³`:''}${nb?` · ${nb} egress bridge${nb===1?'':'s'}`:''} · ${gfaLine()} · ${MASSES.map(m=>(m.grp==='T'?m.name.replace('Tower ','T·'):'Plinth')+' '+modeLabel(m)).join(' · ')} · ${Math.round(performance.now()-t0)} ms`;return;}
+    m.mesh=carveLike(m.grp)?carveMesh(m):m.plan||EG(m.grp).mode==='ortho'&&MS(m.grp).mode==='count'?boxMesh(m):massMesh(m);vol+=m.mesh.vol;
+    // every floor plan, its egress and the bridges that join it up
+    try{buildPlans(m);}catch(e){console.error(e);m.plans=null;}setTimeout(next,0);};
+  setTimeout(next,0);}
+function scheduleBuild(){if(!built)return;clearTimeout(buildTimer);buildTimer=setTimeout(buildMassing,250);}
+
+/* ---------- axonometric (three.js) ---------- */
+const AX={ok:typeof THREE!=='undefined',az:225,elv:30,span:0};
+function axoInit(){if(AX.r)return true;if(!AX.ok){$('#axoMsg').textContent='3D library did not load';return false;}
+  const box=$('#axo'),R=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});R.setPixelRatio(Math.min(2,devicePixelRatio||1));box.appendChild(R.domElement);R.setClearColor(0xffffff);
+  const sc=new THREE.Scene(),cam=new THREE.OrthographicCamera(-1,1,1,-1,-4000,4000);cam.up.set(0,0,1);
+  sc.add(new THREE.HemisphereLight(0xffffff,0x9a9a9a,0.8));const dl=new THREE.DirectionalLight(0xffffff,0.55);dl.position.set(-250,-380,520);sc.add(dl);
+  const grp=new THREE.Group();sc.add(grp);Object.assign(AX,{r:R,sc,cam,grp,box,t:new THREE.Vector3((SBB.x0+SBB.x1)/2,(SBB.y0+SBB.y1)/2,40),span:(SBB.x1-SBB.x0)*1.1});
+  let d=null;const cv=R.domElement;cv.tabIndex=0;cv.addEventListener('contextmenu',e=>e.preventDefault());
+  cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);d={x:e.clientX,y:e.clientY,pan:e.button!==0||e.shiftKey};cv.style.cursor='grabbing';});
+  cv.addEventListener('pointermove',e=>{if(!d)return;const dx=e.clientX-d.x,dy=e.clientY-d.y;d.x=e.clientX;d.y=e.clientY;
+    if(d.pan){const k=AX.span/(cv.clientHeight||1),right=new THREE.Vector3().setFromMatrixColumn(AX.cam.matrixWorld,0),up=new THREE.Vector3().setFromMatrixColumn(AX.cam.matrixWorld,1);AX.t.addScaledVector(right,-dx*k).addScaledVector(up,dy*k);}
+    else{AX.az-=dx*0.4;AX.elv=clamp(AX.elv+dy*0.3,2,89.9);}axoRender();});
+  cv.addEventListener('pointerup',()=>{cv.style.cursor='grab';d=null;});
+  cv.addEventListener('wheel',e=>{e.preventDefault();AX.span=clamp(AX.span*Math.exp(e.deltaY*0.0015),20,3000);axoRender();},{passive:false});
+  new ResizeObserver(()=>{axoSize();axoRender();}).observe(box);axoSize();return true;}
+function axoSize(){if(!AX.r)return;AX.r.setSize(AX.box.clientWidth||400,AX.box.clientHeight||300,false);AX.r.domElement.style.width='100%';AX.r.domElement.style.height='100%';}
+function axoRender(){if(!AX.r||!AX.box.offsetParent)return;const w=AX.box.clientWidth||1,h=AX.box.clientHeight||1,a=w/h,c=AX.cam,s=AX.span/2;
+  c.left=-s*a;c.right=s*a;c.top=s;c.bottom=-s;const el=AX.elv*deg,az=AX.az*deg;c.position.set(AX.t.x+Math.cos(el)*Math.cos(az)*1500,AX.t.y+Math.cos(el)*Math.sin(az)*1500,AX.t.z+Math.sin(el)*1500);c.lookAt(AX.t);c.updateProjectionMatrix();AX.r.render(AX.sc,c);}
+function axoPreset(p){const P={sw:[225,30],se:[315,30],ne:[45,30],nw:[135,30],top:[270,89.9]}[p];if(!AX.r)return;AX.az=P[0];AX.elv=P[1];AX.t.set((SBB.x0+SBB.x1)/2,(SBB.y0+SBB.y1)/2,p==='top'?0:40);AX.span=(SBB.x1-SBB.x0)*(p==='top'?0.75:1.1);axoRender();}
+function faceToWorld(f,u,v,off){const m=f.m;let a,b;if(f.plan){const p=rot([m.a0+u,m.b0+v],m.ang);return[m.o[0]+p[0],m.o[1]+p[1],planZ(f)+off];}switch(f.side){case 'S':a=m.a0+u;b=m.b0-off;break;case 'N':a=m.a1-u;b=m.b1+off;break;case 'E':a=m.a1+off;b=m.b0+u;break;default:a=m.a0-off;b=m.b1-u;}
+  const p=rot([a,b],m.ang);return[m.o[0]+p[0],m.o[1]+p[1],m.zMin+v];}
+function axoBuild(){if(!AX.box&&!$('#axo').offsetParent)return;if(!$('#axo').offsetParent||!axoInit())return;const g=AX.grp;
+  g.children.slice().forEach(o=>{g.remove(o);o.geometry&&o.geometry.dispose();o.material&&o.material.dispose();});
+  const poly=(pts,color,z,op=1)=>{const gm=new THREE.BufferGeometry().setFromPoints(pts.map(p=>new THREE.Vector3(p[0],p[1],z)));g.add(new THREE.Line(gm,new THREE.LineBasicMaterial({color,transparent:op<1,opacity:op})));};
+  const flat=(r,color,z,holes=[])=>{const sh=new THREE.Shape(r.map(p=>new THREE.Vector2(p[0],p[1])));for(const h of holes)sh.holes.push(new THREE.Path(h.map(p=>new THREE.Vector2(p[0],p[1]))));const m=new THREE.Mesh(new THREE.ShapeGeometry(sh),new THREE.MeshBasicMaterial({color}));m.position.z=z;g.add(m);};
+  // the site plane is cut open over the basement's footprint, where the earth (with the basement dug out of it) takes over
+  const FOOT=built?MASSES.flatMap(m=>m.mesh&&m.mesh.foot||[]):[];
+  flat(SITE,0xf2f2f2,-0.05,FOOT.map(f=>f.outer));for(const f of FOOT)for(const h of f.holes)flat(h,0xf2f2f2,-0.05);GREEN.forEach(r=>flat(r,0xdcdcdc,0));poly([...SITE,SITE[0]],0x000000,0.1);poly([...POD,POD[0]],0x9a9a9a,0.1);poly([...HIGH,HIGH[0]],0x9a9a9a,0.1);
+  for(const m of MASSES){
+    if($('#axGhost').checked){for(const b of m.blocks)for(const r of b.rings){const c=0xb0b0b0;poly([...r,r[0]],c,b.top,0.8);poly([...r,r[0]],c,b.base+0.02,0.8);
+      const seg=[];for(const p of r)seg.push(new THREE.Vector3(p[0],p[1],b.base),new THREE.Vector3(p[0],p[1],b.top));const lg=new THREE.BufferGeometry().setFromPoints(seg);g.add(new THREE.LineSegments(lg,new THREE.LineBasicMaterial({color:c,transparent:true,opacity:0.5})));}}
+    if(built&&m.mesh&&m.mesh.idx.length){const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(m.mesh.pos,3));geo.setIndex(new THREE.BufferAttribute(m.mesh.idx,1));geo.computeVertexNormals();
+      g.add(new THREE.Mesh(geo,new THREE.MeshPhongMaterial({color:0xffffff,flatShading:true,shininess:0,specular:0x000000,polygonOffset:true,polygonOffsetFactor:1,polygonOffsetUnits:1,side:THREE.DoubleSide})));
+      if(m.mesh.lines&&m.mesh.lines.length){const lg=new THREE.BufferGeometry();lg.setAttribute('position',new THREE.BufferAttribute(m.mesh.lines,3));g.add(new THREE.LineSegments(lg,new THREE.LineBasicMaterial({color:0x000000})));}
+      else g.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo,44),new THREE.LineBasicMaterial({color:0x000000})));
+      // the void bodies (the carved voids as volumes, Tianjin's reverse), translucent
+      const VB=m.mesh.voidMesh;if(VB&&CS(m.grp).bodies&&carveLike(m.grp)){const vg=new THREE.BufferGeometry();vg.setAttribute('position',new THREE.BufferAttribute(VB.pos,3));vg.setIndex(new THREE.BufferAttribute(VB.idx,1));vg.computeVertexNormals();
+        g.add(new THREE.Mesh(vg,new THREE.MeshBasicMaterial({color:0xe0412b,transparent:true,opacity:0.16,depthWrite:false,side:THREE.DoubleSide})));
+        if(VB.lines.length){const lg=new THREE.BufferGeometry();lg.setAttribute('position',new THREE.BufferAttribute(VB.lines,3));g.add(new THREE.LineSegments(lg,new THREE.LineBasicMaterial({color:0xe0412b,transparent:true,opacity:0.45})));}}
+      // egress bridges: thin floor plates, drawn in the accent colour
+      const BR=m.mesh.bridges;if(BR&&BR.idx.length){const bg=new THREE.BufferGeometry();bg.setAttribute('position',new THREE.BufferAttribute(BR.pos,3));bg.setIndex(new THREE.BufferAttribute(BR.idx,1));bg.computeVertexNormals();
+        g.add(new THREE.Mesh(bg,new THREE.MeshPhongMaterial({color:0xe0412b,flatShading:true,shininess:0,specular:0x000000,side:THREE.DoubleSide})));
+        if(BR.lines.length){const lg=new THREE.BufferGeometry();lg.setAttribute('position',new THREE.BufferAttribute(BR.lines,3));g.add(new THREE.LineSegments(lg,new THREE.LineBasicMaterial({color:0x7a1d10})));}}
+      const E=m.mesh.earth;if(E){const eg=new THREE.BufferGeometry();eg.setAttribute('position',new THREE.BufferAttribute(E.pos,3));eg.setIndex(new THREE.BufferAttribute(E.idx,1));eg.computeVertexNormals();
+        g.add(new THREE.Mesh(eg,new THREE.MeshPhongMaterial({color:0xcfc8bc,flatShading:true,shininess:0,specular:0x000000,polygonOffset:true,polygonOffsetFactor:2,polygonOffsetUnits:2,side:THREE.DoubleSide})));
+        if(E.lines.length){const lg=new THREE.BufferGeometry();lg.setAttribute('position',new THREE.BufferAttribute(E.lines,3));g.add(new THREE.LineSegments(lg,new THREE.LineBasicMaterial({color:0x7a7266})));}}}
+    if($('#axCurves').checked){const seg=[];for(const f of m.faces){if(!f.dg)continue;for(const c of regFigures(f).flat())for(let q=0;q<c.length;q++){const a=faceToWorld(f,c[q][0],c[q][1],0.15),b=faceToWorld(f,c[(q+1)%c.length][0],c[(q+1)%c.length][1],0.15);seg.push(a[0],a[1],a[2],b[0],b[1],b[2]);}}
+      if(seg.length){const lg=new THREE.BufferGeometry();lg.setAttribute('position',new THREE.Float32BufferAttribute(seg,3));g.add(new THREE.LineSegments(lg,new THREE.LineBasicMaterial({color:built?0x8a8a8a:0x000000,transparent:built,opacity:built?0.55:1})));}}}
+  axoRender();}
+
+/* ---------- export ---------- */
+const slug=s=>s.toUpperCase().replace(/[^A-Z0-9]+/g,'_').replace(/^_|_$/g,'');
+function exOBJ(){const n3=v=>v.toFixed(3);let o='# Yiwu Elevation Growth Lab · overlap massing + grown elevation curves\n# metres · Z up · model coords (E = x + 511000, N = y + 3246000), ±0.00 = 74.00\n# Rhino: File > Import, tick "Import OBJ groups as layers"\n',vi=1;const L=[];
+  if(cfg.mass.merge)L.push('g MASSING\no MASSING_MERGED\n');
+  for(const m of MASSES){if(!m.mesh)continue;const P=m.mesh.pos,I=m.mesh.idx;if(!cfg.mass.merge)L.push(`g MASS_${slug(m.name)}\no ${slug(m.name)}_MASSING\n`);
+    for(let q=0;q<P.length;q+=3)L.push(`v ${n3(P[q])} ${n3(P[q+1])} ${n3(P[q+2])}\n`);for(let q=0;q<I.length;q+=3)L.push(`f ${I[q]+vi} ${I[q+1]+vi} ${I[q+2]+vi}\n`);vi+=P.length/3;}
+  // the earth around the dug-out basement, and the egress bridges, each their own layer
+  for(const m of MASSES)for(const[key,E]of[['EARTH',m.mesh&&m.mesh.earth],['BRIDGES',m.mesh&&m.mesh.bridges],['VOIDS',carveLike(m.grp)&&m.mesh&&m.mesh.voidMesh]]){if(!E||!E.idx.length)continue;L.push(`g ${key}_${slug(m.name)}\no ${slug(m.name)}_${key}\n`);
+    for(let q=0;q<E.pos.length;q+=3)L.push(`v ${n3(E.pos[q])} ${n3(E.pos[q+1])} ${n3(E.pos[q+2])}\n`);for(let q=0;q<E.idx.length;q+=3)L.push(`f ${E.idx[q]+vi} ${E.idx[q+1]+vi} ${E.idx[q+2]+vi}\n`);vi+=E.pos.length/3;}
+  for(const m of MASSES)for(const f of m.faces){if(!f.dg)continue;regFigures(f).flat().forEach((c,ci)=>{L.push(`g ELEV_${m.id}_${f.side}\no ${m.id}_${f.side}_${String(ci).padStart(3,'0')}\n`);for(const p of c){const w=faceToWorld(f,p[0],p[1],0);L.push(`v ${n3(w[0])} ${n3(w[1])} ${n3(w[2])}\n`);}
+    L.push('l '+c.map((_,q)=>q+vi).join(' ')+' '+vi+'\n');vi+=c.length;});}
+  L.push('g SITE_REDLINE\no SITE_REDLINE\n');for(const p of SITE)L.push(`v ${n3(p[0])} ${n3(p[1])} 0.000\n`);L.push('l '+SITE.map((_,q)=>q+vi).join(' ')+' '+vi+'\n');
+  return o+L.join('');}
+function doObj(){if(!built){buildMassing();toast('Building massing first · download again when it shows');return;}download('yiwu_elevation_growth.obj',exOBJ(),'text/plain');toast('OBJ downloaded');}
+/* ---------- saved settings: named saves kept in this browser, and as .json files ---------- */
+// painted density is packed as base64 bytes (-1..1 → -127..127)
+const packPaint=p=>{const b=new Int8Array(p.d.length);for(let i=0;i<b.length;i++)b[i]=Math.round(clamp(p.d[i],-1,1)*127);let s='';const u=new Uint8Array(b.buffer);for(let i=0;i<u.length;i+=8192)s+=String.fromCharCode.apply(null,u.subarray(i,i+8192));return{nx:p.nx,ny:p.ny,b64:btoa(s)};};
+const unpackPaint=p=>{if(!p||!p.nx||!p.ny)return null;let d;if(p.b64){const s=atob(p.b64),b=new Int8Array(s.length);for(let i=0;i<s.length;i++)b[i]=(s.charCodeAt(i)<<24)>>24;d=Float32Array.from(b,x=>x/127);}else d=Float32Array.from(p.d||[]);
+  return d.length===p.nx*p.ny?{nx:p.nx,ny:p.ny,d}:null;};
+// a save holds every setting: cfg, every face's genome, all painted density, the view and its toggles, and any Podium Lab
+// geometry loaded from a file
+function uiState(){const ck=id=>{const x=$('#'+id);return x?!!x.checked:undefined;};return{view:$('#stage').className||'split',edit:EDIT,vTone:ck('vTone'),vCurves:ck('vCurves'),vFloors:ck('vFloors'),axCurves:ck('axCurves'),axGhost:ck('axGhost'),podium:cfg.plinth.src==='json'?LOADED:null};}
+function applyUI(u){if(!u)return;for(const id of['vTone','vCurves','vFloors','axCurves','axGhost'])if(typeof u[id]==='boolean'&&$('#'+id))$('#'+id).checked=u[id];
+  if(u.edit==='T'||u.edit==='P')EDIT=u.edit;if(Array.isArray(u.podium))LOADED=u.podium;if(u.view)setTimeout(()=>setView(u.view),0);}
+function settingsObj(name){const paint={};for(const k in PAINT)paint[k]=packPaint(PAINT[k]);return{format:'yiwu-elevation-growth/1',name,saved:new Date().toISOString(),cfg,genomes:GEN,paint,ui:uiState()};}
+function loadSettings(o){if(!o||o.format!=='yiwu-elevation-growth/1')return toast('Not a settings file from this lab'),false;resetCfg();deepAssign(cfg,migrateCfg(JSON.parse(JSON.stringify(o.cfg||{}))));applyUI(o.ui);for(const k in GEN)delete GEN[k];Object.assign(GEN,o.genomes||{});
+  for(const k in PAINT)delete PAINT[k];for(const k in(o.paint||{})){const p=unpackPaint(o.paint[k]);if(p)PAINT[k]=p;}
+  syncPaint();renderPanels();rebuildAll();toast(o.name?`Loaded “${o.name}”`:'Settings loaded');return true;}
+// the list lives in localStorage; where the browser blocks it, saves last only until the page is closed
+const SV_KEY='yiwu-elevation-growth-saves-v1';let SV_MEM=null;
+function svAll(){if(SV_MEM)return SV_MEM;try{return JSON.parse(localStorage.getItem(SV_KEY)||'{}')||{};}catch(e){SV_MEM={};return SV_MEM;}}
+function svPut(all){if(SV_MEM){SV_MEM=all;return true;}try{localStorage.setItem(SV_KEY,JSON.stringify(all));return true;}catch(e){toast('This browser would not keep the save (storage full or blocked) · use Download');return false;}}
+const fileName=n=>(n.trim().replace(/[\\/:*?"<>|]+/g,'').replace(/\s+/g,'_')||'yiwu_settings')+'.json';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function svSave(){const inp=$('#svName'),name=inp.value.trim();if(!name){inp.focus();return toast('Type a name for these settings first');}
+  const all=svAll();if(all[name]&&!confirm(`Replace the saved settings “${name}”?`))return;
+  all[name]=JSON.parse(JSON.stringify(settingsObj(name)));if(svPut(all)){inp.value='';svRender();toast(`Saved “${name}”`);}}
+function svRender(){const all=svAll(),names=Object.keys(all).sort((a,b)=>(all[b].saved||'').localeCompare(all[a].saved||''));
+  $('#svSum').textContent=names.length?names.length+' saved':'';
+  const when=s=>{const d=new Date(s);return isNaN(d)?'':d.toLocaleDateString(undefined,{day:'numeric',month:'short'})+' '+d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});};
+  $('#svList').innerHTML=names.length?names.map(n=>`<div class="row" style="margin-top:6px;flex-wrap:nowrap"><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(n)}"><b>${esc(n)}</b> <span style="color:var(--quiet)">${when(all[n].saved)}</span></span>`+
+    `<button class="btn" data-sv="load" data-n="${esc(n)}">Load</button><button class="btn" data-sv="dl" data-n="${esc(n)}" title="Download as ${esc(fileName(n))}">Download</button><button class="btn" data-sv="del" data-n="${esc(n)}" title="Delete this save">×</button></div>`).join('')
+    :`<div class="note">No saved settings yet.</div>`;
+  if(SV_MEM)$('#svNote').textContent='This browser blocks storage for this page, so saves last only until it is closed. Use Download to keep one as a file.';
+  $$('#svList [data-sv]').forEach(b=>b.onclick=()=>{const n=b.dataset.n,all=svAll(),o=all[n];if(!o)return;
+    if(b.dataset.sv==='load')loadSettings(o);else if(b.dataset.sv==='dl')download(fileName(n),JSON.stringify(o),'application/json');
+    else if(confirm(`Delete the saved settings “${n}”? This cannot be undone.`)){delete all[n];svPut(all);svRender();toast(`Deleted “${n}”`);}});}
+// the brush: the sheet's toggle and the panel's stay in step; the cursor shows when it is on
+function syncPaint(){$('#vPaint').checked=!!cfg.paint.on;SH.cv.style.cursor=cfg.paint.on?'crosshair':'grab';if(!cfg.paint.on)SH.brush=null;FACES().forEach(paintFace);drawSheet();}
+function clearPaint(){const pf=FACES().filter(f=>PAINT[f.key]||f.plan&&PAINT.PLALL);for(const f of pf)delete PAINT[f.key];delete PAINT.PLALL;if(pf.length){reseedFaces(pf);toast('Painted density cleared');}else toast('Nothing painted');}
+function deepAssign(t,s){for(const k in s){if(s[k]&&typeof s[k]==='object'&&!Array.isArray(s[k])&&t[k]&&typeof t[k]==='object')deepAssign(t[k],s[k]);else t[k]=s[k];}}
+
+/* ---------- controls ---------- */
+let reT=0;
+function on(ev){if(ev==='dg'){return;}if(ev==='area'){for(const m of MASSES)for(const p of m.plans||[])p.overTravel=p.maxLen>cfg.egress.maxTravel;updateArea();renderPlans();return;}if(ev==='draw'){FACES().forEach(paintFace);drawSheet();return;}
+  if(ev==='rule'){FACES().forEach(paintFace);drawSheet();scheduleBuild();return;}
+  if(ev==='mass'){scheduleBuild();return;}
+  clearTimeout(reT);reT=setTimeout(()=>{if(ev==='geo')rebuildAll();else reseedAll(true);},220);}
+function rebuildAll(){setRun(false);buildMasses();layoutSheet();SH.fitted=false;$('#plSum').textContent=MASSES.length+' masses';$('#plInfo')&&($('#plInfo').textContent=PLINFO);reseedAll(true);axoBuild();}
+function ctlHTML(c,id){const lab=`<label for="${id}" title="${c.tip||''}">${c.l}</label>`;
+  if(c.t==='range')return lab+`<div class="sl"><input type="range" id="${id}" min="${c.min}" max="${c.max}" step="${c.step}"><output id="${id}v"></output></div>`;
+  if(c.t==='select')return lab+`<select id="${id}">${c.o.map(([v,n])=>`<option value="${v}">${n}</option>`).join('')}</select>`;
+  if(c.t==='check')return `<span></span><label style="display:flex;gap:6px;align-items:center" title="${c.tip||''}"><input type="checkbox" id="${id}"> ${c.l}</label>`;
+  if(c.t==='num')return lab+`<input type="number" id="${id}" min="${c.min??''}" max="${c.max??''}" step="${c.step||1}">`;return '';}
+let CID=0;
+function mount(el,list,extra=''){const ids=list.map(()=>'c'+(CID++));el.innerHTML=`<div class="form">${list.map((c,i)=>c.raw?c.raw:ctlHTML(c,ids[i])).join('')}</div>${extra}`;
+  list.forEach((c,i)=>{if(c.raw)return;const x=document.getElementById(ids[i]),out=document.getElementById(ids[i]+'v');const show=()=>{if(out)out.textContent=c.f?c.f(c.get()):String(c.get());};
+    if(c.t==='check')x.checked=!!c.get();else x.value=c.get();show();
+    x.addEventListener(c.t==='range'?'input':'change',()=>{let v=c.t==='check'?x.checked:c.t==='select'?x.value:+x.value;if(c.t==='num'&&!isFinite(v))return;c.set(v);show();if(c.after)c.after();on(c.ev);});});}
+const pct=v=>Math.round(v*100)+' %';
+function renderPanels(){const gc=cfg.G[EDIT],g=gc.grad,D=cfg.dg;
+  const famChips=`<div class="chips" id="famChips">${FAMS.map(t=>`<label title="${LIB.filter(o=>o.t===t).length} figures"><input type="checkbox" value="${t}" ${gc.fam.includes(t)?'checked':''}>${t}</label>`).join('')}</div>`;
+  mount($('#pSeeds'),[
+    {t:'select',l:'Seed source',o:[['boardB','Atlas board B · random single figures'],['atlas','Atlas families · genome'],['plate','Figure-ground plate']],get:()=>gc.src,set:v=>gc.src=v,ev:'seed',after:renderPanels},
+    ...(gc.src==='plate'?[
+      {t:'select',l:'Plate',o:PLATES.map(p=>[p.key,p.n]),get:()=>gc.plate,set:v=>gc.plate=v,ev:'seed'},
+      {t:'range',l:'Plate scale',min:0.05,max:2,step:0.01,get:()=>gc.plateScale,set:v=>gc.plateScale=v,f:v=>'× '+f2(v),ev:'seed',tip:'Face metres per plate metre; the window slides by the genome'}]:[]),
+    {t:'range',l:'Figures per face',min:1,max:80,step:1,get:()=>gc.count,set:v=>gc.count=v,ev:'seed',tip:'Target number of figures on each face. With overhang the count grows with the extended area, so the density on the face stays the same'},
+    {t:'range',l:'Overhang',min:0,max:80,step:0.5,get:()=>gc.over||0,set:v=>gc.over=v,f:v=>f1(v)+' m',ev:'seed',after:()=>{layoutSheet();SH.fitted=false;},tip:'The pattern grows this far past every edge of the face, so figures cut into the corners and edges of the mass'},
+    {t:'range',l:'Cover',min:0.05,max:0.95,step:0.01,get:()=>gc.cover,set:v=>gc.cover=v,f:pct,ev:'seed',tip:'Seed area share of each face; figures never overlap on a face'},
+    ...(gc.src!=='plate'?[
+      {t:'range',l:'Size ×',min:0.3,max:8,step:0.05,get:()=>gc.sizeMul??1,set:v=>gc.sizeMul=v,f:v=>'× '+f2(v),ev:'seed',tip:'Multiplies the size that follows from the count and cover; figures shrink again if they do not fit'},
+      {t:'range',l:'Scale min',min:0.2,max:1.5,step:0.05,get:()=>gc.s0,set:v=>gc.s0=Math.min(v,gc.s1),f:f2,ev:'seed'},
+      {t:'range',l:'Scale max',min:0.2,max:2,step:0.05,get:()=>gc.s1,set:v=>gc.s1=Math.max(v,gc.s0),f:f2,ev:'seed'},
+      {t:'range',l:'Rotate ±',min:0,max:90,step:1,get:()=>gc.jit,set:v=>gc.jit=v,f:v=>v+'°',ev:'seed'}]:[]),
+    {t:'range',l:'Seeds follow density',min:0,max:1,step:0.01,get:()=>gc.seedK,set:v=>gc.seedK=v,f:f2,ev:'seed',tip:'0 = seeds anywhere, 1 = a seed is kept with the probability the density gives at its centre'},
+    {t:'range',l:'Smaller where dense',min:0,max:1,step:0.01,get:()=>gc.sizeK??0,set:v=>gc.sizeK=v,f:f2,ev:'seed',tip:'Figures shrink by up to 60 % where the density is 1, so more of them pack there'},
+    {t:'num',l:'Genome seed',tip:'Towers: Tower West uses this seed, Tower East this + 1',min:0,step:1,get:()=>gc.seed,set:v=>gc.seed=Math.max(0,Math.floor(v)),ev:'seed'},
+    {t:'range',l:'Mutation rate',min:0.02,max:0.6,step:0.01,get:()=>gc.pm??0.15,set:v=>gc.pm=v,f:f2,ev:'dg'}
+  ],(gc.src==='atlas'?`<div class="k">Atlas families</div>${famChips}`:'')+`<div class="note">Each face carries its own genome (${NG} genes: on, figure, u, v, quarter turn, jitter, scale, growth gain, seed draw), placed with the Podium Lab’s Builder: pulled in and shrunk until it fits the face, no overlaps, cover capped, accepted by the gradient’s density.</div>`);
+  $$('#famChips input').forEach(x=>x.onchange=()=>{gc.fam=$$('#famChips input:checked').map(y=>y.value);on('seed');});
+  const typ=g.type;
+  mount($('#pGrad'),[
+    {t:'select',l:'Density field',o:[['flat','None · uniform, paint only'],['vertical','Vertical · base → top'],['horizontal','Horizontal · left → right'],['linear','Linear · angle'],['radial','Radial · from a point'],['edges','Edges → centre']],get:()=>g.type,set:v=>g.type=v,ev:'seed',after:renderPanels},
+    {t:'range',l:typ==='flat'?'Base density':'Density at start',min:0,max:1,step:0.01,get:()=>g.from,set:v=>g.from=v,f:pct,ev:'seed',after:drawGradPrev,tip:typ==='flat'?'The density everywhere before painting':''},
+    ...(typ==='flat'?[]:[
+    {t:'range',l:'Density at end',min:0,max:1,step:0.01,get:()=>g.to,set:v=>g.to=v,f:pct,ev:'seed',after:drawGradPrev},
+    {t:'range',l:'Midpoint',min:0,max:1,step:0.01,get:()=>g.mid,set:v=>g.mid=v,f:f2,ev:'seed',after:drawGradPrev},
+    {t:'range',l:'Sharpness',min:0,max:1,step:0.01,get:()=>g.sharp,set:v=>g.sharp=v,f:f2,ev:'seed',after:drawGradPrev,tip:'0 = linear ramp, 1 = hard step at the midpoint'}]),
+    ...(typ==='linear'?[{t:'range',l:'Angle',min:0,max:360,step:1,get:()=>g.angle,set:v=>g.angle=v,f:v=>v+'°',ev:'seed'}]:[]),
+    ...(typ==='radial'?[{t:'range',l:'Centre across',min:0,max:1,step:0.01,get:()=>g.cx,set:v=>g.cx=v,f:f2,ev:'seed'},{t:'range',l:'Centre up',min:0,max:1,step:0.01,get:()=>g.cy,set:v=>g.cy=v,f:f2,ev:'seed'},{t:'range',l:'Radius',min:0.1,max:1.5,step:0.01,get:()=>g.rad,set:v=>g.rad=v,f:f2,ev:'seed'}]:[]),
+    {t:'range',l:'Noise',min:0,max:0.6,step:0.01,get:()=>g.noise,set:v=>g.noise=v,f:f2,ev:'seed'},
+    {t:'range',l:'Noise size',min:2,max:80,step:1,get:()=>g.nsize,set:v=>g.nsize=v,f:v=>v+' m',ev:'seed'},
+    {t:'range',l:'Growth follows',min:0,max:1,step:0.01,get:()=>gc.growK,set:v=>gc.growK=v,f:f2,ev:'seed',tip:'Coupling of the growth field to the density: 0 = uniform growth'},
+    ...(true?[
+      {t:'check',l:'Paint the density on any face',get:()=>cfg.paint.on,set:v=>cfg.paint.on=v,ev:'dg',after:syncPaint,tip:'Drag over any tower elevation or plinth plan in the sheet to raise the density; Shift-drag lowers it. Right-drag still pans'},
+      ...(EDIT==='P'?[{t:'check',l:'Same paint on every plinth plan (propagates)',get:()=>cfg.paint.shared,set:v=>cfg.paint.shared=v,ev:'dg',tip:'Strokes on any plinth plan go to the default plan’s paint, which replaces every plan’s own paint; untick to paint one plan only'}]:[]),
+      {t:'range',l:'Brush size',min:2,max:80,step:1,get:()=>cfg.paint.r,set:v=>cfg.paint.r=v,f:v=>v+' m',ev:'dg'},
+      {t:'range',l:'Brush strength',min:0.02,max:1,step:0.01,get:()=>cfg.paint.k,set:v=>cfg.paint.k=v,f:pct,ev:'dg',tip:'How much one dab raises or lowers the density at its centre'},
+      {raw:`<span></span><div class="row"><button class="btn" id="bPaintClr">Clear painted density</button></div>`}]:[])
+  ],`<canvas id="gradPrev" aria-label="Density profile"></canvas><div class="note">The field is the density of figures on each face. It decides where seeds are kept (a seed survives with the probability the density gives at its centre), how small they are there, and where the differential growth splits edges fastest (p ∝ field · gain). It no longer makes volume or void: only the figures are pieces, and only their extrusions overlap, in 3D.</div>`);
+  drawGradPrev();$('#bPaintClr')&&($('#bPaintClr').onclick=clearPaint);
+  // area + egress checks (a change rebuilds the plans with the massing)
+  mount($('#pArea'),[
+    {t:'num',l:'GFA target m²',min:0,step:500,get:()=>cfg.gfa.target,set:v=>cfg.gfa.target=Math.max(0,v),ev:'area',tip:'Above-ground floor area to reach, floors + bridges (the Podium Lab’s target is 46,000 m²)'},
+    {t:'range',l:'Load factor',min:2,max:30,step:0.1,get:()=>cfg.egress.load,set:v=>cfg.egress.load=v,f:v=>f1(v)+' m²/person',ev:'mass',tip:'Floor area per occupant (9.3 m² = 100 sq ft gross, offices)'},
+    {t:'range',l:'Width per person',min:2,max:10,step:0.1,get:()=>cfg.egress.perPerson*1000,set:v=>cfg.egress.perPerson=v/1000,f:v=>f1(v)+' mm',ev:'mass',tip:'Egress width each occupant needs (5 mm ≈ 0.2 in)'},
+    {t:'range',l:'Minimum egress width',min:0.8,max:3,step:0.05,get:()=>cfg.egress.minW,set:v=>cfg.egress.minW=v,f:v=>f2(v)+' m',ev:'mass',tip:'No bridge is narrower than this (1.1 m ≈ 44 in)'},
+    {t:'range',l:'Max travel to exit',min:10,max:120,step:0.5,get:()=>cfg.egress.maxTravel,set:v=>cfg.egress.maxTravel=v,f:v=>f1(v)+' m',ev:'area',tip:'Floors whose longest egress route is longer than this are flagged (Podium Lab: 37.5 m)'}
+  ]);
+  const AG=cfg.agents;
+  mount($('#pAg'),[
+    {t:'check',l:'Figures are agents that diffuse and settle',get:()=>AG.on,set:v=>AG.on=v,ev:'seed'},
+    {t:'range',l:'Target 3D crossing',min:0,max:1,step:0.01,get:()=>AG.target,set:v=>AG.target=v,f:pct,ev:'dg',tip:'Share of its extrusion an agent wants crossed by figures from the other faces of its mass (opposite face on the same line, perpendicular faces at the same height)'},
+    {t:'range',l:'w · density',min:0,max:2,step:0.05,get:()=>AG.wG,set:v=>AG.wG=v,f:f2,ev:'dg',tip:'Likes a dense part of the face (Density panel)'},
+    {t:'range',l:'w · 3D crossing',min:0,max:2,step:0.05,get:()=>AG.wO,set:v=>AG.wO=v,f:f2,ev:'dg'},
+    {t:'range',l:'w · support',min:0,max:2,step:0.05,get:()=>AG.wS,set:v=>AG.wS=v,f:f2,ev:'dg',tip:'Likes resting on ground, the gradient’s volume or another figure'},
+    {t:'range',l:'w · neighbours',min:0,max:2,step:0.05,get:()=>AG.wN,set:v=>AG.wN=v,f:f2,ev:'dg',tip:'Likes other figures within 3 m of its edge'},
+    {t:'range',l:'Restlessness',min:0,max:2,step:0.05,get:()=>AG.restless,set:v=>AG.restless=v,f:f2,ev:'dg',tip:'Annealing temperature at the start; it falls to 0 when settling ends'},
+    {t:'range',l:'Diffusion step',min:0.5,max:20,step:0.5,get:()=>AG.step,set:v=>AG.step=v,f:v=>f1(v)+' m',ev:'dg'},
+    {t:'range',l:'Movers / step',min:0.05,max:1,step:0.01,get:()=>AG.share,set:v=>AG.share=v,f:pct,ev:'dg',tip:'Unhappiest share, plus a random tenth of the rest'},
+    {t:'range',l:'Every n steps',min:1,max:10,step:1,get:()=>AG.every,set:v=>AG.every=v,ev:'dg'},
+    {t:'range',l:'Settle until',min:0.1,max:1,step:0.01,get:()=>AG.settle,set:v=>AG.settle=v,f:pct,ev:'dg',tip:'Share of the growth steps during which agents move; the growth finishes on settled figures'},
+    {t:'range',l:'Leave after',min:2,max:30,step:1,get:()=>AG.leave,set:v=>AG.leave=v,f:v=>v+' unhappy',ev:'dg',tip:'Agents unhappy (< 0.45) this many moves in a row leave and land somewhere new'}
+  ],`<div class="note">The settle rule of the vertical city lab (SHANCHENG), on each face: every few growth steps the unhappiest agents and a random tenth of the rest try four diffusion hops, two quarter turns and sometimes a long hop, and take the happiest pose if it gains, or a random one at the annealing temperature. Figures never overlap on a face: a pose landing on another figure is refused, and the growth keeps them apart. They grow while they move. Rings on the elevations: each agent, filled by its happiness.</div>`);
+  mount($('#pDG'),[
+    {t:'range',l:'Steps',min:20,max:800,step:10,get:()=>D.steps,set:v=>D.steps=v,ev:'dg',after:()=>{if(!running&&FACES().some(f=>f.dg&&f.dg.t<D.steps))setRun(true);}},
+    {t:'range',l:'Edge length L0',min:0.4,max:2.5,step:0.05,get:()=>D.L0,set:v=>D.L0=v,f:v=>f2(v)+' m',ev:'seed'},
+    {t:'range',l:'Wall R',min:0.6,max:6,step:0.1,get:()=>D.R,set:v=>D.R=v,f:v=>f1(v)+' m',ev:'dg',tip:'Spacing kept between different figures'},
+    {t:'range',l:'Fold R_self',min:0.6,max:6,step:0.1,get:()=>D.Rs,set:v=>D.Rs=v,f:v=>f1(v)+' m',ev:'dg',tip:'Spacing between distant parts of one figure (fold width)'},
+    {t:'range',l:'Spring',min:0,max:1,step:0.01,get:()=>D.ks,set:v=>D.ks=v,f:f2,ev:'dg'},
+    {t:'range',l:'Repulsion',min:0,max:1,step:0.01,get:()=>D.kr,set:v=>D.kr=v,f:f2,ev:'dg'},
+    {t:'range',l:'Smoothing',min:0,max:0.5,step:0.01,get:()=>D.ksm,set:v=>D.ksm=v,f:f2,ev:'dg'},
+    {t:'range',l:'Bending',min:0,max:0.4,step:0.01,get:()=>D.kb,set:v=>D.kb=v,f:f2,ev:'dg',tip:'Bi-Laplacian stiffness: sets the fold wavelength'},
+    {t:'range',l:'Growth rate',min:0,max:20,step:0.5,get:()=>D.rate,set:v=>D.rate=v,f:v=>f1(v)+'/step',ev:'dg',tip:'Linear mode: expected edge splits per step per face'},
+    {t:'range',l:'Room',min:0.5,max:1.5,step:0.01,get:()=>D.room,set:v=>D.room=v,f:f2,ev:'dg',tip:'An edge grows only if longer than room × L0: space-limited growth'},
+    {t:'range',l:'p cap',min:0.005,max:0.3,step:0.005,get:()=>D.pcap,set:v=>D.pcap=v,f:v=>(+v).toFixed(3),ev:'dg'},
+    {t:'range',l:'Max nodes / face',min:500,max:12000,step:100,get:()=>D.maxNodes,set:v=>D.maxNodes=v,f:f0,ev:'dg'},
+    {t:'check',l:'Contact inhibition (figures stop where they touch)',get:()=>D.contact,set:v=>D.contact=v,ev:'dg'}
+  ],`<div class="note">JS port of <b>dg_core.py · LineGrowth</b>: springs to L0, Laplacian smoothing, bi-Laplacian bending, mean repulsion (R between figures, R_self within one, arc-length exclusion), step clamp, then growth by splitting long edges and random edges with p = min(field · gain · rate / Σw, p cap). Wall, fold and rates act live; L0 re-seeds.</div>`);
+  // the massing settings of the group being edited (Edit · Towers / Edit · Plinth): each affects only its own mass
+  $('#msSum')&&($('#msSum').textContent=EDIT==='T'?'towers only':'plinth only');
+  const MG=MS(EDIT),EGd=EG(EDIT),isCount=MG.mode==='count',isCarve=carveLike(EDIT),isFig=MG.mode==='figures',CV=CS(EDIT),isT=EDIT==='T',RL=['0','1','2','3','4','5','6','7+'];
+  mount($('#pMass'),[
+    {t:'select',l:'Edges',o:[['ortho','Straight · square to the face'],['straight','Straight · any angle'],['off','Organic (raw growth)']],get:()=>EGd.mode,set:v=>EGd.mode=v,ev:'rule',after:renderPanels,tip:'Each grown figure is simplified (Douglas–Peucker) and, when square, its edges are snapped to horizontal and vertical'},
+    ...(EGd.mode!=='off'?[{t:'range',l:'Straightness',min:0.3,max:6,step:0.1,get:()=>EGd.eps,set:v=>EGd.eps=v,f:v=>f1(v)+' m',ev:'rule',tip:'Simplification tolerance: wiggles smaller than this become one straight edge'}]:[]),
+    ...(EGd.mode!=='off'?[{t:'select',l:'Snap to floors',o:[['bottom','Bottom edge'],['top','Top edge'],['both','Bottom + top edge'],['all','Every horizontal edge'],['off','Off']],get:()=>EGd.snap,set:v=>EGd.snap=v,ev:'rule',tip:'Which face of each figure lands on the floor-to-floor grid (Towers + plinth panel)'}]:[]),
+    ...(EGd.mode==='ortho'?[{t:'range',l:'Shortest edge',min:0.5,max:10,step:0.5,get:()=>EGd.min,set:v=>EGd.min=v,f:v=>f1(v)+' m',ev:'rule'}]:[]),
+    {t:'select',l:isT?'Tower massing':'Plinth massing',o:[...(isT?[]:[['figures','Figures · mass from the plans (follows the figures)']]),['carve','Carved voids · soft (after Holl)'],['count','Overlap count rule'],['bool','Extrusion booleans']],get:()=>MG.mode,set:v=>MG.mode=v,ev:'mass',after:renderPanels},
+    {t:'check',l:(isT?'Invert towers':'Invert plinth')+': mass becomes void and void becomes mass',get:()=>MG.invert,set:v=>MG.invert=v,ev:'rule',after:()=>{$('#bInv').classList.toggle('on',!!MS('T').invert);$('#bInvP').classList.toggle('on',!!MS('P').invert);}},
+
+    ...(isCarve?[
+      ...(isT?[
+      {t:'range',l:'Figures carved per face',min:0,max:40,step:1,get:()=>CV.perFace,set:v=>CV.perFace=v,ev:'mass',tip:'Each grown figure on a face (or plinth plan) carves a void exactly where it sits, largest first, up to this many and the budget'},
+      {t:'range',l:'Void budget',min:0.05,max:0.9,step:0.01,get:()=>CV.budget,set:v=>CV.budget=v,f:pct,ev:'mass',tip:'At most this share of each face (or plan) is carved, largest figures first'},
+      {t:'range',l:'Void depth',min:2,max:30,step:0.5,get:()=>CV.depth,set:v=>CV.depth=v,f:v=>f1(v)+' m',ev:'mass',tip:'How far a void reaches into the tower from its face, at its widest; never nearer the core than the core margin'},
+      {t:'range',l:'Rounding',min:0,max:10,step:0.25,get:()=>CV.round,set:v=>CV.round=v,f:v=>f1(v)+' m',ev:'mass',tip:'Each figure’s outline is rounded with a disc of this radius (corners softened, thin necks closed), so the void keeps the figure’s shape and place'},
+      {t:'range',l:'Grow voids',min:-4,max:8,step:0.25,get:()=>CV.grow,set:v=>CV.grow=v,f:v=>(v>0?'+':'')+f1(v)+' m',ev:'mass',tip:'Offsets every void outline outward (+) or inward (−)'},
+      {t:'select',l:'Tower voids',o:[['scoop','Soft scoops · each figure, storey by storey'],['gardens','Sky gardens · whole storeys']],get:()=>CV.towerMode,set:v=>CV.towerMode=v,ev:'mass',after:renderPanels,tip:'How the towers are carved. Only the towers: the plinth has its own controls below'},
+      ...(CV.towerMode==='gardens'?[
+      {t:'range',l:'Sky garden storeys',min:1,max:8,step:1,get:()=>CV.minStoreys,set:v=>CV.minStoreys=v,f:v=>'at least '+v,ev:'mass',tip:'Each void region on a tower face becomes one sky garden spanning whole storeys: its bottom and top snap to the nearest floor levels, and it spans at least this many'},
+      {t:'range',l:'Most storeys',min:1,max:12,step:1,get:()=>CV.maxStoreys,set:v=>CV.maxStoreys=v,ev:'mass',tip:'A taller void region becomes stacked sky gardens of at most this many storeys, with one solid storey between them'},
+      {t:'range',l:'Garden budget',min:0.05,max:0.8,step:0.01,get:()=>CV.gBudget,set:v=>CV.gBudget=v,f:pct,ev:'mass',tip:'Sky gardens are kept largest first until their facade area reaches this share of the face'},]:[]),
+      {t:'range',l:'Softness',min:0,max:1,step:0.05,get:()=>CV.soft,set:v=>CV.soft=v,f:f2,ev:'mass',tip:'0 = cut straight in to the full depth; 1 = a soft scoop in plan, deepest mid-width and easing out to the facade at its edges (the same on every storey of the garden)'},
+      {t:'range',l:'Core margin',min:1,max:12,step:0.5,get:()=>CV.coreMargin,set:v=>CV.coreMargin=v,f:v=>f1(v)+' m',ev:'mass',tip:'Unbroken floor kept around each core, so every floor stays one plate'},
+      ]:[]),
+      ...(!isT&&isFig?[
+      {raw:`<div class="k" style="grid-column:1/-1;margin-top:8px">Plinth · mass from the figures</div>`},
+      {t:'select',l:'Each floor',o:[['union','Either plan (union)'],['overlap','Both plans (overlap)'],['xor','One plan, not both']],get:()=>CV.fig.op,set:v=>CV.fig.op=v,ev:'mass',tip:'How a floor is made from its two plans (floor k: plans k and k+1, the top floor looping back to the basement’s pair)'},
+      {t:'range',l:'Figure rounding',min:0,max:12,step:0.25,get:()=>CV.fig.round,set:v=>CV.fig.round=v,f:v=>f1(v)+' m',ev:'mass',tip:'Each figure’s corners rounded, never wider than half its own thickness: 0 keeps the exact outlines'},
+      {t:'range',l:'Smooth edges',min:0,max:12,step:0.25,get:()=>CV.fig.smooth??0,set:v=>CV.fig.smooth=v,f:v=>v?f1(v)+' m':'off',ev:'mass',tip:'Blurs each plan’s figure shapes over this radius before they are traced, so stepped and jagged edges become clean curves; the shapes and their size stay'},
+      {t:'range',l:'Merge neighbours',min:0,max:20,step:0.25,get:()=>CV.fig.merge,set:v=>CV.fig.merge=v,f:v=>f1(v)+' m',ev:'mass',tip:'Figures closer than about twice this join into one form (0 = every figure stays separate)'},
+      {t:'range',l:'Coverage',min:0,max:1,step:0.01,get:()=>CV.fig.coverage,set:v=>CV.fig.coverage=v,f:v=>v?pct(v):'as grown',ev:'mass',tip:'Each floor’s share of the footprint: its forms grow or shrink evenly to meet it, keeping their shapes (0 = as grown)'},
+      {t:'range',l:'Smallest piece',min:0,max:2000,step:10,get:()=>CV.fig.minPiece,set:v=>CV.fig.minPiece=v,f:v=>f0(v)+' m²',ev:'mass'},
+      {t:'range',l:'Pieces per floor',min:0,max:30,step:1,get:()=>CV.fig.maxPieces,set:v=>CV.fig.maxPieces=v,f:v=>v?'largest '+v:'all',ev:'mass'},
+      ]:[]),
+      ...(!isT&&!isFig?[
+      {raw:`<div class="k" style="grid-column:1/-1;margin-top:8px">Plinth · a few large forms</div>`},
+      {t:'range',l:'Merge radius',min:0,max:30,step:0.5,get:()=>CV.pl.merge,set:v=>CV.pl.merge=v,f:v=>f1(v)+' m',ev:'mass',tip:'Plan figures closer than about twice this merge into one larger void'},
+      {t:'range',l:'Void share per plan',min:0.02,max:0.6,step:0.01,get:()=>CV.pl.share,set:v=>CV.pl.share=v,f:pct,ev:'mass',tip:'Each plan’s voids cover at most this share of the plinth; larger ones shrink evenly until they fit. A floor loses at most two plans’ share'},
+      {t:'range',l:'Voids per plan',min:0,max:10,step:1,get:()=>CV.pl.perPlan,set:v=>CV.pl.perPlan=v,ev:'mass',tip:'The largest few merged regions of each plan become voids through that plan’s floors: plan 1 the ground floor and basement, plan 2 the ground and upper floors, plan 3 the upper floors and basement'},
+      {t:'range',l:'Smallest void',min:0,max:3000,step:25,get:()=>CV.pl.minCourt,set:v=>CV.pl.minCourt=v,f:v=>f0(v)+' m²',ev:'mass'},
+      {t:'range',l:'Void rounding',min:0,max:25,step:0.5,get:()=>CV.pl.round,set:v=>CV.pl.round=v,f:v=>f1(v)+' m',ev:'mass'},
+      {t:'range',l:'Setback from edge',min:0,max:25,step:0.5,get:()=>CV.pl.setback,set:v=>CV.pl.setback=v,f:v=>f1(v)+' m',ev:'mass',tip:'Voids of plans 2 and 3 stay this far inside the plinth’s edge, so the plinth stays one body around them (plan 1’s ground-floor voids may reach the edge)'},
+      ]:[]),
+      {t:'range',l:'Smallest figure',min:1,max:60,step:1,get:()=>CV.minFig,set:v=>CV.minFig=v,f:v=>v+' m²',ev:'mass',tip:'Figures smaller than this do not carve'},
+      {t:'check',l:'Show the void bodies (Tianjin’s reverse) in 3D',get:()=>CV.bodies,set:v=>CV.bodies=v,ev:'mass'}]:[
+    {t:'check',l:'Overlaps outside the walls become mass',get:()=>MG.wallFill,set:v=>MG.wallFill=v,ev:'rule',tip:'In the overhang past the walls, where pieces from two faces overlap and touch the mass, they are kept as small pieces of mass outside the original geometry (straight · square edges)'},
+    {raw:`<div style="grid-column:1/-1"><div class="k" style="margin-top:4px">Pieces overlapping at a point → mass ■ / void □</div><div class="grp" id="ruleRow">${RL.map((n,i)=>`<button class="btn${MG.rule[i]?' on':''}" data-rule="${i}" title="${n} piece${n==='1'?'':'s'} → ${MG.rule[i]?'mass':'void'}" style="min-width:32px;text-align:center">${n}</button>`).join('')}</div>
+      <div class="row" style="margin-top:6px"><button class="btn" data-rp="parity">1 ■ 2 □ 3 ■ 4 □</button><button class="btn" data-rp="union">Any ■</button><button class="btn" data-rp="single">Only 1 ■</button><button class="btn" data-rp="two">2+ ■</button></div></div>`}]),
+    ...(isCount||isCarve?[]:[
+    {t:'select',l:'Front + back',o:[['union','Union (S ∪ N, E ∪ W)'],['overlap','Overlap (S ∩ N, E ∩ W)'],['front','Front only (S, E)']],get:()=>MG.pair,set:v=>MG.pair=v,ev:'mass'},
+    {t:'select',l:'Across',o:[['overlap','Overlap (SN ∩ EW)'],['union','Union (SN ∪ EW)']],get:()=>MG.cross,set:v=>MG.cross=v,ev:'mass'}]),
+    {t:'range',l:'Voxel',min:0.5,max:3,step:0.25,get:()=>MG.res,set:v=>MG.res=v,f:v=>f2(v)+' m',ev:'mass'},
+    {t:'check',l:'Drop pieces that do not reach the ground',get:()=>MG.floating,set:v=>MG.floating=v,ev:'mass'},
+    {t:'check',l:'Merge towers + plinth into one object (OBJ) · both',get:()=>cfg.mass.merge,set:v=>cfg.mass.merge=v,ev:'dg'},
+    {t:'check',l:'Build massing when growth finishes · both',get:()=>cfg.mass.auto,set:v=>cfg.mass.auto=v,ev:'dg'}
+  ],isCarve?`<div class="note">After Steven Holl’s carved porosity (Li-Ze SOHO’s sky gardens, the Tianjin Planning Museum’s soft voids): each mass starts whole and only a few soft voids are carved from it. The largest grown figures on each tower face become multi-storey sky gardens carved into that face; on the plinth, roof figures become courts down to the sunken basement gardens and ground figures become porous passages. Voids are superellipses terraced in section, held apart, within a volume budget and clear of the core, so every floor stays one plate. Invert gives the void bodies, the Tianjin reverse.</div>`
+    :isCount?`<div class="note">Figures pack on each face without overlapping. Every figure is one piece, extruded straight through its mass; the overlaps happen only in 3D, where extrusions from different faces intersect. At each point the pieces covering it are counted and the rule decides: by default one piece is mass, one overlap is void, two overlaps are mass again, three are void. The elevations show each face’s figures over its density. Clipped by the original geometry. With square edges the massing is built exactly from boxes (straight edges, no voxels); otherwise as one surface per mass from voxels.</div>`
+    :`<div class="note">Each face’s elevation (after the rule) is extruded through its mass; front and back combine, then the two directions overlap. Clipped by the original geometry, one closed surface per mass.</div>`);
+  $$('#ruleRow [data-rule]').forEach(b=>b.onclick=()=>{const i=+b.dataset.rule;MG.rule[i]=MG.rule[i]?0:1;renderPanels();on('rule');});
+  const RP={parity:[0,1,0,1,0,1,0,1],union:[0,1,1,1,1,1,1,1],single:[0,1,0,0,0,0,0,0],two:[0,0,1,1,1,1,1,1]};
+  $$('[data-rp]').forEach(b=>b.onclick=()=>{MG.rule=[...RP[b.dataset.rp]];renderPanels();on('rule');});
+  mount($('#pGeo'),[
+    {t:'range',l:'Tower height',min:40,max:320,step:1,get:()=>cfg.tower.h,set:v=>cfg.tower.h=v,f:v=>v+' m'+(v>190?' ⚠':''),ev:'geo',tip:'Airport ceiling allows about 188–192 m above grade (⚠ above it)'},
+    {t:'range',l:'Floor plate width ×',min:0.4,max:2.5,step:0.05,get:()=>cfg.tower.sw,set:v=>cfg.tower.sw=v,f:v=>'× '+f2(v)+' · '+f1(towerSize()[0])+' m',ev:'geo',tip:'Scales each tower’s floor plate along its own width, about its centre'},
+    {t:'range',l:'Floor plate depth ×',min:0.4,max:2.5,step:0.05,get:()=>cfg.tower.sd,set:v=>cfg.tower.sd=v,f:v=>'× '+f2(v)+' · '+f1(towerSize()[1])+' m',ev:'geo',tip:'Scales each tower’s floor plate along its own depth, about its centre'},
+    {t:'check',l:'Tower East uses Tower West’s seed + 1 (off = identical twins)',get:()=>cfg.tower.plus1,set:v=>cfg.tower.plus1=v,ev:'seed'},
+    {t:'range',l:'Tower ground floor',min:3,max:12,step:0.1,get:()=>cfg.tower.ff1,set:v=>cfg.tower.ff1=v,f:v=>f1(v)+' m',ev:'rule',tip:'Floor grid the figures snap to'},
+    {t:'range',l:'Tower floor to floor',min:2.8,max:8,step:0.1,get:()=>cfg.tower.ff,set:v=>cfg.tower.ff=v,f:v=>f1(v)+' m',ev:'rule',tip:'Floor grid the figures snap to (brief: typical office ≤ 4.2 m)'},
+    {t:'select',l:'Plinth geometry',o:[['auto','Podium Lab · saved state'],['json','Podium Lab · loaded JSON'],['envelope','Podium control line']],get:()=>cfg.plinth.src,set:v=>cfg.plinth.src=v,ev:'geo'},
+    {t:'range',l:'Floors down',min:0,max:4,step:1,get:()=>cfg.plinth.down,set:v=>cfg.plinth.down=v,ev:'geo',tip:'The plinth keeps its original geometry, cut down by this many storeys'},
+    {t:'range',l:'Ground floor',min:3.5,max:8,step:0.1,get:()=>cfg.plinth.ff1,set:v=>cfg.plinth.ff1=v,f:v=>f1(v)+' m',ev:'geo'},
+    {t:'range',l:'Upper floors',min:3,max:6,step:0.1,get:()=>cfg.plinth.ff,set:v=>cfg.plinth.ff=v,f:v=>f1(v)+' m',ev:'geo'},
+    {t:'check',l:'Core in the middle of each tower',get:()=>cfg.core.on,set:v=>cfg.core.on=v,ev:'mass',tip:'Solid through the full height of the tower; every floor’s egress leads to it'},
+    {t:'range',l:'Core width',min:4,max:24,step:0.5,get:()=>cfg.core.w,set:v=>cfg.core.w=v,f:v=>f1(v)+' m',ev:'mass'},
+    {t:'range',l:'Core depth',min:4,max:24,step:0.5,get:()=>cfg.core.d,set:v=>cfg.core.d=v,f:v=>f1(v)+' m',ev:'mass'},
+    {t:'range',l:'Plinth cores',min:0,max:10,step:1,get:()=>cfg.core.pn,set:v=>cfg.core.pn=v,ev:'geo',tip:'Cores in the plinth, spread evenly along its length on the deepest point inside its footprint; solid through every plinth floor and a way out for egress'},
+    {t:'range',l:'Plinth core width',min:4,max:30,step:0.5,get:()=>cfg.core.pw,set:v=>cfg.core.pw=v,f:v=>f1(v)+' m',ev:'geo'},
+    {t:'range',l:'Plinth core depth',min:4,max:30,step:0.5,get:()=>cfg.core.pd,set:v=>cfg.core.pd=v,f:v=>f1(v)+' m',ev:'geo'},
+    {t:'range',l:'Egress bridge width',min:1,max:8,step:0.5,get:()=>cfg.egress.bridge,set:v=>cfg.egress.bridge=v,f:v=>f1(v)+' m',ev:'mass',tip:'Width of the thin floor plate that joins a part of a floor with no way out back to the core'},
+    {t:'range',l:'Bridge plate',min:0.1,max:1,step:0.05,get:()=>cfg.egress.plate,set:v=>cfg.egress.plate=v,f:v=>f2(v)+' m',ev:'mass',tip:'Thickness of the bridge plates (their top is the floor level)'},
+    {t:'range',l:'Plan cut height',min:0.3,max:3,step:0.1,get:()=>cfg.egress.cut,set:v=>cfg.egress.cut=v,f:v=>f1(v)+' m',ev:'mass',tip:'Height above each floor where its plan is cut from the massing'},
+    {t:'range',l:'Basement depth',min:0,max:12,step:0.1,get:()=>cfg.plinth.bdepth,set:v=>cfg.plinth.bdepth=v,f:v=>v?f1(v)+' m':'none',ev:'mass',tip:'The basement below the plinth’s ground-floor footprint, from plans 3 + 1 (0 = no basement)'},
+    {t:'range',l:'Envelope height',min:8,max:24,step:0.5,get:()=>cfg.plinth.podH,set:v=>cfg.plinth.podH=v,f:v=>f1(v)+' m',ev:'geo',tip:'Used when the plinth comes from the podium control line'}
+  ],`<div class="row"><button class="btn" id="bPodJson">Load Podium Lab JSON…</button></div><div class="note" id="plInfo">${PLINFO}</div><div class="note">Towers are read from the Podium Lab (its tower blocks, or its default 46 × 46 m pair on the tower control line). The plinth is the Podium Lab’s podium as you left it (saved in this browser, or a <i>podium.json</i> from its Download 3D), else the podium control line, then taken down by the floors above, at the Podium Lab’s storey heights.</div>`);
+  $('#bPodJson').onclick=()=>$('#fPodium').click();
+  $$('.seg .btn').forEach(b=>b.classList.toggle('on',b.dataset.grp===EDIT));$('#bInv').classList.toggle('on',!!MS('T').invert);$('#bInvP').classList.toggle('on',!!MS('P').invert);updateBig();}
+function drawGradPrev(){const cv=$('#gradPrev');if(!cv)return;const g=cfg.G[EDIT].grad,w=cv.clientWidth||280,h=34,dpr=Math.min(2,devicePixelRatio||1);cv.width=w*dpr;cv.height=h*dpr;const cx=cv.getContext('2d');cx.scale(dpr,dpr);
+  const gp=t=>g.type==='flat'?g.from:g.from+(g.to-g.from)*shapeT(g,t);
+  for(let x=0;x<w;x++){const t=x/(w-1),G=gp(t),c=Math.round(255-G*140);cx.fillStyle=`rgb(${c},${c},${c})`;cx.fillRect(x,0,1,h);}
+  cx.strokeStyle='#e0412b';cx.lineWidth=1.5;cx.beginPath();for(let x=0;x<w;x++){const t=x/(w-1),G=gp(t);const y=h-2-G*(h-4);x?cx.lineTo(x,y):cx.moveTo(x,y);}cx.stroke();
+  cx.fillStyle='#6b6b6b';cx.font='9px "IBM Plex Mono",monospace';cx.fillText('start',3,10);cx.textAlign='right';cx.fillText('end',w-3,10);}
+
+/* ---------- wiring ---------- */
+function setView(v){$$('[data-view]').forEach(x=>x.classList.toggle('on',x.dataset.view===v));$('#stage').className=v;setTimeout(()=>{SH.fitted=false;drawSheet();axoSize();axoBuild();renderPlans();},0);}
+// the plans view: every floor of every mass as a small plan, top floor first, redrawn when the massing is rebuilt
+function renderPlans(){const W=$('#plansWrap');if(!W||!W.offsetParent)return;const L=$('#plansList');
+  if(!built){L.innerHTML='<div class="note" style="padding:12px 0">The floor plans are cut from the massing. Build it (B) to see them.</div>';return;}
+  const cards=[],S=gfaStats();let html=`<div class="note" style="color:var(--ink);font-size:11px;margin:0 0 4px"><b>${gfaLine()}</b> · ${f0(S.occ)} occupants · ${S.narrow?S.narrow+' bridges too narrow':'every bridge wide enough for its occupants'} · ${S.over?`<span class="acc" style="color:#e0412b">${S.over} of ${S.floors} floors over ${f1(cfg.egress.maxTravel)} m travel</span>`:`all floors within ${f1(cfg.egress.maxTravel)} m travel`}</div>`;
+  for(const m of MASSES){const P=m.plans;if(!P||!P.length)continue;const nb=P.reduce((s,p)=>s+p.nBridge,0),mx=Math.max(0,...P.map(p=>p.maxLen)),st=P.reduce((s,p)=>s+p.stranded,0),nt=P.some(p=>!p.hasTarget);
+    html+=`<h3 class="k">${m.name} · ${P.length} floors · longest egress ${f0(mx)} m${nb?` · ${nb} bridge${nb===1?'':'s'} added`:''}${st?` · <span style="color:#e0412b">${st} part${st===1?'':'s'} with no route</span>`:''}${nt?' · no core reaches some floors':''}</h3><div class="pgrid${m.plan?' wide':''}">`;
+    for(const p of P.slice().reverse()){const z=p.fl.z,lab=(m.grp==='T'?m.name.replace('Tower ','T·'):'Plinth')+' '+p.fl.n;
+      html+=`<figure class="pcard"><canvas data-pi="${cards.length}" aria-label="${lab} floor plan"></canvas><figcaption><b>${lab}</b> · ${z>=0?'+':''}${f1(z)} m · ${f0(p.area)} m²${p.paths.length?` · <span${p.overTravel?' class="acc"':''}>egress ≤ ${f0(p.maxLen)} m${p.overTravel?' ⚠':''}</span>`:''} · ${p.occ} ppl${p.nBridge?` · <span class="acc">${p.nBridge} bridge${p.nBridge===1?'':'s'} · ${f0(p.barea)} m² · ${f1(Math.min(...p.widths.map(w=>w.w)))}–${f1(Math.max(...p.widths.map(w=>w.w)))} m wide</span>`:''}${p.stranded?` · <span class="acc">no route</span>`:''}</figcaption></figure>`;cards.push(p);}
+    html+='</div>';}
+  L.innerHTML=html||'<div class="note">No floor plans.</div>';
+  requestAnimationFrame(()=>$$('#plansList canvas').forEach(cv=>drawPlan(cv,cards[+cv.dataset.pi])));}
+function drawPlan(cv,p){const dpr=Math.min(2,devicePixelRatio||1),cw=cv.clientWidth||150,k=cw/(p.nx*p.r),ch=Math.max(20,Math.round(p.ny*p.r*k));cv.style.height=ch+'px';cv.width=Math.round(cw*dpr);cv.height=Math.round(ch*dpr);
+  const cx=cv.getContext('2d');cx.setTransform(dpr,0,0,dpr,0,0);cx.fillStyle='#fff';cx.fillRect(0,0,cw,ch);const s=p.r*k,{nx,ny}=p;
+  // runs of cells per row, y up
+  const runs=(test,col)=>{cx.fillStyle=col;for(let j=0;j<ny;j++){let i=0;while(i<nx){if(!test(j*nx+i)){i++;continue;}let e=i+1;while(e<nx&&test(j*nx+e))e++;cx.fillRect(i*s,ch-(j+1)*s,(e-i)*s+0.3,s+0.3);i=e;}}};
+  runs(q=>p.env[q],'#eeeeee');runs(q=>p.floor[q]===1||p.floor[q]===3,'#1a1a1a');runs(q=>p.floor[q]===2,'#9a9a9a');runs(q=>p.bridge[q],'#e0412b');runs(q=>p.core[q],'#ffffff');
+  // core outline
+  cx.strokeStyle='#e0412b';cx.lineWidth=1;for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){const q=j*nx+i;if(!p.core[q])continue;if(i===0||!p.core[q-1]){cx.beginPath();cx.moveTo(i*s,ch-j*s);cx.lineTo(i*s,ch-(j+1)*s);cx.stroke();}if(i===nx-1||!p.core[q+1]){cx.beginPath();cx.moveTo((i+1)*s,ch-j*s);cx.lineTo((i+1)*s,ch-(j+1)*s);cx.stroke();}
+    if(j===0||!p.core[q-nx]){cx.beginPath();cx.moveTo(i*s,ch-j*s);cx.lineTo((i+1)*s,ch-j*s);cx.stroke();}if(j===ny-1||!p.core[q+nx]){cx.beginPath();cx.moveTo(i*s,ch-(j+1)*s);cx.lineTo((i+1)*s,ch-(j+1)*s);cx.stroke();}}
+  // egress paths: from the farthest point (dot) to the way out
+  const P=(x,y)=>[(x-p.x0)*k,ch-(y-p.y0)*k];cx.lineWidth=Math.max(1.2,Math.min(2,s*1.2));cx.lineJoin='round';
+  for(const e of p.paths){cx.strokeStyle='#2f8fff';cx.beginPath();e.pts.forEach((q,i)=>{const[x,y]=P(q[0],q[1]);i?cx.lineTo(x,y):cx.moveTo(x,y);});cx.stroke();const[x,y]=P(e.pts[0][0],e.pts[0][1]);cx.fillStyle='#2f8fff';cx.beginPath();cx.arc(x,y,Math.max(1.6,cx.lineWidth),0,2*Math.PI);cx.fill();}}
+addEventListener('resize',()=>{clearTimeout(renderPlans.t);renderPlans.t=setTimeout(renderPlans,200);});
+$$('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view));
+$$('[data-axo]').forEach(b=>b.onclick=()=>axoPreset(b.dataset.axo));
+$$('.seg .btn').forEach(b=>b.onclick=()=>{EDIT=b.dataset.grp;renderPanels();});
+$('#bGrow').onclick=()=>{if(!running&&FACES().every(f=>!f.dg||f.dg.t>=cfg.dg.steps)){reseedAll(true);return;}setRun(!running);};
+$('#bReset').onclick=()=>reseedAll(true);
+$('#bNew').onclick=()=>{const gc=cfg.G[EDIT];gc.seed=Math.floor(Math.random()*99999);renderPanels();reseedAll(true);toast(`${EDIT==='T'?'Towers':'Plinth'} · genome ${gc.seed}`);};
+$('#bMut').onclick=()=>{const n=mutateGroup(EDIT,cfg.G[EDIT].pm??0.15);reseedAll(true);toast(`${n} genes mutated`);};
+$('#bBuild').onclick=buildMassing;
+$('#bInv').onclick=()=>{MS('T').invert=!MS('T').invert;renderPanels();on('rule');toast(MS('T').invert?'Towers inverted: mass ↔ void':'Towers not inverted');};
+$('#bInvP').onclick=()=>{MS('P').invert=!MS('P').invert;renderPanels();on('rule');toast(MS('P').invert?'Plinth inverted: mass ↔ void':'Plinth not inverted');};$('#bObj').onclick=doObj;$('#bObj2').onclick=doObj;
+$('#bMeet').onclick=meetTarget;$('#bSave').onclick=svSave;$('#svName').addEventListener('keydown',e=>{if(e.key==='Enter')svSave();});$('#bLoad').onclick=()=>$('#fSettings').click();
+// a loaded file is applied and added to the saved list, under its own name (or the file's)
+$('#fSettings').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{let o;try{o=JSON.parse(t);}catch(err){return toast('Could not read that file');}
+  if(!loadSettings(o))return;const name=(o.name||f.name.replace(/\.json$/i,'').replace(/_/g,' ')).trim();const all=svAll();all[name]={...o,name,saved:o.saved||new Date().toISOString()};svPut(all);svRender();});e.target.value='';};
+svRender();
+$('#fPodium').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{const o=JSON.parse(t);const shp=o.shapes||(o.S&&o.S.shapes);if(!Array.isArray(shp))throw 0;LOADED=shp;cfg.plinth.src='json';renderPanels();rebuildAll();toast(`Loaded ${shp.length} shapes from the Podium Lab`);}catch(err){toast('Not a Podium Lab JSON (needs “shapes”)');}});e.target.value='';};
+$('#bFit').onclick=()=>sheetFit();
+$('#bPng').onclick=()=>SH.cv.toBlob(b=>b&&download('yiwu_elevation_sheet.png',b));
+$('#vTone').onchange=()=>on('draw');$('#vFloors').onchange=drawSheet;$('#vCurves').onchange=drawSheet;
+$('#vPaint').onchange=()=>{cfg.paint.on=$('#vPaint').checked;syncPaint();renderPanels();if(cfg.paint.on)toast('Paint: drag over any face · Shift lowers · right-drag pans');};
+$('#axCurves').onchange=axoBuild;$('#axGhost').onchange=axoBuild;
+addEventListener('keydown',e=>{if(e.target.closest('input,select,textarea'))return;const k=e.key.toLowerCase();
+  if(e.key===' '){e.preventDefault();$('#bGrow').click();}else if(k==='r')reseedAll(true);else if(k==='n')$('#bNew').click();else if(k==='m')$('#bMut').click();else if(k==='b')buildMassing();else if(k==='i')$('#bInv').click();else if(k==='p')$('#bInvP').click();else if(k==='f'||e.key==='Escape')sheetFit();});
+new ResizeObserver(()=>{SH.fitted=false;drawSheet();drawGradPrev();}).observe($('#elevWrap'));
+
+// base settings (base_settings.json, embedded by build.py): applied before the first growth, and by Reset to base settings
+const BASE=(()=>{try{return JSON.parse($('#base').textContent);}catch(e){return null;}})();
+function applyBase(){if(!BASE||BASE.format!=='yiwu-elevation-growth/1')return false;const o=JSON.parse(JSON.stringify(BASE));resetCfg();deepAssign(cfg,migrateCfg(o.cfg||{}));applyUI(o.ui);
+  for(const k in GEN)delete GEN[k];Object.assign(GEN,o.genomes||{});for(const k in PAINT)delete PAINT[k];for(const k in(o.paint||{})){const p=unpackPaint(o.paint[k]);if(p)PAINT[k]=p;}return true;}
+applyBase();
+if(BASE)$('#bBase').onclick=()=>{if(!confirm(`Reset every setting, genome and painted density to the base settings “${BASE.name||'base'}”?`))return;applyBase();syncPaint();renderPanels();rebuildAll();toast(`Reset to “${BASE.name||'base settings'}”`);};else $('#bBase').disabled=true;
+buildMasses();layoutSheet();renderPanels();$('#plSum').textContent=MASSES.length+' masses';
+setTimeout(()=>{setView('split');syncPaint();reseedAll(true);},30);
+window.__EG={cfg,MASSES:()=>MASSES,FACES,buildMassing,reseedAll,DG,exOBJ,renderPanels,regFigures,snapFig,floorLevels,orthoRing};
+})();
+</script>
+</body></html>
