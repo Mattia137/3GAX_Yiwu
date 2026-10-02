@@ -1,7 +1,7 @@
-"""Build `Yiwu Elevation Growth Lab.html` from app_template.html.
+"""Build `index.html` (Yiwu Elevation Growth Lab) from src/app_template.html.
 
-Reads the site lines and the atlas figure library from `Yiwu Podium Lab.html`, and the twelve
-figure-ground plates from `Yiwu Urban Fabric Atlas.html`, and writes them into the template as one
+Reads the site lines and the atlas figure library from `src/podium_lab.html`, and the twelve
+figure-ground plates from `src/urban_fabric_atlas.html`, and writes them into the template as one
 JSON block. Run from anywhere:  python build.py
 """
 import json
@@ -9,11 +9,12 @@ import re
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-OUT = HERE / "Yiwu Elevation Growth Lab.html"
+SRC = HERE / "src"
+OUT = HERE / "index.html"   # published page (GitHub Pages: assembly_system/index.html)
 
 
 def source(name):
-    return (HERE / name).read_text(encoding="utf8")
+    return (SRC / name).read_text(encoding="utf8")
 
 
 def block(html, el_id):
@@ -35,8 +36,8 @@ def path_rings(d, flip_h=None):
 
 
 def main():
-    pod = block(source("Yiwu Podium Lab.html"), "site-data")
-    atlas = block(source("Yiwu Urban Fabric Atlas.html"), "atlas-data")
+    pod = block(source("podium_lab.html"), "site-data")
+    atlas = block(source("urban_fabric_atlas.html"), "atlas-data")
 
     names = {
         "village": "Village cluster", "siceng": "Si Ceng Ban field", "resettle": "Resettlement rows",
@@ -55,11 +56,11 @@ def main():
         "fabric": fabric,
     }
     js = json.dumps(data, separators=(",", ":"), ensure_ascii=False)
-    tpl = (HERE / "app_template.html").read_text(encoding="utf8")
+    tpl = (SRC / "app_template.html").read_text(encoding="utf8")
     out = tpl.replace("/*__DATA__*/{}", js)
     assert out != tpl, "data marker missing from template"
     # base settings: the page starts from these (every setting, genome and painted density), if the file is here
-    base = HERE / "base_settings.json"
+    base = SRC / "base_settings.json"
     if base.exists():
         bjs = json.dumps(json.loads(base.read_text(encoding="utf8")), separators=(",", ":"), ensure_ascii=False)
         out = out.replace("/*__BASE__*/null", bjs)

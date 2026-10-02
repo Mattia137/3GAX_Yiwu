@@ -1,6 +1,5 @@
 @echo off
-rem Yiwu Elevation Growth Lab: rebuild the page from the template (if Python is available), then open it.
-rem Opened from disk, it shares the Podium Lab's saved state when both are opened in the same browser.
+rem Yiwu Elevation Growth Lab: rebuild index.html from src\ (if Python is available), then open it.
 cd /d "%~dp0"
 where python >nul 2>nul
 if %errorlevel%==0 (
@@ -9,4 +8,4 @@ if %errorlevel%==0 (
 ) else (
   echo Python not found - opening the last built page.
 )
-start "" "%~dp0Yiwu Elevation Growth Lab.html"
+start "" "%~dp0index.html"
